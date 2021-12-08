@@ -1,5 +1,8 @@
 const Discord = require('discord.js');
 const fs = require('fs');
+const { array } = require('zod');
+const guild = require('./functions/guildInfo.js');
+
 require('dotenv').config();
 
 const options = {
@@ -23,43 +26,79 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
-let isReady = false;
+/**
+ * @type {Array<guild.GuildInformation>}
+ */
+let guildInformation = [];
+
+/**
+ * @type {Array<string>}
+ */
+let guildList = [];
 
 client.on('ready', () =>{
     console.log(`登入成功: ${client.user.tag} 於 ${new Date()}`);
     client.user.setActivity('/help'/*, { type: 'PLAYING' }*/);
 
     
+    fs.readFile("./data/guildData/guildlist.json", (err,word) => {
+        if(err) throw err;
+        var parseJsonlist = JSON.parse(word);
+        parseJsonlist.forEach(element => {
+            guildList.push(element);
+        });
+        guildList.sort((a, b) => a - b);
+        guildList.forEach(async (element) => {
+            const filename = `./data/guildData/${element}.json`;
+            fs.readFile(filename, async (err, text) => {
+                if (err)
+                    throw err;
+                console.log(element);
+                const targetGuild = await client.guilds.fetch(JSON.parse(text).id);
+                guildInformation.push(
+                    await guild.GuildInformation.toGuildInformation(JSON.parse(text), targetGuild)
+                );
+            });
+        });
+    });
+    
     setTimeout(() => {
         console.log(`設定成功: ${new Date()}`);
+        //TODO: 除錯用資料傳送處理
         /*
         client.channels.fetch(process.env.CHECK_CH_ID).then(channel => channel.send(`登入成功: <t:${Math.floor(client.readyTimestamp / 1000)}:F>`));
         if(client.user.id !== process.env.BOT_ID_ACIDTEST)
             client.channels.fetch(process.env.CHECK_CH_ID2).then(channel => channel.send(`登入成功: <t:${Math.floor(client.readyTimestamp / 1000)}:F>`));
         */
-        isReady = true;
     }, parseInt(process.env.LOADTIME) * 1000);
     
 });
 //#endregion
 
 client.on('interactionCreate', async interaction => {
-    if(!isReady) return;
+    if(!client.isReady()) return;
 
     if(!interaction.guild && interaction.isCommand()) return interaction.reply("無法在私訊中使用斜線指令!");
 
-    /*
+    
     //伺服器資料建立&更新
-    if(!guildInformation.has(interaction.guild.id)){
+    if(!guildInformation.find(element => element.id === interaction.guild.id)){
         const thisGI = new guild.GuildInformation(interaction.guild, []);
-        guildInformation.addGuild(thisGI);
+        guildInformation.push(thisGI);
+        guildList.push(interaction.guild.id)
         console.log(`${client.user.tag} 加入了 ${interaction.guild.name} (${interaction.guild.id}) (缺少伺服器資料觸發/interaction)`);
+        //TODO: 除錯用資料傳送處理
+        /*
         client.channels.fetch(process.env.CHECK_CH_ID).then(channel => 
             channel.send(`${client.user.tag} 加入了 **${interaction.guild.name}** (${interaction.guild.id}) (缺少伺服器資料觸發/interaction)`)
         );
+        */
     }
-    guildInformation.updateGuild(interaction.guild);
-    */
+    const element = guildInformation.find((element) => element.id === interaction.guild.id);
+    element.name = interaction.guild.name;
+    if(!element.joinedAt) element.joinedAt = new Date(Date.now());
+    element.recordAt = new Date(Date.now());
+    
     if (!interaction.isCommand()) return;
     if(!interaction.channel.permissionsFor(client.user).has(Discord.Permissions.FLAGS.SEND_MESSAGES) || 
         !interaction.channel.permissionsFor(client.user).has(Discord.Permissions.FLAGS.ADD_REACTIONS))
@@ -76,7 +115,7 @@ client.on('interactionCreate', async interaction => {
 
 	try {
         if(command.tag === "interaction") await command.execute(interaction);
-		//if(command.tag === "guildInfo") await command.execute(interaction, guildInformation.getGuild(interaction.guild.id));
+		if(command.tag === "guildInfo") await command.execute(interaction, guildInformation.find(element => element.id === interaction.guild.id));
 		//if(command.tag === "musicList") await command.execute(interaction, musicList.get(interaction.guild.id));
 
 	} catch (error) {

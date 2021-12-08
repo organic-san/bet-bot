@@ -1,0 +1,41 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Discord = require('discord.js');
+
+module.exports = {
+	data: new SlashCommandBuilder()
+		.setName('bet')
+        .setDescription('下注')
+        .addSubcommand(opt =>
+            opt.setName('down')
+            .setDescription('下注')
+        ).addSubcommand(opt =>
+            opt.setName('show')
+            .setDescription('顯示目前的下注情形')
+        ).addSubcommand(opt =>
+            opt.setName('set-up')
+            .setDescription('設定賭盤(由管理員操控)')
+        ).addSubcommand(opt =>
+            opt.setName('close')
+            .setDescription('關閉賭盤(由管理員操控)')
+        ).addSubcommand(opt =>
+            opt.setName('drow')
+            .setDescription('開盤(由管理員操控)')
+        ),
+    tag: "guildInfo",
+
+    /**
+     * 
+     * @param {Discord.CommandInteraction} interaction 
+     */
+	async execute(interaction) {
+        if (interaction.options.getSubcommand() === 'bot') {
+            
+
+        } else if(interaction.options.getSubcommand() === 'guild') {
+            
+            
+        } else if(interaction.options.getSubcommand() === 'user') {
+            
+        }
+	},
+};
