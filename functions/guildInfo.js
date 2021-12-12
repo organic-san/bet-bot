@@ -1,89 +1,5 @@
 const Discord = require('discord.js');
 
-class GuildInformationArray {
-    /**
-     * 
-     * @param {Array<GuildInformation>} guildInfoList 傳入伺服器資訊陣列或空陣列
-     * @param {Array<string>} guildList 伺服器ID陣列
-     */
-    constructor(guildInfoList, guildList) {
-        this.guilds = guildInfoList;
-        this.guildList = guildList;
-    }
-
-    get lastGuild () {
-        return this.guilds[this.guilds.length - 1];
-    }
-
-    /**
-     * 
-     * @param {GuildInformation} info 伺服器資訊
-     */
-    pushGuildInfo(info) {
-        this.guilds.push(info);
-    }
-
-    /**
-     * 
-     * @param {string} list 
-     */
-    pushGuildList(list) {
-        if(!this.guildList.includes(list))
-            this.guildList.push(list);
-    }
-
-    sortGuildList() {
-        this.guildList.sort((a, b) => { return a - b; });
-    }
-
-    /**
-     * 
-     * @param {string} guildId GuildId
-     * @returns hasGuildId?
-     */
-    has(guildId) {
-        return this.guildList.includes(guildId);
-    }
-
-    /**
-     * 
-     * @param {GuildInformation} guildUnit 
-     */
-    addGuild(guildUnit) {
-        this.guilds.push(guildUnit);
-        this.guildList.push(guildUnit.id);
-    }
-
-    removeGuild(guildId) {
-        var posl = this.guildList.indexOf(guildId);
-        this.guildList.splice(posl, 1);
-        var posg = this.guilds.findIndex((element) => element.id === guildId);
-        this.guilds.splice(posg, 1);
-    }
-
-    /**
-     * 
-     * @param {String} guildId 伺服器ID
-     * @returns 伺服器資訊
-     */
-    getGuild(guildId){
-        return this.guilds.find((element) => element.id === guildId);
-    }
-
-    /**
-     * 
-     * @param {Discord.Guild} guild 
-     */
-    updateGuild(guild) {
-        const element = this.guilds.find((element) => element.id === guild.id);
-        element.name = guild.name;
-        if(!element.joinedAt) element.joinedAt = new Date(Date.now());
-        element.recordAt = new Date(Date.now());
-    }
-
-}
-
-
 class GuildInformation {
 
     /**
@@ -96,6 +12,7 @@ class GuildInformation {
         this.name = guild.name;
         this.joinedAt = new Date(Date.now());
         this.recordAt = new Date(Date.now());
+        this.betInfo = new BetGameObject('undefined', 0, 'nothing', [], 0, 0, [])
         this.users = users;
     }
 
@@ -116,6 +33,30 @@ class GuildInformation {
             newUser.lastAwardTime = user.lastAwardTime ?? Date.now();
             newGI.users.push(newUser);
         })
+
+        newGI.betInfo.isPlaying = obj.betInfo.isPlaying ?? 0;
+        newGI.betInfo.count = obj.betInfo.count ?? 0;
+        newGI.betInfo.id = obj.betInfo.id ?? 0;
+        newGI.betInfo.name = obj.betInfo.name ?? 'undefined';
+        newGI.betInfo.description = obj.betInfo.description ?? 'nothing';
+        newGI.betInfo.totalBet = obj.betInfo.totalBet ?? 0;
+        obj.betInfo.option.forEach(option => {
+            const newBetOpt = new BetGameOptionObject(1, 'undefined', 'nothing');
+            newBetOpt.id = option.id ?? 0;
+            newBetOpt.name = option.name ?? 'undefiend';
+            newBetOpt.description = option.description ?? 'nothing';
+            newBetOpt.betCount = option.betCount ?? 0;
+            newGI.betInfo.option.push(newBetOpt);
+        })
+        obj.betInfo.betRecord.forEach(element => {
+            const newRC = new BetGameResultObject("0", 0, "0");
+            newRC.userId = element.userId;
+            newRC.coins = element.coins;
+            newRC.time = element.time;
+            newRC.optionId = element.optionId;
+            newGI.betInfo.betRecord.push(newRC);
+        })
+        
         return newGI;
     }
 
@@ -142,9 +83,15 @@ class GuildInformation {
         return target ? true : false;
     }
 
+    /**
+     * 
+     * @param {User} userUnit 
+     */
     addUser(userUnit) {
         this.users.push(userUnit);
     }
+
+    
 }
 
 class User {
@@ -159,10 +106,81 @@ class User {
         this.tag = userTag;
         this.DM = true;
         this.coins = 100;
+        this.lastAwardTime = 0;
     }
+
+}
+
+class BetGameObject {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} id 
+     * @param {String} description 
+     * @param {Array<BetGameOptionObject>} option 
+     * @param {Number} isPlaying
+     * @param {Number} count
+     * @param {Array<BetGameResultObject>} betRecord
+     */    
+    constructor(name, id, description, option, isPlaying, count, betRecord) {
+        this.isPlaying = isPlaying;
+        this.count = count;
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.option = option;
+        this.betRecord = betRecord;
+        this.totalBet = 0;
+    }
+}
+
+class BetGameOptionObject {
+
+    /**
+     * 
+     * @param {String} id 
+     * @param {String} name 
+     * @param {String} description 
+     */
+    constructor(id, name, description) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.betCount = 0;
+    }
+}
+
+class BetGameResultObject {
+
+    /**
+     * 
+     * @param {String} userId 
+     * @param {Number} coins 
+     * @param {String} optionId 
+     */
+    constructor(userId, coins, optionId) {
+        this.userId = userId;
+        this.time = Date.now();
+        this.coins = coins;
+        this.optionId = optionId;
+    }
+}
+
+class BetRecordObject {
+
+}
+
+class BetUserRecordObject {
 
 }
 
 module.exports.User = User;
 module.exports.GuildInformation = GuildInformation;
-module.exports.GuildInformationArray = GuildInformationArray;
+
+module.exports.betGameObject = BetGameObject;
+module.exports.betGameOptionObject = BetGameOptionObject;
+module.exports.betGameResultObject = BetGameResultObject;
+
+module.exports.betRecordObject = BetRecordObject;
+module.exports.betUserRecordObject = BetUserRecordObject;

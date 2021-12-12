@@ -1,14 +1,15 @@
 {
     "id": "2021-01",
     "name": "有馬記念",
-    "item": [
+    "description": "descriptiontest",
+    "option": [
         {
-            "id": "01",
+            "id": "1",
             "name": "test01",
             "description": "test01description"
         },
         {
-            "id": "02",
+            "id": "2",
             "name": "test02",
             "description": "test02description"
         }
