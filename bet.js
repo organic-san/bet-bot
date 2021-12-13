@@ -36,6 +36,8 @@ let guildInformation = [];
  */
 let guildList = [];
 
+let isready = false;
+
 client.on('ready', () =>{
     console.log(`登入成功: ${client.user.tag} 於 ${new Date()}`);
     client.user.setActivity('/help'/*, { type: 'PLAYING' }*/);
@@ -70,6 +72,7 @@ client.on('ready', () =>{
         if(client.user.id !== process.env.BOT_ID_ACIDTEST)
             client.channels.fetch(process.env.CHECK_CH_ID2).then(channel => channel.send(`登入成功: <t:${Math.floor(client.readyTimestamp / 1000)}:F>`));
         */
+        isready = true;
     }, parseInt(process.env.LOADTIME) * 1000);
 
     setInterval(() => {
@@ -78,7 +81,7 @@ client.on('ready', () =>{
                 console.log(err);
         });
         guildInformation.forEach(async (element) => {
-            const filename = `./data/guildData/${element}.json`;
+            const filename = `./data/guildData/${element.id}.json`;
             fs.writeFile(filename, JSON.stringify(element, null, '\t'),async function (err) {
                 if (err)
                     return console.log(err);
@@ -96,7 +99,7 @@ client.on('ready', () =>{
 //#endregion
 
 client.on('interactionCreate', async interaction => {
-    if(!client.isReady()) return;
+    if(!isready) return;
 
     if(!interaction.guild && interaction.isCommand()) return interaction.reply("無法在私訊中使用斜線指令!");
 
@@ -152,6 +155,10 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.on('messageCreate', async msg =>{
+    if(!isready) return;
+    if(!msg.guild || !msg.member) return; //訊息內不存在guild元素 = 非群組消息(私聊)
+    if(msg.webhookId) return;
+    
     if(msg.author.id === process.env.OWNER1_ID || msg.author.id === process.env.OWNER2_ID){
         if(msg.content.startsWith("bet^s")){
             fs.writeFile("./data/guildData/guildlist.json", JSON.stringify(guildList, null, '\t'), function (err){
