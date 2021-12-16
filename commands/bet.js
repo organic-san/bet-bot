@@ -57,16 +57,16 @@ module.exports = {
                         .addOptions(playRaseRowData),
                 );
             
-                const msg = await interaction.reply({content: "請選擇一個下注的對象。", components: [row], fetchReply: true});
+                const msg = await interaction.reply({content: "請選擇一個下注的對象。關於選項的說明請查看/bet info。", components: [row], fetchReply: true});
 
-                const filter = i => i.user.id === interaction.user.id;
-                const collector = msg.createMessageComponentCollector({filter, time: 60 * 1000 });
+                const collector = msg.createMessageComponentCollector({time: 60 * 1000 });
 
                 let target = "";
                 let money = 0;
                 let isMoneySet = false;
 
                 collector.on('collect', async i => {
+                    if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
                     if(!target) {
                         target = i.values[0];
                         const row = rowCreate(false);
@@ -160,7 +160,7 @@ module.exports = {
                 fs.readFile(`data/raseData/${fileName}`,async (err, text) => {
                     if (err)
                         throw err;
-                    defaultRaceData.push(JSON.parse(text));
+                    defaultRaceData[value] = JSON.parse(text);
                     defaultRaseRowData.push({
                         label: defaultRaceData[value].name,
                         value: value.toString(),
@@ -170,6 +170,7 @@ module.exports = {
             });
             
             let mode = "";
+            let chooseBetID = -1;
             const row = new Discord.MessageActionRow()
             .addComponents(
                 [
@@ -185,13 +186,16 @@ module.exports = {
             );
             const msg = await interaction.reply({content: "請選擇設定模式(尚未支援自行設定)", components: [row], fetchReply: true});
 
-            const filter = i => i.user.id === interaction.user.id;
-            const collector = msg.createMessageComponentCollector({filter, time: 60 * 1000 });
+            const collector = msg.createMessageComponentCollector({time: 60 * 1000 });
             
             collector.on('collect', async i => {
+                if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
                 if(!mode) {
                     mode = i.customId;
                     if(mode === "default"){
+                        if(raseFileName.length === 0) {
+                            i.update({content: "目前沒有可以選擇的預設模板。", components: [], fetchReply: true});
+                        }
                         collector.resetTimer({ time: 60 * 1000 });
                         const row = new Discord.MessageActionRow()
                         .addComponents(
@@ -209,35 +213,59 @@ module.exports = {
                     }
                 
                 } else if(mode === 'default') {
-                    //TODO: 選擇後顯示摩版內容，再讓使用者選擇是否開啟賭盤
-                    guildInformation.betInfo.count++;
-                    /**
-                     * @type {Array<guild.betGameOptionObject>}
-                     */
-                    let betOptions = [];
-                    defaultRaceData[i.values].option.forEach(element => {
-                        betOptions.push(
-                            new guild.betGameOptionObject(
-                                element.id,
-                                element.name,
-                                element.description
+                    if(chooseBetID === -1) {
+                        chooseBetID = i.values;
+                        collector.resetTimer({ time: 60 * 1000 });
+                        const embed = new Discord.MessageEmbed()
+                            .setColor(process.env.EMBEDCOLOR)
+                            .setTitle(`模板: ${defaultRaceData[i.values].name} 預覽`)
+                            .setDescription(defaultRaceData[i.values].description)
+                            .setTimestamp()
+                            .setFooter(`${interaction.client.user.id}`,interaction.client.user.displayAvatarURL({dynamic: true}));
+                        defaultRaceData[i.values].option.forEach(ele => {
+                            embed.addField(ele.name, ele.description);
+                        })
+                        const row = new Discord.MessageActionRow()
+                        .addComponents(
+                            [
+                                new Discord.MessageButton()
+                                    .setCustomId('promise')
+                                    .setLabel('確認開啟賭盤')
+                                    .setStyle('PRIMARY'),
+                            ]
+                        );
+                        i.update({content: "此為模板預覽，確認後請點擊下方按鈕以開啟賭盤。",embeds: [embed], components: [row], fetchReply: true})
+                    
+                    } else {
+                        guildInformation.betInfo.count++;
+                        /**
+                         * @type {Array<guild.betGameOptionObject>}
+                         */
+                        let betOptions = [];
+                        defaultRaceData[chooseBetID].option.forEach(element => {
+                            betOptions.push(
+                                new guild.betGameOptionObject(
+                                    element.id,
+                                    element.name,
+                                    element.description
+                                )
                             )
+                        })
+                        guildInformation.betInfo = new guild.betGameObject(
+                            defaultRaceData[chooseBetID].name,
+                            guildInformation.betInfo.count,
+                            defaultRaceData[chooseBetID].description,
+                            betOptions,
+                            1,
+                            guildInformation.betInfo.count,
+                            []
                         )
-                    })
-                    guildInformation.betInfo = new guild.betGameObject(
-                        defaultRaceData[i.values].name,
-                        guildInformation.betInfo.count,
-                        defaultRaceData[i.values].description,
-                        betOptions,
-                        1,
-                        guildInformation.betInfo.count,
-                        []
-                    )
-                    i.update({
-                        content: `設定完成。已將賭盤設為 ${defaultRaceData[i.values].name}。從現在開始所有用戶可以下注。`, 
-                        components: []
-                    });
-                    collector.stop("set");
+                        i.update({
+                            content: `設定完成。已將賭盤設為 ${defaultRaceData[chooseBetID].name}。從現在開始所有用戶可以下注。`, 
+                            components: []
+                        });
+                        collector.stop("set");
+                    }
                 }
             });
 
@@ -266,10 +294,10 @@ module.exports = {
             );
             const msg = await interaction.reply({content: "確定封盤?請點選下方按鈕確認。", components: [row], fetchReply: true});
 
-            const filter = i => i.user.id === interaction.user.id;
-            const collector = msg.createMessageComponentCollector({filter, time: 60 * 1000 });
+            const collector = msg.createMessageComponentCollector({time: 60 * 1000 });
             
             collector.on('collect', async i => {
+                if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
                 guildInformation.betInfo.isPlaying = 2;
                 i.update({
                     content: `封盤完成。`, 
@@ -293,12 +321,6 @@ module.exports = {
             //TODO: 回發部分
 
         } else if(interaction.options.getSubcommand() === 'setting') {
-            if(guildInformation.betInfo.isPlaying === 0) 
-                return interaction.reply({content: "目前並未舉行賭盤。", ephemeral: true});
-
-            if(guildInformation.betInfo.betRecord.length === 0) 
-                return interaction.reply({content: "本次賭盤尚未有投注紀錄。", ephemeral: true});
-
 
             const row = new Discord.MessageActionRow()
             .addComponents(
@@ -309,15 +331,7 @@ module.exports = {
                         .setStyle('PRIMARY'),
                     new Discord.MessageButton()
                         .setCustomId('reset')
-                        .setLabel('清除所有(包含過往)投注紀錄與持有金錢')
-                        .setStyle('PRIMARY'),
-                        new Discord.MessageButton()
-                        .setCustomId('give')
-                        .setLabel('發放特定用戶coin(s)')
-                        .setStyle('PRIMARY'),
-                    new Discord.MessageButton()
-                        .setCustomId('take')
-                        .setLabel('回收特定用戶coin(s)')
+                        .setLabel('重置所有人的coins')
                         .setStyle('PRIMARY'),
                 ]
             );
@@ -327,15 +341,21 @@ module.exports = {
                 fetchReply: true
             });
 
-            const filter = i => i.user.id === interaction.user.id;
-            const collector = msg.createMessageComponentCollector({filter, time: 60 * 1000 });
+            const collector = msg.createMessageComponentCollector({time: 60 * 1000 });
             let optionChoose = "";
 
             collector.on('collect', async i => {
+                if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
                 if(!optionChoose) {
                     optionChoose = i.customId;
 
                     if(optionChoose === "all") {
+                        if(guildInformation.betInfo.isPlaying === 0) 
+                            return interaction.reply({content: "目前並未舉行賭盤。", ephemeral: true});
+
+                        if(guildInformation.betInfo.betRecord.length === 0) 
+                            return interaction.reply({content: "本次賭盤尚未有投注紀錄。", ephemeral: true});
+
                         const row = new Discord.MessageActionRow()
                         .addComponents(
                             [
@@ -351,6 +371,9 @@ module.exports = {
                             fetchReply: true
                         });
                     } else if(optionChoose === 'reset') {
+                        if(guildInformation.betInfo.isPlaying !== 0) 
+                            return interaction.reply({content: "請先關閉當前賭盤再執行本操作。", ephemeral: true});
+
                         const row = new Discord.MessageActionRow()
                         .addComponents(
                             [
@@ -361,12 +384,12 @@ module.exports = {
                             ]
                         );
                         i.update({
-                            content: "即將刪除所有紀錄，包含過往紀錄與持有金錢等，**無法反悔**。確認刪除?請點選下方按鈕確認。", 
+                            content: "即將重置所有人的coin，此操作無法反悔。確認刪除?請點選下方按鈕確認。", 
                             components: [row], 
                             fetchReply: true
                         });
                     }
-                    //TODO: 其他設定項
+                    
                 } else if(optionChoose === "all") {
                     i.update({
                         content: `即將顯示所有下注紀錄。`, 
@@ -399,14 +422,14 @@ module.exports = {
                         await interaction.channel.send({embeds: [embed]});
                     }
                     collector.stop("set");
+
                 } else if(optionChoose === 'reset') {
-                    guildInformation.betInfo = new guild.betGameObject('undefined', 0, 'nothing', [], 0, 0, []);
                     for(let i = 0; i < guildInformation.users.length; i++) {
                         guildInformation.users[i].coins = 100;
                         guildInformation.users[i].lastAwardTime = 0;
                     }
                     i.update({
-                        content: `已刪除所有資訊。`, 
+                        content: `已重置所有人的持有coins。`, 
                         components: []
                     });
                     collector.stop("set");

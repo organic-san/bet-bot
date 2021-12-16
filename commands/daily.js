@@ -30,9 +30,6 @@ module.exports = {
                 ephemeral: true 
             });
         } else {
-            console.log(user.lastAwardTime);
-            console.log(Date.now() - user.lastAwardTime);
-            console.log(guildInformation);
             await interaction.reply({ 
                 content: `距離上次獲得獎勵還沒超過${awardCooldownHour}小時! \n` + 
                     `預計於 <t:${Math.floor((user.lastAwardTime + awardCooldown * 1000) / 1000)}:F> 時可再度領取每日獎勵。`, 

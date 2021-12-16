@@ -1,17 +1,27 @@
 {
     "id": "2021-01",
-    "name": "有馬記念",
-    "description": "descriptiontest",
+    "name": "簡易賭盤",
+    "description": "比較鬱金香與玫瑰的下注數量，誰比較少，就開誰。\n如果平手或(1-較多賭金選項/較少賭金選項)<1%，就開向日葵。\n蒲公英為贊助用。",
     "option": [
         {
             "id": "1",
-            "name": "test01",
-            "description": "test01description"
+            "name": "鬱金香",
+            "description": "如果此選項比玫瑰少，就開這個選項"
         },
         {
             "id": "2",
-            "name": "test02",
-            "description": "test02description"
+            "name": "玫瑰",
+            "description": "如果此選項比鬱金香少，就開這個選項"
+        },
+        {
+            "id": "3",
+            "name": "向日葵",
+            "description": "如果兩者相差不到1%，就開這個選項"
+        },
+        {
+            "id": "4",
+            "name": "蒲公英",
+            "description": "純贊助用"
         }
     ]
 }
