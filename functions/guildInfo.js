@@ -13,6 +13,10 @@ class GuildInformation {
         this.joinedAt = new Date(Date.now());
         this.recordAt = new Date(Date.now());
         this.betInfo = new BetGameObject('undefined', 0, 'nothing', [], 0, 0, [])
+        /**
+         * @type {Array<BetRecordObject>}
+         */
+        this.betRecord = [];
         this.users = users;
     }
 
@@ -30,9 +34,12 @@ class GuildInformation {
             const newUser = new User(user.id ?? 0, user.tag ?? "undefined#0000");
             newUser.DM = user.DM ?? true;
             newUser.coins = user.coins ?? 100;
+            newUser.totalBet = user.totalBet ?? 0;
+            newUser.totalGet = user.totalGet ?? 0;
+            newUser.joinTimes = user.joinTimes ?? 0;
             newUser.lastAwardTime = user.lastAwardTime ?? Date.now();
             newGI.users.push(newUser);
-        })
+        });
 
         newGI.betInfo.isPlaying = obj.betInfo.isPlaying ?? 0;
         newGI.betInfo.count = obj.betInfo.count ?? 0;
@@ -41,21 +48,44 @@ class GuildInformation {
         newGI.betInfo.description = obj.betInfo.description ?? 'nothing';
         newGI.betInfo.totalBet = obj.betInfo.totalBet ?? 0;
         obj.betInfo.option.forEach(option => {
-            const newBetOpt = new BetGameOptionObject(1, 'undefined', 'nothing');
+            const newBetOpt = new BetGameOptionObject(0, 'undefined', 'nothing');
             newBetOpt.id = option.id ?? 0;
             newBetOpt.name = option.name ?? 'undefiend';
             newBetOpt.description = option.description ?? 'nothing';
             newBetOpt.betCount = option.betCount ?? 0;
             newGI.betInfo.option.push(newBetOpt);
-        })
+        });
         obj.betInfo.betRecord.forEach(element => {
             const newRC = new BetGameResultObject("0", 0, "0");
             newRC.userId = element.userId;
             newRC.coins = element.coins;
+            newRC.totalBet = element.totalBet ?? 0;
+            newRC.totalGet = element.totalGet ?? 0;
+            newRC.joinTimes = element.joinTimes ?? 0;
             newRC.time = element.time;
             newRC.optionId = element.optionId;
             newGI.betInfo.betRecord.push(newRC);
-        })
+        });
+        obj.betRecord.forEach(element => {
+            const newRC = new BetRecordObject('undefined', 0, 'nothing', [], new BetGameOptionObject('0', 'undefined', 'nothing'));
+            newRC.id = element.id ?? 0;
+            newRC.name = element.name ?? 'undefined';
+            newRC.description = element.description ?? 'nothing';
+            newRC.totalBet = element.totalBet ?? 0;
+            newRC.winner.id = element.winner.id;
+            newRC.winner.name = element.winner.name;
+            newRC.winner.description = element.winner.description;
+            newRC.winner.describetCountption = element.winner.betCount;
+            element.option.forEach(eleopt => {
+                const newOPT = new BetGameOptionObject('0', 'undefined', 'nothing')
+                newOPT.id = eleopt.id;
+                newOPT.description = eleopt.description;
+                newOPT.name = eleopt.name;
+                newOPT.betCount = eleopt.betCount;
+                newRC.option.push(newOPT);
+            })
+            newGI.betRecord.push(newRC);
+        });
         
         return newGI;
     }
@@ -106,6 +136,9 @@ class User {
         this.tag = userTag;
         this.DM = true;
         this.coins = 100;
+        this.totalBet = 0;
+        this.totalGet = 0;
+        this.joinTimes = 0;
         this.lastAwardTime = 0;
     }
 
@@ -168,12 +201,24 @@ class BetGameResultObject {
 }
 
 class BetRecordObject {
-
+    /**
+         * 
+         * @param {String} name 
+         * @param {Number} id 
+         * @param {String} description 
+         * @param {Array<BetGameOptionObject>} option 
+         * @param {BetGameOptionObject} winner 
+         */    
+    constructor(name, id, description, option, winner) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.option = option;
+        this.totalBet = 0;
+        this.winner = winner;
+    }
 }
 
-class BetUserRecordObject {
-
-}
 
 module.exports.User = User;
 module.exports.GuildInformation = GuildInformation;
@@ -183,4 +228,3 @@ module.exports.betGameOptionObject = BetGameOptionObject;
 module.exports.betGameResultObject = BetGameResultObject;
 
 module.exports.betRecordObject = BetRecordObject;
-module.exports.betUserRecordObject = BetUserRecordObject;

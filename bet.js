@@ -47,6 +47,7 @@ client.on('ready', () =>{
         if(err) throw err;
         var parseJsonlist = JSON.parse(word);
         parseJsonlist.forEach(element => {
+            if(guildList.includes(element)) return;
             guildList.push(element);
         });
         guildList.sort((a, b) => a - b);
