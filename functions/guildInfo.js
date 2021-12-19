@@ -75,7 +75,7 @@ class GuildInformation {
             newRC.winner.id = element.winner.id;
             newRC.winner.name = element.winner.name;
             newRC.winner.description = element.winner.description;
-            newRC.winner.describetCountption = element.winner.betCount;
+            newRC.winner.betCount = element.winner.betCount;
             element.option.forEach(eleopt => {
                 const newOPT = new BetGameOptionObject('0', 'undefined', 'nothing')
                 newOPT.id = eleopt.id;
