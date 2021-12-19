@@ -25,7 +25,7 @@ module.exports = {
             .setDescription('開盤(由管理員操控)')
         ).addSubcommand(opt =>
             opt.setName('setting')
-            .setDescription('其他細節設定(顯示所有投注紀錄、重設所有紀錄、指定分發/回收coins)(由管理員操控)')
+            .setDescription('其他細節設定(顯示所有投注紀錄、重設所有紀錄、顯示上次紀錄)(由管理員操控)')
         ),
     tag: "guildInfo",
 
@@ -80,7 +80,6 @@ module.exports = {
                         });
                         collector.resetTimer({ time: 180 * 1000 });
                     } else if (!isMoneySet) {
-                        collector.resetTimer({ time: 180 * 1000 });
                         if(i.customId === 'delete') {
                             money = Math.floor(money / 10);
                         } else if(i.customId === 'complete') {
@@ -215,6 +214,7 @@ module.exports = {
                     if(mode === "default"){
                         if(raseFileName.length === 0) {
                             i.update({content: "目前沒有可以選擇的預設模板。", components: [], fetchReply: true});
+                            collector.stop('set');
                         }
                         collector.resetTimer({ time: 120 * 1000 });
                         const row = new Discord.MessageActionRow()
@@ -229,9 +229,9 @@ module.exports = {
 
                     } else if(mode === "custom") {
                         i.update({content: "目前並不支援此設定模式。", components: [], fetchReply: true});
+                        collector.stop('set');
                         //TODO: 自行設定賭盤
                     }
-                
                 } else if(mode === 'default') {
                     if(chooseBetID === -1) {
                         chooseBetID = i.values;
@@ -257,7 +257,8 @@ module.exports = {
                         i.update({content: "此為模板預覽，確認後請點擊下方按鈕以開啟賭盤。",embeds: [embed], components: [row], fetchReply: true})
                     
                     } else {
-                        if(guildInformation.betInfo.isPlaying !== 1) {
+                        if(guildInformation.betInfo.isPlaying !== 0) {
+                            collector.stop('set');
                             return i.update({
                                 content: `已經有其他賭盤正在執行，無法開啟賭盤。`, 
                                 embeds: [],
@@ -288,7 +289,7 @@ module.exports = {
                             []
                         )
                         i.update({
-                            content: `設定完成。已將賭盤設為 ${defaultRaceData[chooseBetID].name}。從現在開始所有用戶可以下注。`,
+                            content: `設定完成。已將賭盤設為「${defaultRaceData[chooseBetID].name}」。從現在開始所有用戶可以下注。`,
                             embeds: [],
                             components: []
                         });
@@ -345,15 +346,14 @@ module.exports = {
 
         } else if(interaction.options.getSubcommand() === 'result') {
             if(guildInformation.betInfo.isPlaying != 2) 
-                return interaction.reply({content: "找不到目前能開盤的賭盤。", ephemeral: true});
+                return interaction.reply({content: "找不到目前能開盤的賭盤。如果要開盤，請先封盤。", ephemeral: true});
             
             let optionData = [];
             guildInformation.betInfo.option.forEach(option => {
                 optionData.push({
                     label: option.name,
                     value: option.id,
-                    description: `累計賭金: ${option.betCount} coin(s) ` + 
-                        `賠率: ${option.betCount>0 ? Math.floor((guildInformation.betInfo.totalBet / option.betCount) * 10) / 10 : "尚無法計算賠率"}`
+                    description: option.description
                 });
             })
             optionData.push({
@@ -392,9 +392,17 @@ module.exports = {
                         content: `目前要開盤的選項為: ${targetData.name}。確認選項無誤，請按下下方按鈕。`, 
                         components: [row]
                     });
-                    collector.resetTimer({ time: 180 * 1000 });
+                    collector.resetTimer({ time: 120 * 1000 });
 
                 } else {
+                    if(guildInformation.betInfo.isPlaying !== 2) {
+                        collector.stop('set');
+                        return i.update({
+                            content: `本次賭盤已由其他人關閉。`,
+                            embeds: [],
+                            components: []
+                        });
+                    }
                     if(target === "cancel") {
                         let rebackList = new Map();
                         guildInformation.betInfo.betRecord.forEach(element => {
@@ -425,12 +433,13 @@ module.exports = {
 				                "betCount": 0
                             },
                         ))
+                        collector.stop('set');
                         
                     } else {
                         let rebackList = new Map();
                         const winOption = guildInformation.betInfo.option.find(element => element.id === target);
                         guildInformation.betInfo.betRecord.forEach(element => {
-                            if(element.id !== winOption.id) return;
+                            if(element.optionId !== winOption.id) return;
                             let coinGet = Math.floor(element.coins * (Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10) / 10));
                             guildInformation.getUser(element.userId).coins += coinGet;
                             guildInformation.getUser(element.userId).totalGet += coinGet;
@@ -455,6 +464,7 @@ module.exports = {
                             guildInformation.betInfo.option,
                             winOption,
                         ))
+                        collector.stop('set');
                     }
                 }
             });
@@ -476,6 +486,10 @@ module.exports = {
                     new Discord.MessageButton()
                         .setCustomId('all')
                         .setLabel('顯示所有投注紀錄')
+                        .setStyle('PRIMARY'),
+                    new Discord.MessageButton()
+                        .setCustomId('result')
+                        .setLabel('顯示上次賭盤的所有下注結果')
                         .setStyle('PRIMARY'),
                     new Discord.MessageButton()
                         .setCustomId('reset')
@@ -518,7 +532,29 @@ module.exports = {
                             components: [row], 
                             fetchReply: true
                         });
+                        collector.resetTimer({ time: 120 * 1000 });
+
+                    }else if(optionChoose === "result") {
+                        if(guildInformation.betInfo.isPlaying !== 0) 
+                            return interaction.reply({content: "賭盤正進行中，尚未產生結果。", ephemeral: true});
+
+                        const row = new Discord.MessageActionRow()
+                        .addComponents(
+                            [
+                                new Discord.MessageButton()
+                                    .setCustomId('promise')
+                                    .setLabel('確認顯示')
+                                    .setStyle('PRIMARY'),
+                            ]
+                        );
+                        i.update({
+                            content: "即將顯示所有下注紀錄，內容可能會造成洗版。確認顯示?請點選下方按鈕確認。", 
+                            components: [row], 
+                            fetchReply: true
+                        });
+                        collector.resetTimer({ time: 120 * 1000 });
                     } else if(optionChoose === 'reset') {
+
                         if(guildInformation.betInfo.isPlaying !== 0) 
                             return interaction.reply({content: "請先關閉當前賭盤再執行本操作。", ephemeral: true});
 
@@ -536,6 +572,7 @@ module.exports = {
                             components: [row], 
                             fetchReply: true
                         });
+                        collector.resetTimer({ time: 120 * 1000 });
                     }
                     
                 } else if(optionChoose === "all") {
@@ -548,7 +585,6 @@ module.exports = {
                         const embed = new Discord.MessageEmbed()
                         .setColor(process.env.EMBEDCOLOR)
                         .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "投注中" : "封盤中"}`)
-                        .setDescription(guildInformation.betInfo.description)
                         .setTimestamp()
                         .setFooter(`${interaction.guild.name} | 第 ${i + 1} 頁`,
                             `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
@@ -566,6 +602,43 @@ module.exports = {
                             .addField('用戶名稱', nameStr.join('\n'), true)
                             .addField('投注金額', coinStr.join('\n'), true)
                             .addField('投注對象', targetStr.join('\n'), true);
+
+                        await interaction.channel.send({embeds: [embed]});
+                    }
+                    collector.stop("set");
+
+                } else if(optionChoose === "result") {
+                    i.update({
+                        content: `即將顯示上一次的所有下注紀錄。`, 
+                        components: []
+                    })
+                    const onePpageMax = 20;
+                    const winner = guildInformation.betRecord[guildInformation.betRecord.length - 1].winner;
+                    const det = Math.floor((guildInformation.betInfo.totalBet / winner.betCount) * 10) / 10;
+                    for(let i = 0; i < Math.floor((guildInformation.betInfo.betRecord.length - 1) / onePpageMax) + 1; i++) {
+                        const embed = new Discord.MessageEmbed()
+                        .setColor(process.env.EMBEDCOLOR)
+                        .setTitle(`賭盤: ${guildInformation.betInfo.name} 的結果`)
+                        .setTimestamp()
+                        .setFooter(`${interaction.guild.name} | 第 ${i + 1} 頁`,
+                            `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
+                        
+                        let nameStr = [];
+                        let coinStr = [];
+                        let targetStr = [];
+                        for(let j = i * onePpageMax; j < Math.min(i * onePpageMax + onePpageMax, guildInformation.betInfo.betRecord.length); j++) {
+                            const target = guildInformation.betInfo.option.find(element => element.id === guildInformation.betInfo.betRecord[j].optionId);
+                            nameStr.push('<@' + guildInformation.betInfo.betRecord[j].userId + '>');
+                            targetStr.push(target.name);
+                            if(guildInformation.betInfo.betRecord[j].optionId === winner.id){
+                                coinStr.push(`${guildInformation.betInfo.betRecord[j].coins} => ${Math.floor(guildInformation.betInfo.betRecord[j].coins * det)}`);
+                            }else
+                                coinStr.push(guildInformation.betInfo.betRecord[j].coins.toString());
+                        }
+                        embed
+                            .addField('用戶名稱', nameStr.join('\n'), true)
+                            .addField('投注對象', targetStr.join('\n'), true)
+                            .addField('投注&獲得金額', coinStr.join('\n'), true);
 
                         await interaction.channel.send({embeds: [embed]});
                     }
