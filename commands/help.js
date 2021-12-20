@@ -23,14 +23,14 @@ module.exports = {
             .addField(`賭盤相關`,
                 "\`/bet play\` - 選擇選項下注\n")
             .addField(`其他`, 
-                "\`/daily\` - 每日獎勵，每隔12小時可以領取一次\n" + 
+                "\`/daily\` - 每日獎勵，每日3:00(UTC+8)重置領取次數\n" + 
                 "\`/user info\` - 查看該用戶的資訊\n")
             .addField("設定相關(需要管理伺服器權限)", 
                 "\`/bet set\` - 設定並開啟賭盤\n" + 
                 "\`/bet close\` - 關閉賭盤\n" + 
                 "\`/bet result\` - 設定賭盤結果，並發還coins給所有人\n" +
                 "\`/bet setting\` - 歸零金額、顯示所有投注結果等設定\n" +
-                "\`/uset setting\` - 收回、發放或歸零金錢")
+                "\`/user setting\` - 收回、發放或歸零金錢")
                 .addField("取消方法", 
                 "所有選項之取消，只需放著不動，即可取消該選擇。")
                 .addField("使用聲明", 

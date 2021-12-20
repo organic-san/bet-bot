@@ -12,9 +12,9 @@ class GuildInformation {
         this.joinedAt = new Date(Date.now());
         this.recordAt = new Date(Date.now());
         /**
-         * @type {Array<User>}
+         * @type {Map<string, User>}
          */
-        this.users = [];
+        this.users = new Map();
         this.betCount = 0;
         this.betInfo = new BetGameObject('undefined', 0, 'nothing', [], 0, 0, []);
         /**
@@ -138,7 +138,7 @@ class GuildInformation {
      * @returns 用戶資訊
      */
     getUser(userId){
-        return this.users.find((element) => element.id === userId);
+        return this.users.get(userId);
     }
 
     /**
@@ -147,7 +147,7 @@ class GuildInformation {
      * @returns 
      */
     has(userId) {
-        const target = this.users.find((element) => element.id === userId);
+        const target = this.users.has(userId);
         return target ? true : false;
     }
 
@@ -156,7 +156,7 @@ class GuildInformation {
      * @param {User} userUnit 
      */
     addUser(userUnit) {
-        this.users.push(userUnit);
+        this.users.set(userUnit.id, userUnit);
     }
 
     
@@ -235,7 +235,7 @@ class BetGameObject {
         this.name = obj.name ?? 'undefined';
         this.description = obj.description ?? 'nothing';
         this.totalBet = obj.totalBet ?? 0;
-        this.option.forEach(option => {
+        obj.option.forEach(option => {
             const newBetOpt = new BetGameOptionObject(0, 'undefined', 'nothing');
             newBetOpt.id = option.id ?? 0;
             newBetOpt.name = option.name ?? 'undefiend';

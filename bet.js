@@ -33,18 +33,19 @@ let guildInformation = new Map;
 
 const guildDirs = fs.readdirSync('./data/guildData');
 guildDirs.forEach( file => {
-    fs.readFile(`./data/guildData/${file}/basicInfo.json`, (err, word) => {
-        if (err)
-            throw err;
-        let parseJsonlist = JSON.parse(word);
-        fs.readFile(`./data/guildData/${file}/betInfo.json`, (err,word) => {
-            if(err) throw err;
-            parseJsonlist.betInfo = JSON.parse(word);
-            const newG = new guild.guildInformation({ "id": file, "name": parseJsonlist.name });
-            newG.toGuildInformation(parseJsonlist);
-            guildInformation.set(file, newG);
-        });
-    });
+    try{
+        let parseJsonlist = fs.readFileSync(`./data/guildData/${file}/basicInfo.json`);
+        parseJsonlist = JSON.parse(parseJsonlist);
+            
+        let parseBetData = fs.readFileSync(`./data/guildData/${file}/betInfo.json`);
+        parseJsonlist.betInfo = JSON.parse(parseBetData);
+        const newG = new guild.guildInformation({ "id": file, "name": parseJsonlist.name });
+        newG.toGuildInformation(parseJsonlist);
+        guildInformation.set(file, newG);
+        
+    } catch (err) {
+        console.error(err);
+    }
 });
 
 
@@ -81,14 +82,14 @@ client.on('ready', () =>{
                 if (err)
                     return console.log(err);
             });
-            val.users.forEach(ele => {
+            val.users.forEach((ele, id) => {
                 fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele.outputUser(), null, '\t'),async function (err) {
                     if (err)
                         return console.log(err);
                 });
                 ele.saveTime++;
-                if(ele.saveTime > 3) ele = null;
-            })
+                if(ele.saveTime > 3) val.users.delete(id);
+            });
         });
         time = new Date();
         console.log(`Saved in ${time} (auto)`);
@@ -138,7 +139,8 @@ client.on('interactionCreate', async interaction => {
     //個人資料檢查與建立
     const userData = element.getUser(interaction.user.id);
     if(!userData) {
-        const userData = fs.readdirSync('./data/guildData').filter(file => file.endsWith('.json') && file.startsWith(interaction.user.id));
+        const userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
+            .filter(file => file.endsWith('.json') && file.startsWith(interaction.user.id));
         if(userData.length === 0) {
             const userData = new guild.User(interaction.user.id, interaction.user.tag);
             fs.writeFile(
@@ -147,16 +149,19 @@ client.on('interactionCreate', async interaction => {
             );
             element.addUser(userData);
         } else {
-            fs.readFile(`./data/guildData/${interaction.guild.id}/users/${interaction.user.id}.json`, (err,word) => {
-                if(err) throw err;
-                let parseJsonlist = JSON.parse(word);
-                parseJsonlist.tag = interaction.user.tag;
-                parseJsonlist = new guild.User(parseJsonlist.id, parseJsonlist.tag).toUser(parseJsonlist);
-                guildInformation.addUser(parseJsonlist);
-            });
+            try{
+                let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${interaction.user.id}.json`);
+                parseJsonlist = JSON.parse(parseJsonlist);
+                let newUser = new guild.User(parseJsonlist.id, parseJsonlist.tag);
+                newUser.toUser(parseJsonlist);
+                element.addUser(newUser);
+            } catch (err) {
+                console.error(err);
+            }
         }
     } else {
         userData.tag = interaction.user.tag;
+        userData.saveTime = 0;
     }
     
     //發言檢測
@@ -197,14 +202,14 @@ client.on('messageCreate', async msg =>{
                     if (err)
                         return console.log(err);
                 });
-                val.users.forEach(ele => {
+                val.users.forEach((ele, id) => {
                     fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele.outputUser(), null, '\t'),async function (err) {
                         if (err)
                             return console.log(err);
                     });
                     ele.saveTime++;
-                    if(ele.saveTime > 3) ele = null;
-                })
+                    if(ele.saveTime > 3) val.users.delete(id);
+                });
             });
             time = new Date();
             console.log(`Saved in ${time} (handle)`);
@@ -215,6 +220,8 @@ client.on('messageCreate', async msg =>{
            if(msg.deletable) msg.delete().catch(console.error);;
         }else if(msg.content.startsWith("bet^t")){
             console.log(guildInformation.get(msg.guild.id));
+        }else if(msg.content.startsWith("bet^a")){
+            console.log(guildInformation.get(msg.guild.id).getUser(msg.author.id).saveTime=10);
         }
     }
 })

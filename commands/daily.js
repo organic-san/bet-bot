@@ -2,13 +2,14 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const guild = require('../functions/guildInfo');
 const Discord = require('discord.js');
 
-const awardCooldownHour = 12;
-const awardCooldown = awardCooldownHour * 60 * 60;
+const awardResetClock = 3 - 8;
+const awardReset = awardResetClock * 60 * 60 * 1000;
+const dayMiliSecond = 86400 * 1000;
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('daily')
-        .setDescription('領取每日硬幣'),
+        .setDescription('領取每日獎勵'),
     tag: "guildInfo",
 
     /**
@@ -20,19 +21,19 @@ module.exports = {
         if(!guildInformation) throw "Error: interaction/daily | cannot find guildInformation";
 
         const user = guildInformation.getUser(interaction.user.id);
-        if (Date.now() - user.lastAwardTime >= awardCooldown * 1000) {
+        if (Math.floor((Date.now() - awardReset) / dayMiliSecond) !== Math.floor((user.lastAwardTime - awardReset) / dayMiliSecond)) {
             user.coins += 30;
             user.lastAwardTime = Date.now();
-            await interaction.reply({ 
+            await interaction.reply({
                 content: `領取成功! \n` + 
                     `持有硬幣: ${user.coins - 30} + 30 => ${user.coins}!\n` +
-                    `預計於 <t:${Math.floor((user.lastAwardTime + awardCooldown * 1000) / 1000)}:F> 時可再度領取每日獎勵。`, 
+                    `每日3:00(UTC+8)過後能再度領取獎勵。`, 
                 ephemeral: true 
             });
         } else {
             await interaction.reply({ 
-                content: `距離上次獲得獎勵還沒超過${awardCooldownHour}小時! \n` + 
-                    `預計於 <t:${Math.floor((user.lastAwardTime + awardCooldown * 1000) / 1000)}:F> 時可再度領取每日獎勵。`, 
+                content: `今天已經領取過獎勵了!\n` + 
+                    `每日3:00(UTC+8)過後能再度領取獎勵。`, 
                 ephemeral: true 
             });
         }
