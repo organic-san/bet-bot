@@ -27,9 +27,27 @@ for (const file of commandFiles) {
 }
 
 /**
- * @type {Array<guild.GuildInformation>}
+ * @type {Map<string, guild.guildInformation>}
  */
-let guildInformation = [];
+let guildInformation = new Map;
+
+const guildDirs = fs.readdirSync('./data/guildData');
+guildDirs.forEach( file => {
+    fs.readFile(`./data/guildData/${file}/basicInfo.json`, (err, word) => {
+        if (err)
+            throw err;
+        let parseJsonlist = JSON.parse(word);
+        fs.readFile(`./data/guildData/${file}/betInfo.json`, (err,word) => {
+            if(err) throw err;
+            parseJsonlist.betInfo = JSON.parse(word);
+            const newG = new guild.guildInformation({ "id": file, "name": parseJsonlist.name });
+            newG.toGuildInformation(parseJsonlist);
+            guildInformation.set(file, newG);
+        });
+    });
+});
+
+
 
 /**
  * @type {Array<string>}
@@ -42,29 +60,6 @@ client.on('ready', () =>{
     console.log(`登入成功: ${client.user.tag} 於 ${new Date()}`);
     client.user.setActivity('/help'/*, { type: 'PLAYING' }*/);
 
-    
-    fs.readFile("./data/guildData/guildlist.json", (err,word) => {
-        if(err) throw err;
-        var parseJsonlist = JSON.parse(word);
-        parseJsonlist.forEach(element => {
-            if(guildList.includes(element)) return;
-            guildList.push(element);
-        });
-        guildList.sort((a, b) => a - b);
-        guildList.forEach(async (element) => {
-            const filename = `./data/guildData/${element}.json`;
-            fs.readFile(filename, async (err, text) => {
-                if (err)
-                    throw err;
-                console.log(element);
-                const targetGuild = await client.guilds.fetch(JSON.parse(text).id);
-                guildInformation.push(
-                    await guild.GuildInformation.toGuildInformation(JSON.parse(text), targetGuild)
-                );
-            });
-        });
-    });
-    
     setTimeout(() => {
         console.log(`設定成功: ${new Date()}`);
         //TODO: 除錯用資料傳送處理
@@ -77,16 +72,23 @@ client.on('ready', () =>{
     }, parseInt(process.env.LOADTIME) * 1000);
 
     setInterval(() => {
-        fs.writeFile("./data/guildData/guildlist.json", JSON.stringify(guildList, null, '\t'), function (err){
-            if (err)
-                console.log(err);
-        });
-        guildInformation.forEach(async (element) => {
-            const filename = `./data/guildData/${element.id}.json`;
-            fs.writeFile(filename, JSON.stringify(element, null, '\t'),async function (err) {
+        guildInformation.forEach(async (val, key) => {
+            fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val.outputBasic(), null, '\t'),async function (err) {
                 if (err)
                     return console.log(err);
             });
+            fs.writeFile(`./data/guildData/${key}/betInfo.json`, JSON.stringify(val.outputBet(), null, '\t'),async function (err) {
+                if (err)
+                    return console.log(err);
+            });
+            val.users.forEach(ele => {
+                fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele.outputUser(), null, '\t'),async function (err) {
+                    if (err)
+                        return console.log(err);
+                });
+                ele.saveTime++;
+                if(ele.saveTime > 3) ele = null;
+            })
         });
         time = new Date();
         console.log(`Saved in ${time} (auto)`);
@@ -106,10 +108,20 @@ client.on('interactionCreate', async interaction => {
 
     
     //伺服器資料建立&更新
-    if(!guildInformation.find(element => element.id === interaction.guild.id)){
-        const thisGI = new guild.GuildInformation(interaction.guild, []);
-        guildInformation.push(thisGI);
-        guildList.push(interaction.guild.id)
+    if(!guildInformation.get(interaction.guild.id)){
+        fs.mkdir(`./data/guildData/${interaction.guild.id}`, err => {if(err) console.error(err)});
+        fs.mkdir(`./data/guildData/${interaction.guild.id}/users`, err => {if(err) console.error(err)});
+        fs.mkdir(`./data/guildData/${interaction.guild.id}/betRecord`, err => {if(err) console.error(err)});
+        const basicInfo = new guild.guildInformation(interaction.guild);
+        fs.writeFile(
+            `./data/guildData/${interaction.guild.id}/basicInfo.json`, 
+            JSON.stringify(basicInfo.outputBasic(), null, '\t'), err => {if(err) console.error(err)}
+        );
+        fs.writeFile(
+            `./data/guildData/${interaction.guild.id}/betInfo.json`, 
+            JSON.stringify(basicInfo.outputBet(), null, '\t'), err => {if(err) console.error(err)}
+        );
+        guildInformation.set(interaction.guild.id, basicInfo)
         console.log(`${client.user.tag} 加入了 ${interaction.guild.name} (${interaction.guild.id}) (缺少伺服器資料觸發/interaction)`);
         //TODO: 除錯用資料傳送處理
         /*
@@ -118,35 +130,49 @@ client.on('interactionCreate', async interaction => {
         );
         */
     }
-    const element = guildInformation.find((element) => element.id === interaction.guild.id);
+    let element = guildInformation.get(interaction.guild.id);
     element.name = interaction.guild.name;
-    if(!element.joinedAt) element.joinedAt = Date.now();
-    element.recordAt = Date.now();
+    if(!element.joinedAt) element.joinedAt = new Date(Date.now());
+    element.recordAt = new Date(Date.now());
 
     //個人資料檢查與建立
-    if(!element.has(interaction.user.id)) {
-        element.addUser(new guild.User(interaction.user.id, interaction.user.tag));
+    const userData = element.getUser(interaction.user.id);
+    if(!userData) {
+        const userData = fs.readdirSync('./data/guildData').filter(file => file.endsWith('.json') && file.startsWith(interaction.user.id));
+        if(userData.length === 0) {
+            const userData = new guild.User(interaction.user.id, interaction.user.tag);
+            fs.writeFile(
+                `./data/guildData/${interaction.guild.id}/users/${interaction.user.id}.json`,
+                JSON.stringify(userData, null, '\t'), err => {if(err) console.error(err)}
+            );
+            element.addUser(userData);
+        } else {
+            fs.readFile(`./data/guildData/${interaction.guild.id}/users/${interaction.user.id}.json`, (err,word) => {
+                if(err) throw err;
+                let parseJsonlist = JSON.parse(word);
+                parseJsonlist.tag = interaction.user.tag;
+                parseJsonlist = new guild.User(parseJsonlist.id, parseJsonlist.tag).toUser(parseJsonlist);
+                guildInformation.addUser(parseJsonlist);
+            });
+        }
+    } else {
+        userData.tag = interaction.user.tag;
     }
-    element.getUser(interaction.user.id).tag = interaction.user.tag;
     
     //發言檢測
     if (!interaction.isCommand()) return;
-    if(!interaction.channel.permissionsFor(client.user).has(Discord.Permissions.FLAGS.SEND_MESSAGES) || 
-        !interaction.channel.permissionsFor(client.user).has(Discord.Permissions.FLAGS.ADD_REACTIONS))
-        return interaction.reply({content: "我在這裡不具有發言的權限。請到可以使用指令的頻道使用指令。", ephemeral: true});
-    
 
     //讀取指令ID，過濾無法執行(沒有檔案)的指令
     let commandName = "";
     if(!!interaction.options.getSubcommand(false)) commandName = interaction.commandName + "/" + interaction.options.getSubcommand(false);
     else commandName = interaction.commandName;
-    console.log("isInteraction: isCommand: " + commandName + ", id: " + interaction.commandId + ", guild: " + interaction.guild.name)
+    console.log("isInteraction: isCommand: " + commandName + ", tag: " + interaction.user.tag + ", guild: " + interaction.guild.name)
 	const command = client.commands.get(interaction.commandName);
 	if (!command) return;
 
 	try {
         if(command.tag === "interaction") await command.execute(interaction);
-		if(command.tag === "guildInfo") await command.execute(interaction, guildInformation.find(element => element.id === interaction.guild.id));
+		if(command.tag === "guildInfo") await command.execute(interaction, guildInformation.get(interaction.guild.id));
 		//if(command.tag === "musicList") await command.execute(interaction, musicList.get(interaction.guild.id));
 
 	} catch (error) {
@@ -162,16 +188,23 @@ client.on('messageCreate', async msg =>{
     
     if(msg.author.id === process.env.OWNER1_ID || msg.author.id === process.env.OWNER2_ID){
         if(msg.content.startsWith("bet^s")){
-            fs.writeFile("./data/guildData/guildlist.json", JSON.stringify(guildList, null, '\t'), function (err){
-                if (err)
-                    console.log(err);
-            });
-            guildInformation.forEach(async (element) => {
-                const filename = `./data/guildData/${element.id}.json`;
-                fs.writeFile(filename, JSON.stringify(element, null, '\t'),async function (err) {
+            guildInformation.forEach(async (val, key) => {
+                fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val.outputBasic(), null, '\t'),async function (err) {
                     if (err)
                         return console.log(err);
                 });
+                fs.writeFile(`./data/guildData/${key}/betInfo.json`, JSON.stringify(val.outputBet(), null, '\t'),async function (err) {
+                    if (err)
+                        return console.log(err);
+                });
+                val.users.forEach(ele => {
+                    fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele.outputUser(), null, '\t'),async function (err) {
+                        if (err)
+                            return console.log(err);
+                    });
+                    ele.saveTime++;
+                    if(ele.saveTime > 3) ele = null;
+                })
             });
             time = new Date();
             console.log(`Saved in ${time} (handle)`);
@@ -179,7 +212,9 @@ client.on('messageCreate', async msg =>{
             /*
             client.channels.fetch(process.env.CHECK_CH_ID).then(channel => channel.send(`手動存檔: <t:${Math.floor(Date.now() / 1000)}:F>`)).catch(err => console.log(err));
             */
-           if(msg.deletable) msg.delete();
+           if(msg.deletable) msg.delete().catch(console.error);;
+        }else if(msg.content.startsWith("bet^t")){
+            console.log(guildInformation.get(msg.guild.id));
         }
     }
 })
