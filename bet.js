@@ -34,6 +34,9 @@ let guildInformation = new Map;
 const guildDirs = fs.readdirSync('./data/guildData');
 guildDirs.forEach( file => {
     try{
+        const fileDirs = fs.readdirSync(`./data/guildData/${file}`);
+        if(!fileDirs.includes("awardBox")) 
+            fs.mkdirSync(`./data/guildData/${file}/awardBox`, err => {if(err) console.error(err)});
         let parseJsonlist = fs.readFileSync(`./data/guildData/${file}/basicInfo.json`);
         parseJsonlist = JSON.parse(parseJsonlist);
             
@@ -42,18 +45,11 @@ guildDirs.forEach( file => {
         const newG = new guild.guildInformation({ "id": file, "name": parseJsonlist.name });
         newG.toGuildInformation(parseJsonlist);
         guildInformation.set(file, newG);
-        
+
     } catch (err) {
         console.error(err);
     }
 });
-
-
-
-/**
- * @type {Array<string>}
- */
-let guildList = [];
 
 let isready = false;
 
@@ -106,13 +102,13 @@ client.on('interactionCreate', async interaction => {
     if(!isready) return;
 
     if(!interaction.guild && interaction.isCommand()) return interaction.reply("無法在私訊中使用斜線指令!");
-
     
     //伺服器資料建立&更新
     if(!guildInformation.get(interaction.guild.id)){
-        fs.mkdir(`./data/guildData/${interaction.guild.id}`, err => {if(err) console.error(err)});
-        fs.mkdir(`./data/guildData/${interaction.guild.id}/users`, err => {if(err) console.error(err)});
-        fs.mkdir(`./data/guildData/${interaction.guild.id}/betRecord`, err => {if(err) console.error(err)});
+        fs.mkdirSync(`./data/guildData/${interaction.guild.id}`, err => {if(err) console.error(err)});
+        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/users`, err => {if(err) console.error(err)});
+        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/betRecord`, err => {if(err) console.error(err)});
+        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/awardBox`, err => {if(err) console.error(err)});
         const basicInfo = new guild.guildInformation(interaction.guild);
         fs.writeFile(
             `./data/guildData/${interaction.guild.id}/basicInfo.json`, 

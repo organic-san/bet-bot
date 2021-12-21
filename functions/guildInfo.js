@@ -15,12 +15,7 @@ class GuildInformation {
          * @type {Map<string, User>}
          */
         this.users = new Map();
-        this.betCount = 0;
         this.betInfo = new BetGameObject('undefined', 0, 'nothing', [], 0, 0, []);
-        /**
-         * @type {Array<BetRecordObject>}
-         */
-        this.betRecord = [];
         /**
          * @type {Array<BetAwardBox>}
          */
@@ -34,7 +29,6 @@ class GuildInformation {
     toGuildInformation(obj) {
         this.joinedAt = obj.joinedAt;
         this.recordAt = obj.recordAt;
-        this.betCount = obj.betCount;
         this.betInfo.toBetGameObject(obj.betInfo);
     }
 
@@ -128,6 +122,22 @@ class GuildInformation {
         return this.betInfo;
     }
 
+    /**
+     * 
+     * @param {BetGameOptionObject} winner 
+     * @returns 
+     */
+    outputBetRecord(winner) {
+        const newRecord = new BetRecordObject(
+            this.betInfo.name, 
+            this.betInfo.id, 
+            this.betInfo.description,
+            this.betInfo.option,
+            winner
+            )
+        return newRecord;
+    }
+
     get usersMuch() {
         return this.users.length;
     }
@@ -139,16 +149,6 @@ class GuildInformation {
      */
     getUser(userId){
         return this.users.get(userId);
-    }
-
-    /**
-     * 
-     * @param {string} userId 
-     * @returns 
-     */
-    has(userId) {
-        const target = this.users.has(userId);
-        return target ? true : false;
     }
 
     /**
@@ -237,12 +237,15 @@ class BetGameObject {
         this.totalBet = obj.totalBet ?? 0;
         obj.option.forEach(option => {
             const newBetOpt = new BetGameOptionObject(0, 'undefined', 'nothing');
-            newBetOpt.id = option.id ?? 0;
-            newBetOpt.name = option.name ?? 'undefiend';
-            newBetOpt.description = option.description ?? 'nothing';
-            newBetOpt.betCount = option.betCount ?? 0;
+            newBetOpt.toOption(option);
             this.option.push(newBetOpt);
         });
+        
+        obj.betRecord.forEach(option => {
+            const newRC = new BetGameResultObject("0", 0, "0");
+            newRC.toOption(option);
+            this.betRecord.push(newRC);
+        })
     }
 
     /**
@@ -280,6 +283,13 @@ class BetGameOptionObject {
         this.description = description;
         this.betCount = 0;
     }
+
+    toOption(opt) {
+        this.id = opt.id ?? 0;
+        this.name = opt.name ?? 'undefiend';
+        this.description = opt.description ?? 'nothing';
+        this.betCount = opt.betCount ?? 0;
+    }
 }
 
 class BetGameResultObject {
@@ -295,6 +305,13 @@ class BetGameResultObject {
         this.time = Date.now();
         this.coins = coins;
         this.optionId = optionId;
+    }
+
+    toOption(opt) {
+        this.userId = opt.userId ?? "0";
+        this.time = opt.time ?? 'undefiend';
+        this.coins = opt.coins ?? 0;
+        this.optionId = opt.optionId ?? "0";
     }
 }
 
@@ -315,6 +332,22 @@ class BetRecordObject {
         this.totalBet = 0;
         this.winner = winner;
     }
+
+    toBetRecordObject(obj) {
+        this.isPlaying = obj.isPlaying ?? 0;
+        this.count = obj.count ?? 0;
+        this.id = obj.id ?? 0;
+        this.name = obj.name ?? 'undefined';
+        this.description = obj.description ?? 'nothing';
+        this.totalBet = obj.totalBet ?? 0;
+        obj.option.forEach(option => {
+            const newBetOpt = new BetGameOptionObject(0, 'undefined', 'nothing');
+            newBetOpt.toOption(option);
+            this.option.push(newBetOpt);
+        });
+        this.winner.toOption(obj.winner);
+        
+    }
 }
 
 class BetAwardBox {
@@ -322,13 +355,24 @@ class BetAwardBox {
     /**
      * 
      * @param {number} coinMuch 
-     * @param {number} untilTime 
-     * @param {string} id 
+     * @param {number} endTime 
      */
-    constructor(coinMuch, untilTime, id) {
+    constructor(coinMuch, endTime) {
         this.coinMuch = coinMuch;
-        this.untilTime = untilTime;
-        this.id = id;
+        this.startTime = Date.now();
+        this.endTime = endTime;
+        /**
+         * @type {Array<string>}
+         */
+        this.awardIdList = [];
+    }
+
+    toAwardBoxObject(obj) {
+        this.coinMuch = obj.coinMuch ?? 0;
+        this.startTime = obj.startTime ?? 0;
+        this.endTime = obj.endTime ?? 0;
+        this.awardIdList = obj.awardIdList ?? [];
+        
     }
 }
 

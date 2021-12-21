@@ -3,6 +3,7 @@ const guild = require('../functions/guildInfo');
 const fs = require('fs');
 const Discord = require('discord.js');
 const { resourceLimits } = require('worker_threads');
+const user = require('./user');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,7 +16,7 @@ module.exports = {
             opt.setName('info')
             .setDescription('目前賭盤情形，查看選項、賠率等')
         ).addSubcommand(opt =>
-            opt.setName('set')
+            opt.setName('create')
             .setDescription('設定賭盤(由管理員操控)')
         ).addSubcommand(opt =>
             opt.setName('close')
@@ -25,20 +26,20 @@ module.exports = {
             .setDescription('開盤(由管理員操控)')
         ).addSubcommand(opt =>
             opt.setName('setting')
-            .setDescription('其他細節設定(顯示所有投注紀錄、重設所有紀錄、顯示上次紀錄)(由管理員操控)')
+            .setDescription('其他設定(由管理員操控)')
         ),
     tag: "guildInfo",
 
     /**
      * 
      * @param {Discord.CommandInteraction} interaction 
-     * @param {guild.GuildInformation} guildInformation
+     * @param {guild.guildInformation} guildInformation
      */
 	async execute(interaction, guildInformation) {
         if (interaction.options.getSubcommand() === 'play') {
-            if(guildInformation.betInfo.isPlaying === 0) 
+            if(guildInformation.betInfo.isPlaying === 0)
                 return interaction.reply({content: "目前並未舉行賭盤活動，活動舉行請洽伺服器管理員。", ephemeral: true});
-            if(guildInformation.betInfo.isPlaying === 2) 
+            if(guildInformation.betInfo.isPlaying === 2)
                 return interaction.reply({content: "賭盤已封盤，無法再下注。", ephemeral: true});
 
                 let playRaseRowData = [];
@@ -71,7 +72,7 @@ module.exports = {
                     if(!target) {
                         target = i.values[0];
                         const row = rowCreate(false);
-                        const targetData = guildInformation.betInfo.option.find(element => element.id === target);
+                        const targetData = guildInformation.betInfo.getOption(target);
                         i.update({
                             content: 
                                 `選擇的選項為: ${targetData.name}` +  
@@ -117,12 +118,10 @@ module.exports = {
                                         components: []
                                     });
                                 }
-                                const targetData = guildInformation.betInfo.option.find(element => element.id === target);
+                                const targetData = guildInformation.betInfo.getOption(target);
                                 guildInformation.getUser(interaction.user.id).coins -= money;
                                 guildInformation.getUser(interaction.user.id).totalBet += money;
-                                guildInformation.betInfo.betRecord.push(
-                                    new guild.betGameResultObject(interaction.user.id, money, target)
-                                );
+                                guildInformation.betInfo.addRecord(interaction.user.id, target, money);
                                 targetData.betCount += money;
                                 guildInformation.betInfo.totalBet += money;
                                 i.update({
@@ -152,11 +151,12 @@ module.exports = {
                 .setColor(process.env.EMBEDCOLOR)
                 .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "投注中" : "封盤中"}`)
                 .setDescription(guildInformation.betInfo.description)
+                .addField(`目前賭盤資訊`, `總累計賭金:  ${guildInformation.betInfo.totalBet}`)
                 .setTimestamp()
                 .setFooter(`${interaction.guild.name}`,`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
 
             guildInformation.betInfo.option.forEach(option => {
-                embed.addField(option.name, option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
+                embed.addField("選項/" + option.name, option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
                     `賠率: ${option.betCount>0 ? Math.floor((guildInformation.betInfo.totalBet / option.betCount) * 10) / 10 : "尚無法計算賠率"}`)
             })
             interaction.reply({embeds: [embed]});
@@ -168,7 +168,7 @@ module.exports = {
             }
         }
         
-        if(interaction.options.getSubcommand() === 'set') {
+        if(interaction.options.getSubcommand() === 'create') {
             if(guildInformation.betInfo.isPlaying != 0) 
                 return interaction.reply({content: "目前已有其他賭盤進行中，請先關閉其他賭盤再建立新賭盤。", ephemeral: true});
             
@@ -213,7 +213,7 @@ module.exports = {
                     mode = i.customId;
                     if(mode === "default"){
                         if(raseFileName.length === 0) {
-                            i.update({content: "目前沒有可以選擇的預設模板。", components: [], fetchReply: true});
+                            i.update({content: "目前沒有可以選擇的預設模板。", components: []});
                             collector.stop('set');
                         }
                         collector.resetTimer({ time: 120 * 1000 });
@@ -225,10 +225,10 @@ module.exports = {
                                 .addOptions(defaultRaseRowData),
                         );
                     
-                        i.update({content: "請選擇一個預設模板。", components: [row], fetchReply: true});
+                        i.update({content: "請選擇一個預設模板。", components: [row]});
 
                     } else if(mode === "custom") {
-                        i.update({content: "目前並不支援此設定模式。", components: [], fetchReply: true});
+                        i.update({content: "目前並不支援此設定模式。", components: []});
                         collector.stop('set');
                         //TODO: 自行設定賭盤
                     }
@@ -254,7 +254,7 @@ module.exports = {
                                     .setStyle('PRIMARY'),
                             ]
                         );
-                        i.update({content: "此為模板預覽，確認後請點擊下方按鈕以開啟賭盤。",embeds: [embed], components: [row], fetchReply: true})
+                        i.update({content: "此為模板預覽，確認後請點擊下方按鈕以開啟賭盤。",embeds: [embed], components: [row]})
                     
                     } else {
                         if(guildInformation.betInfo.isPlaying !== 0) {
@@ -293,6 +293,12 @@ module.exports = {
                             embeds: [],
                             components: []
                         });
+                        fs.writeFile(
+                            `./data/guildData/${guildInformation.id}/betInfo.json`, 
+                            JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
+                            if (err)
+                                return console.log(err);
+                        });
                         collector.stop("set");
                     }
                 }
@@ -302,7 +308,8 @@ module.exports = {
                 if(r !== "messageDelete" && r !== "user" && r !== "set"){
                     interaction.editReply({
                         content: `取消設定。`, 
-                        components: []
+                        components: [],
+                        embeds: []
                     });
                 }
             });
@@ -387,9 +394,10 @@ module.exports = {
                                 .setStyle('PRIMARY'),
                         ]
                     );
-                    const targetData = guildInformation.betInfo.option.find(element => element.id === target) ?? {name: "取消賭盤"};
+                    const targetData = guildInformation.betInfo.getOption(target) ?? {name: "取消賭盤", betCount: 1};
                     i.update({
-                        content: `目前要開盤的選項為: ${targetData.name}。確認選項無誤，請按下下方按鈕。`, 
+                        content: `目前要開盤的選項為: ${targetData.name}。\n` + 
+                            `${targetData.betCount === 0 ? "若開啟此選項，將沒有人會贏得投注。\n" : ""}確認選項無誤，請按下下方按鈕。`, 
                         components: [row]
                     });
                     collector.resetTimer({ time: 120 * 1000 });
@@ -408,6 +416,7 @@ module.exports = {
                         guildInformation.betInfo.betRecord.forEach(element => {
                             guildInformation.getUser(element.userId).coins += element.coins;
                             rebackList.set(element.userId, rebackList.get(element.userId) ? rebackList.get(element.userId) + element.coins : element.coins)
+                            guildInformation.getUser(element.userId).totalBet -= element.coins;
                         })
                         rebackList.forEach((val, key) => {
                             interaction.client.users.fetch(key).then(user => {
@@ -421,23 +430,23 @@ module.exports = {
                             content: `已取消賭盤，正在發還coin(s)。`, 
                             components: []
                         });
-                        guildInformation.betRecord.push(new guild.betRecordObject(
-                            guildInformation.betInfo.name,
-                            guildInformation.betInfo.id,
-                            guildInformation.betInfo.description,
-                            guildInformation.betInfo.option,
-                            {
-                                "name": "賭盤取消",
-                                "id": "0",
-                                "description": "本次賭盤取消，所有coin(s)退回原投注者。",
-				                "betCount": 0
-                            },
-                        ))
+                        fs.writeFile(
+                            `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
+                            JSON.stringify(guildInformation.outputBetRecord(
+                                new guild.betGameOptionObject("0", "賭盤取消", "本次賭盤取消，所有coin(s)退回原投注者。")
+                            ), null, '\t'), err => {if(err) console.error(err)}
+                        )
+                        fs.writeFile(
+                            `./data/guildData/${guildInformation.id}/betInfo.json`, 
+                            JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
+                            if (err)
+                                return console.log(err);
+                        });
                         collector.stop('set');
                         
                     } else {
                         let rebackList = new Map();
-                        const winOption = guildInformation.betInfo.option.find(element => element.id === target);
+                        const winOption = guildInformation.betInfo.getOption(target);
                         guildInformation.betInfo.betRecord.forEach(element => {
                             if(element.optionId !== winOption.id) return;
                             let coinGet = Math.floor(element.coins * (Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10) / 10));
@@ -448,7 +457,7 @@ module.exports = {
                         rebackList.forEach((val, key) => {
                             interaction.client.users.fetch(key).then(user => {
                                 user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」中贏得投注!\n` + 
-                                    `已將您獲得的 ${val} coin(s)發還。`).catch((err) => console.log(err))
+                                    `已將您獲得的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
                             })
                             guildInformation.getUser(key).joinTimes += 1;
                         })
@@ -457,13 +466,16 @@ module.exports = {
                             content: `本次賭盤獲勝選項為 ${winOption.name}。已將所有coin(s)發還。`, 
                             components: []
                         });
-                        guildInformation.betRecord.push(new guild.betRecordObject(
-                            guildInformation.betInfo.name,
-                            guildInformation.betInfo.id,
-                            guildInformation.betInfo.description,
-                            guildInformation.betInfo.option,
-                            winOption,
-                        ))
+                        fs.writeFile(
+                            `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
+                            JSON.stringify(guildInformation.outputBetRecord(winOption), null, '\t'), err => {if(err) console.error(err)}
+                        )
+                        fs.writeFile(
+                            `./data/guildData/${guildInformation.id}/betInfo.json`, 
+                            JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
+                            if (err)
+                                return console.log(err);
+                        });
                         collector.stop('set');
                     }
                 }
@@ -479,32 +491,51 @@ module.exports = {
             });
 
         } else if(interaction.options.getSubcommand() === 'setting') {
-
-            const row = new Discord.MessageActionRow()
-            .addComponents(
-                [
-                    new Discord.MessageButton()
-                        .setCustomId('all')
-                        .setLabel('顯示所有投注紀錄')
-                        .setStyle('PRIMARY'),
-                    new Discord.MessageButton()
-                        .setCustomId('result')
-                        .setLabel('顯示上次賭盤的所有下注結果')
-                        .setStyle('PRIMARY'),
-                    new Discord.MessageButton()
-                        .setCustomId('reset')
-                        .setLabel('重置所有人的coin(s)')
-                        .setStyle('PRIMARY'),
-                ]
-            );
-            const msg = await interaction.reply({
-                content: "請選擇要執行的項目。", 
-                components: [row], 
-                fetchReply: true
-            });
+            if(!interaction.channel.permissionsFor(interaction.client.user).has(Discord.Permissions.FLAGS.SEND_MESSAGES))
+                return interaction.reply({content: "我在這個頻道不具有發言的權限。請到可以使用指令的頻道使用本指令。", ephemeral: true});
+            const row = [
+                new Discord.MessageActionRow()
+                    .addComponents(
+                        [
+                            new Discord.MessageButton()
+                                .setCustomId('all')
+                                .setLabel('顯示所有投注紀錄')
+                                .setStyle('PRIMARY'),
+                            new Discord.MessageButton()
+                                .setCustomId('result')
+                                .setLabel('顯示上次賭盤的所有下注結果')
+                                .setStyle('PRIMARY'),
+                            new Discord.MessageButton()
+                                .setCustomId('reset')
+                                .setLabel('重置所有人的coin(s)')
+                                .setStyle('PRIMARY')
+                        ]
+                    ),
+                new Discord.MessageActionRow()
+                    .addComponents(
+                        [
+                            new Discord.MessageButton()
+                                .setCustomId('award')
+                                .setLabel('設定獎勵箱(可於每日獎勵領取)')
+                                .setStyle('PRIMARY'),
+                            new Discord.MessageButton()
+                                .setCustomId('awardShow')
+                                .setLabel('查看所有獎勵箱(尚未啟用)')
+                                .setStyle('PRIMARY'),
+                            new Discord.MessageButton()
+                                .setCustomId('awardStop')
+                                .setLabel('取消獎勵箱(尚未啟用)')
+                                .setStyle('PRIMARY'),
+                        ]
+                    ),
+            ];
+            const msg = await interaction.reply({content: "請選擇要執行的項目。", components: row, fetchReply: true});
 
             const collector = msg.createMessageComponentCollector({time: 120 * 1000 });
             let optionChoose = "";
+            let dayLong = 0;
+            let isMoneySet = false;
+            let money = 0;
 
             collector.on('collect', async i => {
                 if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
@@ -513,10 +544,10 @@ module.exports = {
 
                     if(optionChoose === "all") {
                         if(guildInformation.betInfo.isPlaying === 0) 
-                            return interaction.reply({content: "目前並未舉行賭盤。", ephemeral: true});
+                            return i.update({content: "目前並未舉行賭盤。", components:[]});
 
                         if(guildInformation.betInfo.betRecord.length === 0) 
-                            return interaction.reply({content: "本次賭盤尚未有投注紀錄。", ephemeral: true});
+                            return i.update({content: "本次賭盤尚未有投注紀錄。", components:[]});
 
                         const row = new Discord.MessageActionRow()
                         .addComponents(
@@ -529,14 +560,13 @@ module.exports = {
                         );
                         i.update({
                             content: "即將顯示所有下注紀錄，內容可能會造成洗版。確認顯示?請點選下方按鈕確認。", 
-                            components: [row], 
-                            fetchReply: true
+                            components: [row]
                         });
                         collector.resetTimer({ time: 120 * 1000 });
 
                     }else if(optionChoose === "result") {
                         if(guildInformation.betInfo.isPlaying !== 0) 
-                            return interaction.reply({content: "賭盤正進行中，尚未產生結果。", ephemeral: true});
+                            return i.update({content: "賭盤正進行中，尚未產生結果。", components: [] });
 
                         const row = new Discord.MessageActionRow()
                         .addComponents(
@@ -549,14 +579,13 @@ module.exports = {
                         );
                         i.update({
                             content: "即將顯示所有下注紀錄，內容可能會造成洗版。確認顯示?請點選下方按鈕確認。", 
-                            components: [row], 
-                            fetchReply: true
+                            components: [row]
                         });
                         collector.resetTimer({ time: 120 * 1000 });
                     } else if(optionChoose === 'reset') {
 
                         if(guildInformation.betInfo.isPlaying !== 0) 
-                            return interaction.reply({content: "請先關閉當前賭盤再執行本操作。", ephemeral: true});
+                            return i.update({content: "請先關閉當前賭盤再執行本操作。", components: [] });
 
                         const row = new Discord.MessageActionRow()
                         .addComponents(
@@ -568,11 +597,55 @@ module.exports = {
                             ]
                         );
                         i.update({
-                            content: "即將重置所有人的coin，此操作無法反悔。確認刪除?請點選下方按鈕確認。", 
-                            components: [row], 
-                            fetchReply: true
+                            content: "即將重置所有人的coin(s)，此操作無法反悔。確認刪除?請點選下方按鈕確認。", 
+                            components: [row]
                         });
                         collector.resetTimer({ time: 120 * 1000 });
+                    } else if(optionChoose === 'award') {
+
+                        const row = new Discord.MessageActionRow()
+                        .addComponents(
+                            [
+                                new Discord.MessageButton()
+                                    .setCustomId('1')
+                                    .setLabel('1天')
+                                    .setStyle('PRIMARY'),
+                                new Discord.MessageButton()
+                                    .setCustomId('3')
+                                    .setLabel('3天')
+                                    .setStyle('PRIMARY'),
+                                new Discord.MessageButton()
+                                    .setCustomId('7')
+                                    .setLabel('7天')
+                                    .setStyle('PRIMARY'),
+                                new Discord.MessageButton()
+                                    .setCustomId('14')
+                                    .setLabel('14天')
+                                    .setStyle('PRIMARY'),
+                                new Discord.MessageButton()
+                                    .setCustomId('30')
+                                    .setLabel('1個月')
+                                    .setStyle('PRIMARY')
+                            ]
+                        );
+                        i.update({
+                            content: 
+                                `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。` +
+                                `請輸入要設立的獎勵箱的金額。`, 
+                            components: [row]
+                        });
+                        collector.resetTimer({ time: 180 * 1000 });
+
+                    }  else if(optionChoose === "awardShow") {
+                        i.update({content: "目前尚不開放本設定。", components: []});
+                        collector.stop('set');
+                        //TODO: 顯示所有獎勵箱
+
+                    } else if(optionChoose === "awardStop") {
+                        i.update({content: "目前尚不開放本設定。", components: []});
+                        collector.stop('set');
+                        //TODO: 刪除獎勵箱
+
                     }
                     
                 } else if(optionChoose === "all") {
@@ -593,7 +666,7 @@ module.exports = {
                         let coinStr = [];
                         let targetStr = [];
                         for(let j = i * onePpageMax; j < Math.min(i * onePpageMax + onePpageMax, guildInformation.betInfo.betRecord.length); j++) {
-                            const target = guildInformation.betInfo.option.find(element => element.id === guildInformation.betInfo.betRecord[j].optionId);
+                            const target = guildInformation.betInfo.getOption(guildInformation.betInfo.betRecord[j].optionId);
                             nameStr.push('<@' + guildInformation.betInfo.betRecord[j].userId + '>');
                             coinStr.push(guildInformation.betInfo.betRecord[j].coins.toString());
                             targetStr.push(target.name);
@@ -627,7 +700,7 @@ module.exports = {
                         let coinStr = [];
                         let targetStr = [];
                         for(let j = i * onePpageMax; j < Math.min(i * onePpageMax + onePpageMax, guildInformation.betInfo.betRecord.length); j++) {
-                            const target = guildInformation.betInfo.option.find(element => element.id === guildInformation.betInfo.betRecord[j].optionId);
+                            const target = guildInformation.betInfo.getOption(guildInformation.betInfo.betRecord[j].optionId);
                             nameStr.push('<@' + guildInformation.betInfo.betRecord[j].userId + '>');
                             targetStr.push(target.name);
                             if(guildInformation.betInfo.betRecord[j].optionId === winner.id){
@@ -654,6 +727,49 @@ module.exports = {
                         components: []
                     });
                     collector.stop("set");
+
+                } else if(optionChoose === 'award') {
+                    if(dayLong !== 0) {
+                        if(i.customId === 'delete') {
+                            money = Math.floor(money / 10);
+                        } else if(i.customId === 'complete') {
+                            isMoneySet = true;
+                        } else {
+                            money += i.customId;
+                            money = Math.min(money, 100000);
+                        }
+                    } else dayLong = parseInt(i.customId);
+                    if(!isMoneySet) {
+                        const row = rowCreate(money >= 100000);
+                        i.update({
+                            content: 
+                            `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。` +
+                            `請輸入要設立的獎勵箱的金額。` +
+                                `\`\`\`\n獎勵箱金額: \$${money} coin(s)\n\`\`\``, 
+                            components: row
+                        });
+                    } else {
+                        if(money === 0) {
+                            i.update({
+                                content: `因為輸入金額為 0 coin，因此不設立獎勵箱。`, 
+                                components: []
+                            });
+                        } else {
+                            let awardBox = new guild.betAwardBox(money, Date.now() + dayLong * 86400 * 1000);
+                            i.update({
+                                content: `成功設定獎勵箱!\n領取截止時間: <t:${Math.floor((awardBox.endTime) / 1000)}:F>\n金額: ${money} coin(s)`, 
+                                components: []
+                            });
+                            fs.writeFile(`./data/guildData/${guildInformation.id}/awardBox/${awardBox.endTime}.json`,
+                                JSON.stringify(awardBox, null, '\t'),
+                                err => { if (err) return console.log(err);}
+                            );
+                            //TODO: 設定獎勵箱設置上限
+                        }
+                        collector.stop("set");
+                    }
+                    
+
                 }
             });
 

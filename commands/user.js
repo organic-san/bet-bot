@@ -24,13 +24,21 @@ module.exports = {
                 .setDescription('要查看的對象')
                 .setRequired(true)
             )
-        ),
+        )/*.addSubcommand(opt =>
+            opt.setName('group-setting')
+            .setDescription('用戶相關設定(由管理員操控)')
+            .addRoleOption(opt => 
+                opt.setName('user')
+                .setDescription('要查看的對象')
+                .setRequired(true)
+            )
+        )*/,
     tag: "guildInfo",
 
     /**
      * 
      * @param {Discord.CommandInteraction} interaction 
-     * @param {guild.GuildInformation} guildInformation 
+     * @param {guild.guildInformation} guildInformation 
      */
 	async execute(interaction, guildInformation) {
         /*
@@ -44,7 +52,8 @@ module.exports = {
             let userData = guildInformation.getUser(user.id);
             if(!userData) 
                 return interaction.reply({content: `在我的資料中沒有 ${user} 的資料。可能是因為他不在這個伺服器，或者沒有參與遊戲。`, ephemeral: true});
-            let embed = new Discord.MessageEmbed()
+            //TODO: 從資料庫中拉出用戶資料
+                let embed = new Discord.MessageEmbed()
                 .setColor(process.env.EMBEDCOLOR)
                 .addField('持有金錢', userData.coins + " coin(s)", true)
                 .addField('累計下注', userData.totalBet + " coin(s)", true)
@@ -120,6 +129,7 @@ module.exports = {
             
             let userData = guildInformation.getUser(user.id);
             if(!userData) return interaction.reply({content: `在我的資料中沒有 ${user} 的資料。可能是因為他不在這個伺服器，或者沒有參與遊戲。`, ephemeral: true});
+            //TODO: 從資料庫中拉出用戶資料
             const row = new Discord.MessageActionRow()
             .addComponents(
                 [
@@ -133,7 +143,7 @@ module.exports = {
                         .setStyle('PRIMARY'),
                     new Discord.MessageButton()
                         .setCustomId('reset')
-                        .setLabel('重置該用戶的coin(s)')
+                        .setLabel('重置該用戶的coin(s)與下注紀錄')
                         .setStyle('PRIMARY'),
                 ]
             );
@@ -174,7 +184,7 @@ module.exports = {
                             ]
                         );
                         i.update({
-                            content: `即將重置 <@${userData.id}> 的持有coin(s)。確認重置?請點選下方按鈕確認。`, 
+                            content: `即將重置 <@${userData.id}> 的持有coin(s)與下注紀錄。確認重置?請點選下方按鈕確認。`, 
                             components: [row], 
                             fetchReply: true
                         });
@@ -233,8 +243,11 @@ module.exports = {
 
                 } else if(optionChoose === 'reset') {
                     userData.coins = 100;
+                    userData.totalBet = 0;
+                    userData.totalGet = 0;
+                    userData.joinTimes = 0;
                     i.update({
-                        content: `已重置 <@${userData.id}> 的持有coin(s)。`, 
+                        content: `已重置 <@${userData.id}> 的持有coin(s)與下注紀錄。`, 
                         components: []
                     });
                     collector.stop("set");
