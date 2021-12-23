@@ -86,6 +86,19 @@ client.on('ready', () =>{
                 ele.saveTime++;
                 if(ele.saveTime > 3) val.users.delete(id);
             });
+            fs.readdirSync(`./data/guildData/${key}/awardBox`).forEach(box => {
+                let awardBox = new guild.betAwardBox(0, 0, 0);
+                            awardBox.toAwardBoxObject(
+                                JSON.parse(
+                                    fs.readFileSync(`./data/guildData/${key}/awardBox/${box}`)
+                                )
+                            );
+                if(awardBox.endTime < Date.now()) {
+                    fs.unlink(`./data/guildData/${key}/awardBox/${box}`, function () {
+                        console.log(`刪除: ${val.name} 的獎勵箱 ID: ${awardBox.id} (自動刪除)`);
+                    });
+                }
+            });
         });
         time = new Date();
         console.log(`Saved in ${time} (auto)`);
@@ -107,7 +120,7 @@ client.on('interactionCreate', async interaction => {
     if(!guildInformation.get(interaction.guild.id)){
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}`, err => {if(err) console.error(err)});
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}/users`, err => {if(err) console.error(err)});
-        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/betRecord`, err => {if(err) console.error(err)});
+        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/bettingRecord`, err => {if(err) console.error(err)});
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}/awardBox`, err => {if(err) console.error(err)});
         const basicInfo = new guild.guildInformation(interaction.guild);
         fs.writeFile(
@@ -133,6 +146,7 @@ client.on('interactionCreate', async interaction => {
     element.recordAt = new Date(Date.now());
 
     //個人資料檢查與建立
+    //TODO: 修正用戶資料讀取: 改成要用的時候再讀，不要統一讀取
     const userData = element.getUser(interaction.user.id);
     if(!userData) {
         const userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
@@ -141,7 +155,7 @@ client.on('interactionCreate', async interaction => {
             const userData = new guild.User(interaction.user.id, interaction.user.tag);
             fs.writeFile(
                 `./data/guildData/${interaction.guild.id}/users/${interaction.user.id}.json`,
-                JSON.stringify(userData, null, '\t'), err => {if(err) console.error(err)}
+                JSON.stringify(userData.outputUser(), null, '\t'), err => {if(err) console.error(err)}
             );
             element.addUser(userData);
         } else {
@@ -205,6 +219,19 @@ client.on('messageCreate', async msg =>{
                     });
                     ele.saveTime++;
                     if(ele.saveTime > 3) val.users.delete(id);
+                });
+                fs.readdirSync(`./data/guildData/${key}/awardBox`).forEach(box => {
+                    let awardBox = new guild.betAwardBox(0, 0, 0);
+                                awardBox.toAwardBoxObject(
+                                    JSON.parse(
+                                        fs.readFileSync(`./data/guildData/${key}/awardBox/${box}`)
+                                    )
+                                );
+                    if(awardBox.endTime < Date.now()) {
+                        fs.unlink(`./data/guildData/${key}/awardBox/${box}`, function () {
+                            console.log(`刪除: ${val.name} 的獎勵箱 ID: ${awardBox.id} (自動刪除)`);
+                        });
+                    }
                 });
             });
             time = new Date();

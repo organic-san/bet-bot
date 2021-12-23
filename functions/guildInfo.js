@@ -11,6 +11,7 @@ class GuildInformation {
         this.name = guild.name;
         this.joinedAt = new Date(Date.now());
         this.recordAt = new Date(Date.now());
+        this.awardBoxCount = 0;
         /**
          * @type {Map<string, User>}
          */
@@ -29,6 +30,7 @@ class GuildInformation {
     toGuildInformation(obj) {
         this.joinedAt = obj.joinedAt;
         this.recordAt = obj.recordAt;
+        this.awardBoxCount = obj.awardBoxCount ?? 0;
         this.betInfo.toBetGameObject(obj.betInfo);
     }
 
@@ -114,7 +116,8 @@ class GuildInformation {
             "name": this.name,
             "joinedAt": this.joinedAt,
             "recordAt": this.recordAt,
-            "betCount": this.betCount
+            "betCount": this.betCount,
+            "awardBoxCount": this.awardBoxCount,
         }
     }
 
@@ -354,12 +357,16 @@ class BetAwardBox {
 
     /**
      * 
+     * @param {string} id 
      * @param {number} coinMuch 
-     * @param {number} endTime 
+     * @param {number} days 設定日數
      */
-    constructor(coinMuch, endTime) {
+    constructor(id, coinMuch, days) {
+        this.id = id;
         this.coinMuch = coinMuch;
         this.startTime = Date.now();
+        let endDay = Date.now() + (days * 86400 * 1000);
+        let endTime = Math.ceil(endDay / (1000 * 86400)) * (1000 * 86400) + 1000 * (3 - 8) * 60 * 60;
         this.endTime = endTime;
         /**
          * @type {Array<string>}
@@ -368,6 +375,7 @@ class BetAwardBox {
     }
 
     toAwardBoxObject(obj) {
+        this.id = obj.id ?? '0';
         this.coinMuch = obj.coinMuch ?? 0;
         this.startTime = obj.startTime ?? 0;
         this.endTime = obj.endTime ?? 0;

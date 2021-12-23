@@ -106,7 +106,7 @@ module.exports = {
                                     components: []
                                 });
                             } else {
-                                if(guildInformation.getUser(interaction.user.id).coins <= 0) {
+                                if(guildInformation.getUser(interaction.user.id).coins - money < 0) {
                                     return i.update({
                                         content: `持有coin(s)並不足以支付本次下注。`, 
                                         components: []
@@ -124,6 +124,12 @@ module.exports = {
                                 guildInformation.betInfo.addRecord(interaction.user.id, target, money);
                                 targetData.betCount += money;
                                 guildInformation.betInfo.totalBet += money;
+                                fs.writeFile(
+                                    `./data/guildData/${guildInformation.id}/users/${guildInformation.getUser(interaction.user.id).id}.json`, 
+                                    JSON.stringify(guildInformation.getUser(interaction.user.id).outputUser(), null, '\t'),async function (err) {
+                                    if (err)
+                                        return console.log(err);
+                                });
                                 i.update({
                                     content: `下注成功!\n對象: ${targetData.name}\n金額: ${money} coin(s)`, 
                                     components: []
@@ -149,14 +155,14 @@ module.exports = {
 
             const embed = new Discord.MessageEmbed()
                 .setColor(process.env.EMBEDCOLOR)
-                .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "投注中" : "封盤中"}`)
+                .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "🟢投注中" : "🔴封盤中"}`)
                 .setDescription(guildInformation.betInfo.description)
                 .addField(`目前賭盤資訊`, `總累計賭金:  ${guildInformation.betInfo.totalBet}`)
                 .setTimestamp()
                 .setFooter(`${interaction.guild.name}`,`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
 
             guildInformation.betInfo.option.forEach(option => {
-                embed.addField("選項/" + option.name, option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
+                embed.addField("📔 " + option.name, option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
                     `賠率: ${option.betCount>0 ? Math.floor((guildInformation.betInfo.totalBet / option.betCount) * 10) / 10 : "尚無法計算賠率"}`)
             })
             interaction.reply({embeds: [embed]});
@@ -243,7 +249,7 @@ module.exports = {
                             .setTimestamp()
                             .setFooter(`${interaction.client.user.tag}`,interaction.client.user.displayAvatarURL({dynamic: true}));
                         defaultRaceData[i.values].option.forEach(ele => {
-                            embed.addField(ele.name, ele.description);
+                            embed.addField("📔 " + ele.name, ele.description);
                         })
                         const row = new Discord.MessageActionRow()
                         .addComponents(
@@ -520,11 +526,11 @@ module.exports = {
                                 .setStyle('PRIMARY'),
                             new Discord.MessageButton()
                                 .setCustomId('awardShow')
-                                .setLabel('查看所有獎勵箱(尚未啟用)')
+                                .setLabel('查看所有獎勵箱')
                                 .setStyle('PRIMARY'),
                             new Discord.MessageButton()
                                 .setCustomId('awardStop')
-                                .setLabel('取消獎勵箱(尚未啟用)')
+                                .setLabel('刪除獎勵箱')
                                 .setStyle('PRIMARY'),
                         ]
                     ),
@@ -534,8 +540,10 @@ module.exports = {
             const collector = msg.createMessageComponentCollector({time: 120 * 1000 });
             let optionChoose = "";
             let dayLong = 0;
+            let isDayLongSet = false;
             let isMoneySet = false;
             let money = 0;
+            let target = '0';
 
             collector.on('collect', async i => {
                 if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
@@ -568,6 +576,9 @@ module.exports = {
                         if(guildInformation.betInfo.isPlaying !== 0) 
                             return i.update({content: "賭盤正進行中，尚未產生結果。", components: [] });
 
+                        if(guildInformation.betInfo.betRecord.length === 0) 
+                            return i.update({content: "上次賭盤沒有投注紀錄。", components:[]});
+
                         const row = new Discord.MessageActionRow()
                         .addComponents(
                             [
@@ -582,8 +593,8 @@ module.exports = {
                             components: [row]
                         });
                         collector.resetTimer({ time: 120 * 1000 });
-                    } else if(optionChoose === 'reset') {
 
+                    } else if(optionChoose === 'reset') {
                         if(guildInformation.betInfo.isPlaying !== 0) 
                             return i.update({content: "請先關閉當前賭盤再執行本操作。", components: [] });
 
@@ -601,49 +612,108 @@ module.exports = {
                             components: [row]
                         });
                         collector.resetTimer({ time: 120 * 1000 });
-                    } else if(optionChoose === 'award') {
 
-                        const row = new Discord.MessageActionRow()
-                        .addComponents(
-                            [
-                                new Discord.MessageButton()
-                                    .setCustomId('1')
-                                    .setLabel('1天')
-                                    .setStyle('PRIMARY'),
-                                new Discord.MessageButton()
-                                    .setCustomId('3')
-                                    .setLabel('3天')
-                                    .setStyle('PRIMARY'),
-                                new Discord.MessageButton()
-                                    .setCustomId('7')
-                                    .setLabel('7天')
-                                    .setStyle('PRIMARY'),
-                                new Discord.MessageButton()
-                                    .setCustomId('14')
-                                    .setLabel('14天')
-                                    .setStyle('PRIMARY'),
-                                new Discord.MessageButton()
-                                    .setCustomId('30')
-                                    .setLabel('1個月')
-                                    .setStyle('PRIMARY')
-                            ]
-                        );
+                    } else if(optionChoose === 'award') {
+                        if(fs.readdirSync(`./data/guildData/${guildInformation.id}/awardBox`).length >= 5) {
+                            return i.update({
+                                content: 
+                                    `獎勵箱只能設置到5個。請等待獎勵箱失效或取消獎勵箱。\n注: 獎勵箱將會持續到當日換日時刻3:00(UTC+8)`, 
+                                components: []
+                            });
+                        }
+                        const row = rowCreate(false);
                         i.update({
                             content: 
-                                `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。` +
-                                `請輸入要設立的獎勵箱的金額。`, 
-                            components: [row]
+                                `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。\n` +
+                                `請輸入要設置的獎勵箱的日期長度。`,
+                            components: row
                         });
                         collector.resetTimer({ time: 180 * 1000 });
 
-                    }  else if(optionChoose === "awardShow") {
-                        i.update({content: "目前尚不開放本設定。", components: []});
+                    } else if(optionChoose === "awardShow") {
+                        let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/awardBox`);
+                        if(filename.length <= 0) {
+                            return i.update({
+                                content: 
+                                    `目前並沒有設置獎勵箱。`, 
+                                components: []
+                            });
+                        }
+                        const embed = new Discord.MessageEmbed()
+                            .setColor(process.env.EMBEDCOLOR)
+                            .setTitle(`${interaction.guild.name} 的獎勵箱一覽`)
+                            .setTimestamp()
+                            .setFooter(
+                                `${interaction.guild.name}`,
+                                `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`
+                            );
+                        
+                        filename.forEach((filename) => {
+                            try{
+                                let awardBox = new guild.betAwardBox('0', 0, 0);
+                                awardBox.toAwardBoxObject(
+                                    JSON.parse(
+                                        fs.readFileSync(`./data/guildData/${guildInformation.id}/awardBox/${filename}`)
+                                    )
+                                );
+                                embed.addField("獎勵箱 " + awardBox.id, 
+                                    `設定金額: ${awardBox.coinMuch}\n` + 
+                                    `起始時間: <t:${Math.floor(awardBox.startTime / 1000)}:F>\n` +
+                                    `截止時間: <t:${Math.floor(awardBox.endTime / 1000)}:F>\n` +
+                                    `領取人數: ${awardBox.awardIdList.length}`
+                                )
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        });
+                        i.update({
+                            content: 
+                                `以下為目前發放中的獎勵箱。`, 
+                            embeds: [embed],
+                            components: []
+                        });
                         collector.stop('set');
-                        //TODO: 顯示所有獎勵箱
 
                     } else if(optionChoose === "awardStop") {
-                        i.update({content: "目前尚不開放本設定。", components: []});
-                        collector.stop('set');
+                        let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/awardBox`);
+                        if(filename.length <= 0) {
+                            return i.update({
+                                content: 
+                                    `目前並沒有設置獎勵箱。`, 
+                                components: []
+                            });
+                        }
+                        let boxRowData = [];
+                        filename.forEach((filename) => {
+                            try{
+                                let awardBox = new guild.betAwardBox('0', 0, 0);
+                                awardBox.toAwardBoxObject(
+                                    JSON.parse(
+                                        fs.readFileSync(`./data/guildData/${guildInformation.id}/awardBox/${filename}`)
+                                    )
+                                );
+                                let time = new Date(awardBox.endTime);
+                                boxRowData.push({
+                                    label: "獎勵箱 " + awardBox.id,
+                                    value: awardBox.id,
+                                    description: `設定金額: ${awardBox.coinMuch} ` + 
+                                    `截止時間: ${time.getDate()}日 ` + 
+                                    `${time.getHours()}:${time.getMinutes()<10?'0'+time.getMinutes():time.getMinutes()}(UTC+8) ` +
+                                    `領取人數: ${awardBox.awardIdList.length}`
+                                });
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        });
+                        const row = new Discord.MessageActionRow()
+                        .addComponents(
+                            new Discord.MessageSelectMenu()
+                                .setCustomId('optionSelect')
+                                .setPlaceholder('選擇要刪除的獎勵箱')
+                                .addOptions(boxRowData),
+                        );
+                        collector.resetTimer({ time: 180 * 1000 });
+                        i.update({content: "請選擇要刪除的獎勵箱。", components: [row]});
                         //TODO: 刪除獎勵箱
 
                     }
@@ -657,7 +727,7 @@ module.exports = {
                     for(let i = 0; i < Math.floor((guildInformation.betInfo.betRecord.length - 1) / onePpageMax) + 1; i++) {
                         const embed = new Discord.MessageEmbed()
                         .setColor(process.env.EMBEDCOLOR)
-                        .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "投注中" : "封盤中"}`)
+                        .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "🟢投注中" : "🔴封盤中"}`)
                         .setTimestamp()
                         .setFooter(`${interaction.guild.name} | 第 ${i + 1} 頁`,
                             `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
@@ -718,18 +788,66 @@ module.exports = {
                     collector.stop("set");
 
                 } else if(optionChoose === 'reset') {
-                    for(let i = 0; i < guildInformation.users.length; i++) {
-                        guildInformation.users[i].coins = 100;
-                        guildInformation.users[i].lastAwardTime = 0;
-                    }
-                    i.update({
+                    await i.deferUpdate();
+                    let filename = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`);
+                    filename.forEach(filename => {
+                        let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${filename}`);
+                        parseJsonlist = JSON.parse(parseJsonlist);
+                        let newUser = new guild.User(parseJsonlist.id, parseJsonlist.tag);
+                        newUser.toUser(parseJsonlist);
+                        newUser.coins = 100;
+                        newUser.lastAwardTime = 0;
+                        fs.writeFile(
+                            `./data/guildData/${interaction.guild.id}/users/${filename}`, 
+                            JSON.stringify(newUser.outputUser(), null, '\t'
+                        ),async function (err) {
+                            if (err)
+                                return console.log(err);
+                        });
+                    });
+                    i.editReply({
                         content: `已重置所有人的持有coin(s)。`, 
                         components: []
                     });
                     collector.stop("set");
 
                 } else if(optionChoose === 'award') {
-                    if(dayLong !== 0) {
+                    if(!isDayLongSet) {
+                        if(i.customId === 'delete') {
+                            dayLong = Math.floor(dayLong / 10);
+                        } else if(i.customId === 'complete') {
+                            isDayLongSet = true;
+                        } else {
+                            dayLong += i.customId;
+                            dayLong = Math.min(dayLong, 60);
+                        }
+                        if(!isDayLongSet) {
+                            const row = rowCreate(dayLong >= 60);
+                            i.update({
+                                content: 
+                                    `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。\n` +
+                                    `請輸入要設立的獎勵箱的日期長度。` +
+                                    `\`\`\`\n獎勵箱日期長度: ${dayLong} 日\n\`\`\``, 
+                                components: row
+                            });
+                        } else {
+                            const row = rowCreate(money >= 100000);
+                            i.update({
+                                content: 
+                                    `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。\n` +
+                                    `請輸入要設立的獎勵箱的金額。` +
+                                    `\`\`\`\n獎勵箱金額: \$${money} coin(s)\n\`\`\``, 
+                                components: row
+                            });
+                        }
+                    } else {
+                        if(dayLong === 0) {
+                            collector.stop("set");
+                            return i.update({
+                                content: `因為輸入日期長度為 0，因此取消下注。`, 
+                                components: []
+                            });
+                        }
                         if(i.customId === 'delete') {
                             money = Math.floor(money / 10);
                         } else if(i.customId === 'complete') {
@@ -738,45 +856,115 @@ module.exports = {
                             money += i.customId;
                             money = Math.min(money, 100000);
                         }
-                    } else dayLong = parseInt(i.customId);
-                    if(!isMoneySet) {
-                        const row = rowCreate(money >= 100000);
-                        i.update({
-                            content: 
-                            `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。` +
-                            `請輸入要設立的獎勵箱的金額。` +
-                                `\`\`\`\n獎勵箱金額: \$${money} coin(s)\n\`\`\``, 
-                            components: row
-                        });
-                    } else {
-                        if(money === 0) {
+                        if(!isMoneySet) {
+                            const row = rowCreate(money >= 100000);
                             i.update({
-                                content: `因為輸入金額為 0 coin，因此不設立獎勵箱。`, 
-                                components: []
+                                content: 
+                                    `設立獎勵箱，用以發放給所有人獎勵，可使用/daily獲得獎勵。\n` +
+                                    `請輸入要設立的獎勵箱的金額。` +
+                                    `\`\`\`\n獎勵箱金額: \$${money} coin(s)\n\`\`\``, 
+                                components: row
                             });
                         } else {
-                            let awardBox = new guild.betAwardBox(money, Date.now() + dayLong * 86400 * 1000);
-                            i.update({
-                                content: `成功設定獎勵箱!\n領取截止時間: <t:${Math.floor((awardBox.endTime) / 1000)}:F>\n金額: ${money} coin(s)`, 
-                                components: []
-                            });
-                            fs.writeFile(`./data/guildData/${guildInformation.id}/awardBox/${awardBox.endTime}.json`,
-                                JSON.stringify(awardBox, null, '\t'),
-                                err => { if (err) return console.log(err);}
-                            );
-                            //TODO: 設定獎勵箱設置上限
+                            if(money === 0) {
+                                i.update({
+                                    content: `因為輸入金額為 0 coin，因此不設立獎勵箱。`, 
+                                    components: []
+                                });
+                            } else {
+                                guildInformation.awardBoxCount++;
+                                let awardBox = new guild.betAwardBox(guildInformation.awardBoxCount.toString(), money, dayLong);
+                                i.update({
+                                    content: `成功設定獎勵箱!\n` + 
+                                        `領取截止時間: <t:${Math.floor((awardBox.endTime) / 1000)}:F>\n金額: ${money} coin(s)`, 
+                                    components: []
+                                });
+                                fs.writeFile(`./data/guildData/${guildInformation.id}/awardBox/${awardBox.id}.json`,
+                                    JSON.stringify(awardBox, null, '\t'),
+                                    err => { if (err) return console.log(err);}
+                                );
+                                fs.writeFile(`./data/guildData/${guildInformation.id}/basicInfo.json`,
+                                    JSON.stringify(guildInformation.outputBasic(), null, '\t'),
+                                    err => { if (err) return console.log(err);}
+                                );
+                            }
+                            collector.stop("set");
                         }
-                        collector.stop("set");
                     }
-                    
 
+                } else if(optionChoose === 'awardStop') {    
+                    if(target == 0) {
+                        target = i.values[0];
+                        let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/awardBox`);
+                        if(!filename.includes(target + '.json')) {
+                            collector.stop('set');
+                            return i.update({content: `該獎勵箱已失效或被刪除，因此停止刪除動作。`, components: []});
+                        }
+                        try{
+                            let awardBox = new guild.betAwardBox('0', 0, 0);
+                            awardBox.toAwardBoxObject(
+                                JSON.parse(
+                                    fs.readFileSync(`./data/guildData/${guildInformation.id}/awardBox/${target + '.json'}`)
+                                )
+                            );
+                            const row = new Discord.MessageActionRow()
+                                .addComponents(
+                                    [
+                                        new Discord.MessageButton()
+                                            .setCustomId('promise')
+                                            .setLabel('確認刪除')
+                                            .setStyle('PRIMARY'),
+                                    ]
+                                );
+                            i.update({content: 
+                                `即將刪除獎勵箱 ${awardBox.id}。確認刪除?請點擊下方按鈕。` + 
+                                "獎勵箱資訊:\n" + 
+                                `設定金額: ${awardBox.coinMuch}\n` + 
+                                `起始時間: <t:${Math.floor(awardBox.startTime / 1000)}:F>\n` +
+                                `截止時間: <t:${Math.floor(awardBox.endTime / 1000)}:F>\n` +
+                                `領取人數: ${awardBox.awardIdList.length}`
+                                , components: [row]}
+                            );
+                        } catch (err) {
+                            console.error(err);
+                        }
+                        
+                    } else {
+                        let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/awardBox`);
+                        if(!filename.includes(target + '.json')) {
+                            collector.stop('set');
+                            return i.update({content: `該獎勵箱已失效或被刪除，因此停止刪除動作。`, components: []});
+                        }
+                        try{
+                            let awardBox = new guild.betAwardBox('0', 0, 0);
+                            awardBox.toAwardBoxObject(
+                                JSON.parse(
+                                    fs.readFileSync(`./data/guildData/${guildInformation.id}/awardBox/${target + '.json'}`)
+                                )
+                            );
+                            fs.unlink(`./data/guildData/${guildInformation.id}/awardBox/${target + '.json'}`, function () {
+                                console.log(`刪除: ${guildInformation.name} 的獎勵箱 ID: ${awardBox.id} (手動刪除)`);
+                            });
+                            i.update({content: 
+                                `已刪除該獎勵箱 ${awardBox.id}。`+ 
+                                "獎勵箱資訊:\n" +
+                                `設定金額: ${awardBox.coinMuch}\n` + 
+                                `起始時間: <t:${Math.floor(awardBox.startTime / 1000)}:F>\n` +
+                                `截止時間: <t:${Math.floor(awardBox.endTime / 1000)}:F>\n` +
+                                `領取人數: ${awardBox.awardIdList.length}`
+                                , components: []}
+                            );
+                        } catch (err) {
+                            console.error(err);
+                        }
+                    }
                 }
             });
 
             collector.on('end', (c, r) => {
                 if(r !== "messageDelete" && r !== "user" && r !== "set"){
                     interaction.editReply({
-                        content: `取消顯示。`, 
+                        content: `取消設定。`, 
                         components: []
                     });
                 }

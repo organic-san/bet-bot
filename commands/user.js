@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require('discord.js');
 const guild = require('../functions/guildInfo');
+const fs = require('fs');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -41,17 +42,29 @@ module.exports = {
      * @param {guild.guildInformation} guildInformation 
      */
 	async execute(interaction, guildInformation) {
-        /*
-        if(!(interaction.guild.members.cache.get((interaction.options.getUser('user') ?? interaction.user).id))) 
-            return interaction.reply({content: "我沒辦法在這個伺服器中找到他。", ephemeral:true});
-        */
+
         if (interaction.options.getSubcommand() === 'info') {
 
-            const user = interaction.options.getUser('user') ?? interaction.user;
+            let user = interaction.options.getUser('user') ?? interaction.user;
             
             let userData = guildInformation.getUser(user.id);
-            if(!userData) 
-                return interaction.reply({content: `在我的資料中沒有 ${user} 的資料。可能是因為他不在這個伺服器，或者沒有參與遊戲。`, ephemeral: true});
+            if(!userData) {
+                userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
+                    .filter(file => file.endsWith('.json') && file.startsWith(user.id));
+                if(userData.length === 0) {
+                    return interaction.reply({content: `在我的資料中沒有 ${user} 的資料。可能是因為他不在這個伺服器，或者沒有參與遊戲。`, ephemeral: true});
+                } else {
+                    try{
+                        let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${user.id}.json`);
+                        parseJsonlist = JSON.parse(parseJsonlist);
+                        userData = new guild.User(parseJsonlist.id, parseJsonlist.tag);
+                        userData.toUser(parseJsonlist);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+            }
+                
             //TODO: 從資料庫中拉出用戶資料
                 let embed = new Discord.MessageEmbed()
                 .setColor(process.env.EMBEDCOLOR)
@@ -125,11 +138,26 @@ module.exports = {
         
         //以下需要管理權限
         if(interaction.options.getSubcommand() === 'setting') {
-            const user = interaction.options.getUser('user') ?? interaction.user;
+            let user = interaction.options.getUser('user') ?? interaction.user;
             
             let userData = guildInformation.getUser(user.id);
-            if(!userData) return interaction.reply({content: `在我的資料中沒有 ${user} 的資料。可能是因為他不在這個伺服器，或者沒有參與遊戲。`, ephemeral: true});
-            //TODO: 從資料庫中拉出用戶資料
+            if(!userData) {
+                userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
+                    .filter(file => file.endsWith('.json') && file.startsWith(user.id));
+                if(userData.length === 0) {
+                    return interaction.reply({content: `在我的資料中沒有 ${user} 的資料。可能是因為他不在這個伺服器，或者沒有參與遊戲。`, ephemeral: true});
+                } else {
+                    try{
+                        let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${user.id}.json`);
+                        parseJsonlist = JSON.parse(parseJsonlist);
+                        userData = new guild.User(parseJsonlist.id, parseJsonlist.tag);
+                        userData.toUser(parseJsonlist);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+            }
+
             const row = new Discord.MessageActionRow()
             .addComponents(
                 [
@@ -236,6 +264,12 @@ module.exports = {
                                 content: `${optionChoose === 'add' ? '發放' : '收回'}成功!\n對象: <@${userData.id}>\n金額: ${money} coin(s)`, 
                                 components: []
                             });
+                            fs.writeFile(
+                                `./data/guildData/${guildInformation.id}/users/${userData.id}.json`, 
+                                JSON.stringify(userData.outputUser(), null, '\t'),async function (err) {
+                                if (err)
+                                    return console.log(err);
+                            });
                         }
                         collector.stop("set");
                     }
@@ -246,11 +280,18 @@ module.exports = {
                     userData.totalBet = 0;
                     userData.totalGet = 0;
                     userData.joinTimes = 0;
+                    userData.lastAwardTime = 0;
                     i.update({
                         content: `已重置 <@${userData.id}> 的持有coin(s)與下注紀錄。`, 
                         components: []
                     });
                     collector.stop("set");
+                    fs.writeFile(
+                        `./data/guildData/${guildInformation.id}/users/${userData.id}.json`, 
+                        JSON.stringify(userData.outputUser(), null, '\t'),async function (err) {
+                        if (err)
+                            return console.log(err);
+                    });
                 }
             });
 

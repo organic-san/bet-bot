@@ -37,12 +37,12 @@ module.exports = {
         const fileDirs = fs.readdirSync(`./data/guildData/${guildInformation.id}/awardBox`);
         fileDirs.forEach(fileName => {
             try{
-                let awardBox = new guild.betAwardBox(0, 0);
+                let awardBox = new guild.betAwardBox('0', 0, 0);
                 awardBox.toAwardBoxObject(JSON.parse(fs.readFileSync(`./data/guildData/${guildInformation.id}/awardBox/${fileName}`)));
                 if(!awardBox.awardIdList.includes(interaction.user.id)) {
                     awardBox.awardIdList.push(interaction.user.id);
                     user.coins += awardBox.coinMuch;
-                    content += `\n-------\n領取額外獎勵成功!\n獲得 ${awardBox.coinMuch} coin(s)\n` + 
+                    content += `\n-------\n📬領取額外獎勵成功!\n獲得 ${awardBox.coinMuch} coin(s)\n` + 
                         `持有硬幣: ${user.coins - awardBox.coinMuch} + ${awardBox.coinMuch} => ${user.coins}!`;
                     fs.writeFile(`./data/guildData/${guildInformation.id}/awardBox/${fileName}`,
                         JSON.stringify(awardBox, null, '\t'),
