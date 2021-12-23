@@ -37,6 +37,8 @@ guildDirs.forEach( file => {
         const fileDirs = fs.readdirSync(`./data/guildData/${file}`);
         if(!fileDirs.includes("awardBox")) 
             fs.mkdirSync(`./data/guildData/${file}/awardBox`, err => {if(err) console.error(err)});
+        if(!fileDirs.includes("betRecord")) 
+            fs.mkdirSync(`./data/guildData/${file}/betRecord`, err => {if(err) console.error(err)});
         let parseJsonlist = fs.readFileSync(`./data/guildData/${file}/basicInfo.json`);
         parseJsonlist = JSON.parse(parseJsonlist);
             
@@ -120,7 +122,7 @@ client.on('interactionCreate', async interaction => {
     if(!guildInformation.get(interaction.guild.id)){
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}`, err => {if(err) console.error(err)});
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}/users`, err => {if(err) console.error(err)});
-        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/bettingRecord`, err => {if(err) console.error(err)});
+        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/betRecord`, err => {if(err) console.error(err)});
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}/awardBox`, err => {if(err) console.error(err)});
         const basicInfo = new guild.guildInformation(interaction.guild);
         fs.writeFile(

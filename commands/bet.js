@@ -714,7 +714,6 @@ module.exports = {
                         );
                         collector.resetTimer({ time: 180 * 1000 });
                         i.update({content: "請選擇要刪除的獎勵箱。", components: [row]});
-                        //TODO: 刪除獎勵箱
 
                     }
                     
@@ -797,6 +796,10 @@ module.exports = {
                         newUser.toUser(parseJsonlist);
                         newUser.coins = 100;
                         newUser.lastAwardTime = 0;
+                        if(guildInformation.getUser(newUser.id)) {
+                            guildInformation.getUser(newUser.id).coins = 100;
+                            guildInformation.getUser(newUser.id).lastAwardTime = 0;
+                        }
                         fs.writeFile(
                             `./data/guildData/${interaction.guild.id}/users/${filename}`, 
                             JSON.stringify(newUser.outputUser(), null, '\t'
