@@ -242,7 +242,6 @@ client.on('messageCreate', async msg =>{
             /*
             client.channels.fetch(process.env.CHECK_CH_ID).then(channel => channel.send(`手動存檔: <t:${Math.floor(Date.now() / 1000)}:F>`)).catch(err => console.log(err));
             */
-           if(msg.deletable) msg.delete().catch(console.error);;
         }else if(msg.content.startsWith("bet^t")){
             console.log(guildInformation.get(msg.guild.id));
         }else if(msg.content.startsWith("bet^a")){

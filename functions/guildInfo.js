@@ -331,14 +331,15 @@ class BetRecordObject {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.option = option;
+        /**
+         * @type {Array<BetGameObject>}
+         */
+        this.option = option ?? [];
         this.totalBet = 0;
-        this.winner = winner;
+        this.winner = winner ?? new BetGameOptionObject;
     }
 
     toBetRecordObject(obj) {
-        this.isPlaying = obj.isPlaying ?? 0;
-        this.count = obj.count ?? 0;
         this.id = obj.id ?? 0;
         this.name = obj.name ?? 'undefined';
         this.description = obj.description ?? 'nothing';

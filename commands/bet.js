@@ -473,10 +473,10 @@ module.exports = {
                     } else {
                         let rebackList = new Map();
                         const winOption = guildInformation.betInfo.getOption(target);
-                        let coinGet = Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10);
+                        let coinGet = (Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10) / 10);
                         guildInformation.betInfo.betRecord.forEach(element => {
-                            userList.get(element.userId).coins += Math.floor(element.coins * (coinGet / 10));
-                            userList.get(element.userId).totalGet += Math.floor(element.coins * (coinGet / 10));
+                            userList.get(element.userId).coins += Math.floor(element.coins * coinGet);
+                            userList.get(element.userId).totalGet += Math.floor(element.coins * coinGet);
                             rebackList.set(element.userId, rebackList.get(element.userId) ? rebackList.get(element.userId) + element.coins : element.coins)
                         })
                         rebackList.forEach((val, key) => {
@@ -775,39 +775,55 @@ module.exports = {
                     collector.stop("set");
 
                 } else if(optionChoose === "result") {
-                    i.update({
-                        content: `即將顯示上一次的所有下注紀錄。`, 
-                        components: []
-                    })
                     const onePpageMax = 20;
-                    const winner = guildInformation.betRecord[guildInformation.betRecord.length - 1].winner;
-                    const det = Math.floor((guildInformation.betInfo.totalBet / winner.betCount) * 10) / 10;
-                    for(let i = 0; i < Math.floor((guildInformation.betInfo.betRecord.length - 1) / onePpageMax) + 1; i++) {
-                        const embed = new Discord.MessageEmbed()
-                        .setColor(process.env.EMBEDCOLOR)
-                        .setTitle(`賭盤: ${guildInformation.betInfo.name} 的結果`)
-                        .setTimestamp()
-                        .setFooter(`${interaction.guild.name} | 第 ${i + 1} 頁`,
-                            `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
-                        
-                        let nameStr = [];
-                        let coinStr = [];
-                        let targetStr = [];
-                        for(let j = i * onePpageMax; j < Math.min(i * onePpageMax + onePpageMax, guildInformation.betInfo.betRecord.length); j++) {
-                            const target = guildInformation.betInfo.getOption(guildInformation.betInfo.betRecord[j].optionId);
-                            nameStr.push('<@' + guildInformation.betInfo.betRecord[j].userId + '>');
-                            targetStr.push(target.name);
-                            if(guildInformation.betInfo.betRecord[j].optionId === winner.id){
-                                coinStr.push(`${guildInformation.betInfo.betRecord[j].coins} => ${Math.floor(guildInformation.betInfo.betRecord[j].coins * det)}`);
-                            }else
-                                coinStr.push(guildInformation.betInfo.betRecord[j].coins.toString());
-                        }
-                        embed
-                            .addField('用戶名稱', nameStr.join('\n'), true)
-                            .addField('投注對象', targetStr.join('\n'), true)
-                            .addField('投注&獲得金額', coinStr.join('\n'), true);
+                    let fileDirs = fs.readdirSync(`./data/guildData/${guildInformation.id}/betRecord`);
+                    fileDirs = fileDirs[fileDirs.length - 1];
+                    try {
+                        let parseJsonlist = fs.readFileSync(`./data/guildData/${guildInformation.id}/betRecord/${fileDirs}`);
+                        parseJsonlist = JSON.parse(parseJsonlist);
 
-                        await interaction.channel.send({embeds: [embed]});
+                        const result = new guild.betRecordObject();
+                        result.toBetRecordObject(parseJsonlist);
+
+                        i.update({
+                            content: `即將顯示上一次的所有下注紀錄。\n` +
+                                `總投注coin(s): ${guildInformation.betInfo.totalBet} coin(s)\n` +
+                                `開盤選項名稱: ${result.winner.name}\n` +
+                                `開盤選項賠率: ${result.winner.betCount > 0 ? guildInformation.betInfo.totalBet / result.winner.betCount : "無法計算"}\n`, 
+                            components: []
+                        })
+                        
+                        const det = (Math.floor((result.totalBet / result.winner.betCount) * 10) / 10);
+                        for(let i = 0; i < Math.floor((guildInformation.betInfo.betRecord.length - 1) / onePpageMax) + 1; i++) {
+                            const embed = new Discord.MessageEmbed()
+                            .setColor(process.env.EMBEDCOLOR)
+                            .setTitle(`賭盤: ${guildInformation.betInfo.name} 的結果`)
+                            .setTimestamp()
+                            .setFooter(`${interaction.guild.name} | 第 ${i + 1} 頁`,
+                                `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
+                            
+                            let nameStr = [];
+                            let coinStr = [];
+                            let targetStr = [];
+                            for(let j = i * onePpageMax; j < Math.min(i * onePpageMax + onePpageMax, guildInformation.betInfo.betRecord.length); j++) {
+                                const target = guildInformation.betInfo.getOption(guildInformation.betInfo.betRecord[j].optionId);
+                                nameStr.push('<@' + guildInformation.betInfo.betRecord[j].userId + '>');
+                                targetStr.push(target.name);
+                                if(guildInformation.betInfo.betRecord[j].optionId === result.winner.id){
+                                    coinStr.push(`${guildInformation.betInfo.betRecord[j].coins} => ${Math.floor(guildInformation.betInfo.betRecord[j].coins * det)}`);
+                                }else
+                                    coinStr.push(guildInformation.betInfo.betRecord[j].coins.toString());
+                            }
+                            embed
+                                .addField('用戶名稱', nameStr.join('\n'), true)
+                                .addField('投注對象', targetStr.join('\n'), true)
+                                .addField('投注&獲得金額', coinStr.join('\n'), true);
+    
+                            await interaction.channel.send({embeds: [embed]});
+                        }
+
+                    } catch(err) {
+                        console.error(err);
                     }
                     collector.stop("set");
 
