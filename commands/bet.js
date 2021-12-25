@@ -75,7 +75,7 @@ module.exports = {
                         const targetData = guildInformation.betInfo.getOption(target);
                         i.update({
                             content: 
-                                `選擇的選項為: ${targetData.name}` +  
+                                `選擇的選項為: ${targetData.name}\n` +  
                                 `目前持有金額為: \$${guildInformation.getUser(interaction.user.id).coins} coin(s)\n請輸入下注金額。`, 
                             components: row
                         });
@@ -417,22 +417,36 @@ module.exports = {
                             components: []
                         });
                     }
+                    await i.deferUpdate();
+
+                    /**
+                     * @type {Map<string, guild.User>}
+                     */
+                    let userList = new Map();
+                    let filename = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`);
+                    filename.forEach(filename => {
+                        let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${filename}`);
+                        parseJsonlist = JSON.parse(parseJsonlist);
+                        let newUser = new guild.User(parseJsonlist.id, parseJsonlist.tag);
+                        newUser.toUser(parseJsonlist);
+                        userList.set(newUser.id, newUser);
+                    });
                     if(target === "cancel") {
                         let rebackList = new Map();
                         guildInformation.betInfo.betRecord.forEach(element => {
-                            guildInformation.getUser(element.userId).coins += element.coins;
+                            userList.get(element.userId).coins += element.coins;
+                            userList.get(element.userId).totalBet -= element.coins;
                             rebackList.set(element.userId, rebackList.get(element.userId) ? rebackList.get(element.userId) + element.coins : element.coins)
-                            guildInformation.getUser(element.userId).totalBet -= element.coins;
                         })
                         rebackList.forEach((val, key) => {
                             interaction.client.users.fetch(key).then(user => {
                                 user.send(`**${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」已取消。\n` + 
                                     `已將您賭注的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
-                            })
-                            guildInformation.getUser(key).joinTimes += 1;
-                        })
+                            });
+                            userList.get(key).joinTimes += 1;
+                        });
                         guildInformation.betInfo.isPlaying = 0;
-                        i.update({
+                        interaction.editReply({
                             content: `已取消賭盤，正在發還coin(s)。`, 
                             components: []
                         });
@@ -448,39 +462,50 @@ module.exports = {
                             if (err)
                                 return console.log(err);
                         });
+                        userList.forEach((val, key) => {
+                            fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
+                                JSON.stringify(val.outputUser(), null, '\t'),async function (err) {
+                                if (err) return console.log(err);
+                            });
+                        });
                         collector.stop('set');
                         
                     } else {
                         let rebackList = new Map();
                         const winOption = guildInformation.betInfo.getOption(target);
+                        let coinGet = Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10);
                         guildInformation.betInfo.betRecord.forEach(element => {
-                            if(element.optionId !== winOption.id) return;
-                            let coinGet = Math.floor(element.coins * (Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10) / 10));
-                            guildInformation.getUser(element.userId).coins += coinGet;
-                            guildInformation.getUser(element.userId).totalGet += coinGet;
-                            rebackList.set(element.userId, rebackList.get(element.userId) ? rebackList.get(element.userId) + coinGet : coinGet)
+                            userList.get(element.userId).coins += Math.floor(element.coins * (coinGet / 10));
+                            userList.get(element.userId).totalGet += Math.floor(element.coins * (coinGet / 10));
+                            rebackList.set(element.userId, rebackList.get(element.userId) ? rebackList.get(element.userId) + element.coins : element.coins)
                         })
                         rebackList.forEach((val, key) => {
                             interaction.client.users.fetch(key).then(user => {
                                 user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」中贏得投注!\n` + 
                                     `已將您獲得的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
                             })
-                            guildInformation.getUser(key).joinTimes += 1;
+                            userList.get(key).joinTimes += 1;
                         })
                         guildInformation.betInfo.isPlaying = 0;
-                        i.update({
+                        interaction.editReply({
                             content: `本次賭盤獲勝選項為 ${winOption.name}。已將所有coin(s)發還。`, 
                             components: []
                         });
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
                             JSON.stringify(guildInformation.outputBetRecord(winOption), null, '\t'), err => {if(err) console.error(err)}
-                        )
+                        );
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
                             JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
                             if (err)
                                 return console.log(err);
+                        });
+                        userList.forEach((val, key) => {
+                            fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
+                                JSON.stringify(val.outputUser(), null, '\t'),async function (err) {
+                                if (err) return console.log(err);
+                            });
                         });
                         collector.stop('set');
                     }
@@ -847,7 +872,7 @@ module.exports = {
                         if(dayLong === 0) {
                             collector.stop("set");
                             return i.update({
-                                content: `因為輸入日期長度為 0，因此取消下注。`, 
+                                content: `因為輸入日期長度為 0，因此不設立獎勵箱。`, 
                                 components: []
                             });
                         }

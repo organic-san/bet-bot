@@ -90,11 +90,11 @@ client.on('ready', () =>{
             });
             fs.readdirSync(`./data/guildData/${key}/awardBox`).forEach(box => {
                 let awardBox = new guild.betAwardBox(0, 0, 0);
-                            awardBox.toAwardBoxObject(
-                                JSON.parse(
-                                    fs.readFileSync(`./data/guildData/${key}/awardBox/${box}`)
-                                )
-                            );
+                awardBox.toAwardBoxObject(
+                    JSON.parse(
+                        fs.readFileSync(`./data/guildData/${key}/awardBox/${box}`)
+                    )
+                );
                 if(awardBox.endTime < Date.now()) {
                     fs.unlink(`./data/guildData/${key}/awardBox/${box}`, function () {
                         console.log(`刪除: ${val.name} 的獎勵箱 ID: ${awardBox.id} (自動刪除)`);
@@ -224,11 +224,11 @@ client.on('messageCreate', async msg =>{
                 });
                 fs.readdirSync(`./data/guildData/${key}/awardBox`).forEach(box => {
                     let awardBox = new guild.betAwardBox(0, 0, 0);
-                                awardBox.toAwardBoxObject(
-                                    JSON.parse(
-                                        fs.readFileSync(`./data/guildData/${key}/awardBox/${box}`)
-                                    )
-                                );
+                    awardBox.toAwardBoxObject(
+                        JSON.parse(
+                            fs.readFileSync(`./data/guildData/${key}/awardBox/${box}`)
+                        )
+                    );
                     if(awardBox.endTime < Date.now()) {
                         fs.unlink(`./data/guildData/${key}/awardBox/${box}`, function () {
                             console.log(`刪除: ${val.name} 的獎勵箱 ID: ${awardBox.id} (自動刪除)`);

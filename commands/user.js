@@ -14,10 +14,18 @@ module.exports = {
                 opt.setName('user')
                 .setDescription('要查看的對象')
             )
-        )/*.addSubcommand(opt =>
+        ).addSubcommand(opt =>
             opt.setName('ranking')
             .setDescription('查看等級排行')
-        )*/.addSubcommand(opt =>
+            .addStringOption(opt => 
+                opt.setName('sort-by')
+                .setDescription('選擇要排行的排序依據')
+                .addChoice('持有coin(s)', 'coins')
+                .addChoice('總下注coin(s)', 'totalBet')
+                .addChoice('總獲得coin(s)', 'totalGet')
+                .setRequired(true)
+            )
+        ).addSubcommand(opt =>
             opt.setName('setting')
             .setDescription('用戶相關設定(由管理員操控)')
             .addUserOption(opt => 
@@ -65,8 +73,7 @@ module.exports = {
                 }
             }
                 
-            //TODO: 從資料庫中拉出用戶資料
-                let embed = new Discord.MessageEmbed()
+            let embed = new Discord.MessageEmbed()
                 .setColor(process.env.EMBEDCOLOR)
                 .addField('持有金錢', userData.coins + " coin(s)", true)
                 .addField('累計下注', userData.totalBet + " coin(s)", true)
@@ -87,12 +94,25 @@ module.exports = {
 
         } else if(interaction.options.getSubcommand() === 'ranking') {
             //TODO: 排名系統
-            /*
-            if(!guildInformation.levels) return interaction.reply({content: "哎呀！這個伺服器並沒有開啟等級系統！"});
+            await interaction.deferReply();
+            let mode = interaction.options.getString('sort-by');
+            /**
+             * @type {Array<guild.User>}
+             */
+            let userList = [];
+            let filename = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`);
+            filename.forEach(filename => {
+                let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${filename}`);
+                parseJsonlist = JSON.parse(parseJsonlist);
+                let newUser = new guild.User(parseJsonlist.id, parseJsonlist.tag);
+                newUser.toUser(parseJsonlist);
+                userList.push(newUser);
+            });
+            userList.sort((a, b) => b[mode] - a[mode]);
+            
             const pageShowHax = 20;
             let page = 0;
-            guildInformation.sortUser();
-            const levels = levelsEmbed(interaction.guild, guildInformation, page, pageShowHax);
+            const levels = levelsEmbed(interaction.guild, userList, page, pageShowHax, mode);
             const row = new Discord.MessageActionRow()
 			.addComponents(
 				[
@@ -106,29 +126,28 @@ module.exports = {
                         .setStyle('PRIMARY')
                 ]
 			);
-            const msg = await interaction.reply({embeds: [levels], components: [row], fetchReply: true});
+            const msg = await interaction.editReply({embeds: [levels], components: [row], fetchReply: true});
 
             const filter = i => ['上一頁', '下一頁'].includes(i.customId) && !i.user.bot;
             const collector = msg.createMessageComponentCollector({filter, time: 60 * 1000 });
             
             collector.on('collect', async i => {
                 if (i.customId === '下一頁') 
-                    if(page * pageShowHax + pageShowHax < guildInformation.usersMuch) page++;
+                    if(page * pageShowHax + pageShowHax < userList.length) page++;
                 if(i.customId === '上一頁')
                     if(page > 0) page--;
-                guildInformation.sortUser();
-                const levels = levelsEmbed(interaction.guild, guildInformation, page, pageShowHax);
+                const levels = levelsEmbed(interaction.guild, userList, page, pageShowHax, mode);
                 i.update({embeds: [levels], components: [row]});
                 collector.resetTimer({ time: 60 * 1000 });
             });
             
             collector.on('end', (c, r) => {
                 if(r !== "messageDelete"){
-                    const levels = levelsEmbed(interaction.guild, guildInformation, page, pageShowHax);
+                    const levels = levelsEmbed(interaction.guild, userList, page, pageShowHax, mode);
                     interaction.editReply({embeds: [levels], components: []})
                 }
             });
-            */
+            
         } else { 
             //權限
             if (!interaction.member.permissions.has(Discord.Permissions.FLAGS.MANAGE_GUILD)){ 
@@ -194,7 +213,7 @@ module.exports = {
                         const row = rowCreate(false);
                         i.update({
                             content: 
-                                `選擇的對象為: <@${userData.id}>` +  
+                                `選擇的對象為: <@${userData.id}>\n` +  
                                 `對象目前持有金額為: \$${userData.coins} coin(s)\n` + 
                                 `請輸入要${optionChoose === 'add' ? '發放' : '收回'}的金額。`, 
                             components: row
@@ -220,6 +239,7 @@ module.exports = {
                     }
                     
                 } else if(optionChoose === "add" || optionChoose === 'reduce') {
+                    await i.deferUpdate();
                     if(i.customId === 'delete') {
                         money = Math.floor(money / 10);
                     } else if(i.customId === 'complete') {
@@ -235,9 +255,9 @@ module.exports = {
                     }
                     if(!isMoneySet) {
                         const row = rowCreate(optionChoose === 'add' ? money >= 100000 : money >= userData.coins);
-                        i.update({
+                        i.editReply({
                             content: 
-                                `選擇的對象為: <@${userData.id}>` +  
+                                `選擇的對象為: <@${userData.id}>\n` +  
                                 `對象目前持有金額為: \$${userData.coins} coin(s)\n` + 
                                 `請輸入要${optionChoose === 'add' ? '發放' : '收回'}的金額。\n` +
                                 `\`\`\`\n${optionChoose === 'add' ? '發放' : '收回'}金額: \$${money} coin(s)\n\`\`\``, 
@@ -245,7 +265,7 @@ module.exports = {
                         });
                     } else {
                         if(money === 0) {
-                            i.update({
+                            i.editReply({
                                 content: `因為輸入金額為 0 coin，因此不做${optionChoose === 'add' ? '發放' : '收回'}。`, 
                                 components: []
                             });
@@ -260,7 +280,7 @@ module.exports = {
                                 userData.coins += money;
                             else 
                                 userData.coins -= money;
-                            i.update({
+                            i.editReply({
                                 content: `${optionChoose === 'add' ? '發放' : '收回'}成功!\n對象: <@${userData.id}>\n金額: ${money} coin(s)`, 
                                 components: []
                             });
@@ -273,9 +293,8 @@ module.exports = {
                         }
                         collector.stop("set");
                     }
-                    
-
                 } else if(optionChoose === 'reset') {
+
                     userData.coins = 100;
                     userData.totalBet = 0;
                     userData.totalGet = 0;
@@ -311,33 +330,36 @@ module.exports = {
 /**
  * 顯示整個伺服器的經驗值排名
  * @param {Discord.Guild} guild 該伺服器的Discord資料
- * @param {guild.GuildInformation} element 該伺服器的資訊
+ * @param {Array<guild.User>} element 該伺服器的資訊
  * @param {number} page 頁數
  * @param {number} pageShowHax 單頁上限 
+ * @param {string} mode 模式
  * @returns 包含排名的Discord.MessageEmbed
  */
-function levelsEmbed(guild, element, page, pageShowHax){
+function levelsEmbed(guild, element, page, pageShowHax, mode){
     //#region 等級排行顯示清單
+    let modestr = "";
+    if(mode === 'coins') modestr = '持有coin(s)';
+    else if(mode === 'totalBet') modestr = '總下注coin(s)';
+    else if(mode === 'totalGet') modestr = '總獲得coin(s)';
     let levelembed = new Discord.MessageEmbed()
-        .setTitle(`${guild.name} 的等級排行`)
+        .setTitle(`${guild.name} 的${modestr}排行`)
         .setColor(process.env.EMBEDCOLOR)                            
         .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg`);
 
     let ebmsgrk = "";
     let ebmsgname = "";
     let ebmsgexp = "";
-    for(let i = page * pageShowHax; i < Math.min(page * pageShowHax + pageShowHax, element.users.length); i++){
-        let nametag = new String(element.users[i].tag);
-        if(nametag.length > 20){nametag = nametag.substring(0,20) + `...`;}
+    for(let i = page * pageShowHax; i < Math.min(page * pageShowHax + pageShowHax, element.length); i++){
         ebmsgrk += `#${i + 1} \n`;
-        ebmsgname += `${nametag}\n`
-        ebmsgexp += `${element.users[i].exp} exp. (lv.${element.users[i].levels})\n`;
+        ebmsgname += `<@${element[i].id}>\n`
+        ebmsgexp += `${element[i][mode]}\n`;
     }
-    levelembed.setDescription(`#${page * pageShowHax + 1} ~ #${Math.min(page * pageShowHax + pageShowHax, element.users.length)}` + 
-        ` / #${element.users.length}`);
-    levelembed.addField("rank", ebmsgrk, true);
-    levelembed.addField("name", ebmsgname, true);
-    levelembed.addField("exp.", ebmsgexp, true);
+    levelembed.setDescription(`#${page * pageShowHax + 1} ~ #${Math.min(page * pageShowHax + pageShowHax, element.length)}` + 
+        ` / #${element.length}`);
+    levelembed.addField("排名", ebmsgrk, true);
+    levelembed.addField("名稱", ebmsgname, true);
+    levelembed.addField(`${modestr}`, ebmsgexp, true);
 
     return levelembed;
 }
