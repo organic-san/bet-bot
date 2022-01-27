@@ -110,7 +110,7 @@ module.exports = {
             });
             userList.sort((a, b) => b[mode] - a[mode]);
             
-            const pageShowHax = 20;
+            const pageShowHax = 10;
             let page = 0;
             const levels = levelsEmbed(interaction.guild, userList, page, pageShowHax, mode);
             const row = new Discord.MessageActionRow()
@@ -342,26 +342,27 @@ function levelsEmbed(guild, element, page, pageShowHax, mode){
     if(mode === 'coins') modestr = '持有coin(s)';
     else if(mode === 'totalBet') modestr = '總下注coin(s)';
     else if(mode === 'totalGet') modestr = '總獲得coin(s)';
-    let levelembed = new Discord.MessageEmbed()
+    let embed = new Discord.MessageEmbed()
         .setTitle(`${guild.name} 的${modestr}排行`)
         .setColor(process.env.EMBEDCOLOR)                            
         .setThumbnail(`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.jpg`);
 
-    let ebmsgrk = "";
-    let ebmsgname = "";
-    let ebmsgexp = "";
+    //let ebmsgrk = "";
+    //let ebmsgname = "";
+    //let ebmsgexp = "";
     for(let i = page * pageShowHax; i < Math.min(page * pageShowHax + pageShowHax, element.length); i++){
-        ebmsgrk += `#${i + 1} \n`;
-        ebmsgname += `<@${element[i].id}>\n`
-        ebmsgexp += `${element[i][mode]}\n`;
+        embed.addField(`#${i + 1} - ${element[i][mode]} coin(s)`, `<@${element[i].id}>`);
+        //ebmsgrk += `#${i + 1} \n`;
+        //ebmsgname += `<@${element[i].id}>\n`
+        //ebmsgexp += `${element[i][mode]}\n`;
     }
-    levelembed.setDescription(`#${page * pageShowHax + 1} ~ #${Math.min(page * pageShowHax + pageShowHax, element.length)}` + 
+    embed.setDescription(`#${page * pageShowHax + 1} ~ #${Math.min(page * pageShowHax + pageShowHax, element.length)}` + 
         ` / #${element.length}`);
-    levelembed.addField("排名", ebmsgrk, true);
-    levelembed.addField("名稱", ebmsgname, true);
-    levelembed.addField(`${modestr}`, ebmsgexp, true);
+    //embed.addField("排名", ebmsgrk, true);
+    //embed.addField("名稱", ebmsgname, true);
+    //embed.addField(`${modestr}`, ebmsgexp, true);
 
-    return levelembed;
+    return embed;
 }
 
 /**
