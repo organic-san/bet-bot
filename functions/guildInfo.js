@@ -16,7 +16,7 @@ class GuildInformation {
          * @type {Map<string, User>}
          */
         this.users = new Map();
-        this.betInfo = new BetGameObject('undefined', 0, 'nothing', [], 0, 0, []);
+        this.betInfo = new BetGameObject('undefined', 0, 'nothing', [], 0, 0, [], []);
         /**
          * @type {Array<BetAwardBox>}
          */
@@ -136,7 +136,8 @@ class GuildInformation {
             this.betInfo.id, 
             this.betInfo.description,
             this.betInfo.option,
-            winner
+            winner,
+            this.betInfo.totalBet
             )
         return newRecord;
     }
@@ -219,8 +220,9 @@ class BetGameObject {
      * @param {Number} isPlaying
      * @param {Number} count
      * @param {Array<BetGameResultObject>} betRecord
+     * @param {Array<Array<number>>} priority
      */    
-    constructor(name, id, description, option, isPlaying, count, betRecord) {
+    constructor(name, id, description, option, isPlaying, count, betRecord, priority) {
         this.isPlaying = isPlaying;
         this.count = count;
         this.id = id;
@@ -228,6 +230,7 @@ class BetGameObject {
         this.description = description;
         this.option = option;
         this.betRecord = betRecord;
+        this.priority = priority;
         this.totalBet = 0;
     }
 
@@ -238,6 +241,7 @@ class BetGameObject {
         this.name = obj.name ?? 'undefined';
         this.description = obj.description ?? 'nothing';
         this.totalBet = obj.totalBet ?? 0;
+        this.priority = obj.priority ?? [];
         obj.option.forEach(option => {
             const newBetOpt = new BetGameOptionObject(0, 'undefined', 'nothing');
             newBetOpt.toOption(option);
@@ -326,8 +330,9 @@ class BetRecordObject {
          * @param {String} description 
          * @param {Array<BetGameOptionObject>} option 
          * @param {BetGameOptionObject} winner 
+         * @param {Number} totalBet 
          */    
-    constructor(name, id, description, option, winner) {
+    constructor(name, id, description, option, winner, totalBet) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -335,7 +340,7 @@ class BetRecordObject {
          * @type {Array<BetGameObject>}
          */
         this.option = option ?? [];
-        this.totalBet = 0;
+        this.totalBet = totalBet ?? 0;
         this.winner = winner ?? new BetGameOptionObject;
     }
 

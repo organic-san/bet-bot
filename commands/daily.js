@@ -55,14 +55,6 @@ module.exports = {
             }
         });
 
-        fs.writeFile(
-            `./data/guildData/${guildInformation.id}/users/${user.id}.json`, 
-            JSON.stringify(user.outputUser(), null, '\t'
-        ),async function (err) {
-            if (err)
-                return console.log(err);
-        });
-
         await interaction.reply({
             content: content.slice(0, 1900),
             ephemeral: true 
