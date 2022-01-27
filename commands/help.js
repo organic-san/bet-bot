@@ -31,7 +31,7 @@ module.exports = {
                 "\`/bet create\` - 設定並開啟賭盤\n" + 
                 "\`/bet close\` - 關閉賭盤\n" + 
                 "\`/bet result\` - 設定賭盤結果，並發還coins給所有人\n" +
-                "\`/bet setting\` - 賭盤功能設定\n" +
+                "\`/setting\` - 賭盤功能設定與顯示等\n" +
                 "\` ├\` - 顯示所有投注紀錄\n" +
                 "\` ├\` - 顯示上次賭盤的下注結果\n" +
                 "\` ├\` - 重置所有人的coin(s)\n" +
