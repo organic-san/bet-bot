@@ -331,8 +331,9 @@ class BetRecordObject {
          * @param {Array<BetGameOptionObject>} option 
          * @param {BetGameOptionObject} winner 
          * @param {Number} totalBet 
+         * @param {Array<Array<number>>} priority
          */    
-    constructor(name, id, description, option, winner, totalBet) {
+    constructor(name, id, description, option, winner, totalBet, priority) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -341,6 +342,7 @@ class BetRecordObject {
          */
         this.option = option ?? [];
         this.totalBet = totalBet ?? 0;
+        this.priority = priority ?? [];
         this.winner = winner ?? new BetGameOptionObject;
     }
 
@@ -354,6 +356,7 @@ class BetRecordObject {
             newBetOpt.toOption(option);
             this.option.push(newBetOpt);
         });
+        this.priority = obj.priority ?? [];
         this.winner.toOption(obj.winner);
         
     }

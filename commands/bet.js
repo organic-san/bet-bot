@@ -154,7 +154,7 @@ module.exports = {
                 .setColor(process.env.EMBEDCOLOR)
                 .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "🟢投注中" : "🔴封盤中"}`)
                 .setDescription(guildInformation.betInfo.description)
-                .addField(`目前賭盤資訊`, `總累計賭金:  ${guildInformation.betInfo.totalBet}`)
+                .addField(`目前賭盤資訊`, `選項數量: ${guildInformation.betInfo.option.length}\n總累計賭金:  ${guildInformation.betInfo.totalBet}`)
                 .setTimestamp()
                 .setFooter(`${interaction.guild.name}`,`https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
 
@@ -544,16 +544,16 @@ module.exports = {
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
                             JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
-                            if (err)
-                                return console.log(err);
-                        });
+                                if (err) return console.log(err);
+                            }
+                        );
                         userList.forEach((val, key) => {
                             fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
                                 JSON.stringify(val.outputUser(), null, '\t'),async function (err) {
                                 if (err) return console.log(err);
                             });
                             if(guildInformation.getUser(val.id)) {
-                                guildInformation.users.get(key).coins;
+                                guildInformation.users.set(key, val);
                             }
                         });
                         collector.stop('set');
