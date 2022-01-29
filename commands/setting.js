@@ -11,8 +11,8 @@ module.exports = {
         .addStringOption(opt => 
             opt.setName('option')
             .setDescription('選擇要排行的排序依據')
-            .addChoice('顯示所有投注紀錄', 'all')
-            .addChoice('顯示上次賭盤的所有下注結果', 'result')
+            .addChoice('顯示賭盤的投注紀錄', 'all')
+            .addChoice('顯示上次賭盤的下注結果', 'result')
             .addChoice('重置所有人的coin(s)', 'reset')
             .addChoice('設定獎勵箱(可於每日獎勵領取)', 'awardBoxCreate')
             .addChoice('查看所有獎勵箱', 'awardBoxShow')
@@ -29,11 +29,11 @@ module.exports = {
 	async execute(interaction, guildInformation) {
         let option = interaction.options.getString('option');
         if(option === 'all') {
-            if(guildInformation.betInfo.isPlaying === 0) 
-                return interaction.reply({content: "目前並未舉行賭盤。", components:[]});
+            //if(guildInformation.betInfo.isPlaying === 0) 
+            //    return interaction.reply({content: "目前並未舉行賭盤。", components:[]});
 
             if(guildInformation.betInfo.betRecord.length === 0) 
-                return interaction.reply({content: "本次賭盤尚未有投注紀錄。", components:[]});
+                return interaction.reply({content: "賭盤中搜尋不到投注紀錄。", components:[]});
 
             const row = new Discord.MessageActionRow()
             .addComponents(
@@ -58,10 +58,11 @@ module.exports = {
                     components: []
                 })
                 const onePpageMax = 20;
+                let playing = guildInformation.betInfo.isPlaying;
                 for(let i = 0; i < Math.floor((guildInformation.betInfo.betRecord.length - 1) / onePpageMax) + 1; i++) {
                     const embed = new Discord.MessageEmbed()
                     .setColor(process.env.EMBEDCOLOR)
-                    .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "🟢投注中" : "🔴封盤中"}`)
+                    .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${playing === 1 ? "🟢投注中" : (playing === 2 ? "🔴封盤中" : "🟡已開盤")}`)
                     .setTimestamp()
                     .setFooter(`${interaction.guild.name} | 第 ${i + 1} 頁`,
                         `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
@@ -71,12 +72,15 @@ module.exports = {
                     let targetStr = [];
                     for(let j = i * onePpageMax; j < Math.min(i * onePpageMax + onePpageMax, guildInformation.betInfo.betRecord.length); j++) {
                         const target = guildInformation.betInfo.getOption(guildInformation.betInfo.betRecord[j].optionId);
-                        nameStr.push('<@' + guildInformation.betInfo.betRecord[j].userId + '>');
+                        nameStr.push(
+                            "<t:" + Math.floor(guildInformation.betInfo.betRecord[j].time / 1000) + ":T> "
+                            + '<@' + guildInformation.betInfo.betRecord[j].userId + '>'
+                        );
                         coinStr.push(guildInformation.betInfo.betRecord[j].coins.toString());
                         targetStr.push(target.name);
                     }
                     embed
-                        .addField('用戶名稱', nameStr.join('\n'), true)
+                        .addField('投注時間與用戶名稱', nameStr.join('\n'), true)
                         .addField('投注金額', coinStr.join('\n'), true)
                         .addField('投注對象', targetStr.join('\n'), true);
 
@@ -119,7 +123,6 @@ module.exports = {
             const collector = msg.createMessageComponentCollector({time: 120 * 1000 });
 
             collector.on('collect', async i => {
-                const onePpageMax = 20;
                 let fileDirs = fs.readdirSync(`./data/guildData/${guildInformation.id}/betRecord`);
                 fileDirs = fileDirs[fileDirs.length - 1];
                 try {
@@ -138,36 +141,6 @@ module.exports = {
                             `${result.winner.betCount > 0 ? mag : "無法計算"}\n`, 
                         components: []
                     })
-                    /*
-                    const det = (Math.floor((result.totalBet / result.winner.betCount) * 10) / 10);
-                    for(let i = 0; i < Math.floor((guildInformation.betInfo.betRecord.length - 1) / onePpageMax) + 1; i++) {
-                        const embed = new Discord.MessageEmbed()
-                        .setColor(process.env.EMBEDCOLOR)
-                        .setTitle(`賭盤: ${guildInformation.betInfo.name} 的結果`)
-                        .setTimestamp()
-                        .setFooter(`${interaction.guild.name} | 第 ${i + 1} 頁`,
-                            `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`);
-                        
-                        let nameStr = [];
-                        let coinStr = [];
-                        let targetStr = [];
-                        for(let j = i * onePpageMax; j < Math.min(i * onePpageMax + onePpageMax, guildInformation.betInfo.betRecord.length); j++) {
-                            const target = guildInformation.betInfo.getOption(guildInformation.betInfo.betRecord[j].optionId);
-                            nameStr.push('<@' + guildInformation.betInfo.betRecord[j].userId + '>');
-                            targetStr.push(target.name);
-                            if(guildInformation.betInfo.betRecord[j].optionId === result.winner.id){
-                                coinStr.push(`${guildInformation.betInfo.betRecord[j].coins} => ${Math.floor(guildInformation.betInfo.betRecord[j].coins * det)}`);
-                            }else
-                                coinStr.push(guildInformation.betInfo.betRecord[j].coins.toString());
-                        }
-                        embed
-                            .addField('用戶名稱', nameStr.join('\n'), true)
-                            .addField('投注對象', targetStr.join('\n'), true)
-                            .addField('投注&獲得金額', coinStr.join('\n'), true);
-
-                        await interaction.channel.send({embeds: [embed]});
-                    }
-                    */
                     /**
                      * @type {Map<String, number[]>}
                      */
@@ -179,7 +152,7 @@ module.exports = {
                     for(let i = 0; i < guildInformation.betInfo.betRecord.length; i++) {
                         let uid = guildInformation.betInfo.betRecord[i].userId;
                         let cis = guildInformation.betInfo.betRecord[i].coins;
-                        let get = guildInformation.betInfo.betRecord[i].optionId === result.winner.id ? mag : 0;
+                        let get = guildInformation.betInfo.betRecord[i].optionId === (result.winner.id ? mag : 0);
                         if(total.has(uid))
                             total.set(uid, [total.get(uid)[0] + cis, total.get(uid)[1] + cis * get]);
                         else
