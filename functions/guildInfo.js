@@ -120,6 +120,18 @@ class User {
         this.lastAwardTime = userObj.lastAwardTime;
     }
 
+    toFullUser(userObj) {
+        this.id = userObj.id;
+        this.tag = userObj.tag;
+
+        this.DM = userObj.DM;
+        this.coins = userObj.coins;
+        this.totalBet = userObj.totalBet;
+        this.totalGet = userObj.totalGet;
+        this.joinTimes = userObj.joinTimes;
+        this.lastAwardTime = userObj.lastAwardTime;
+    }
+
     outputUser() {
         return {
             "id": this.id,

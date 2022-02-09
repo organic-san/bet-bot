@@ -93,7 +93,6 @@ module.exports = {
             interaction.reply({embeds: [embed], ephemeral: true});
 
         } else if(interaction.options.getSubcommand() === 'ranking') {
-            //TODO: 排名系統
             await interaction.deferReply();
             let mode = interaction.options.getString('sort-by');
             /**
