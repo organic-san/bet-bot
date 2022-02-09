@@ -558,7 +558,7 @@ module.exports = {
                 {
                     content: "建立賭盤模板: 建立作為賭盤舉行用的賭盤模板，以進行賭盤。\n" +
                         "建立賭盤模板時的幾項規則: \n" +
-                        "1. 標題不可與已設定的賭盤模板相同。\n" +
+                        "1. 標題或選項不可與已設定的模板名稱或選項相同。\n" +
                         "2. 選項至多20項，至少2項。\n" +
                         `3. 名稱類上限為${titleLengthLimit}字。\n` +
                         `4. 說明類上限為${descriptionLengthLimit}字。\n` +
@@ -585,10 +585,9 @@ module.exports = {
             if(description.length > descriptionLengthLimit) return interaction.editReply(`設定失敗: 超過字數限制，已取消設定。`);
 
             const template = new guild.betTemplateObject(name, description, [], []);
-            
 
             interaction.editReply({
-                content: "賭盤說明設定成功! 目前賭盤的設定如下。\n" +
+                content: "賭盤說明設定成功! 目前模板的設定如下。\n" +
                     `🛠️請選擇要執行的操作。`,
                 embeds: [templateEmbed(template, interaction)],
                 components: [buttomComponent(template.option.length)],
@@ -600,7 +599,7 @@ module.exports = {
 
             collector.on('collect', async i => {
                 await i.deferUpdate();
-                if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
+                if(i.user.id !== interaction.user.id) return i.editReply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
                 
                 if(!i.values) mode = i.customId;
                 else removeOption = i.values[0];
@@ -696,7 +695,7 @@ module.exports = {
 
                 } else if(mode === "complete") {
                     interaction.editReply({
-                        content: `請確認目前的賭盤模板設定。\n` +
+                        content: `請確認目前的模板設定。\n` +
                             `🛠️確認後請按下確認按鈕。`,
                         embeds: [templateEmbed(template, interaction)],
                         components: [CompleteButtomComponent()],
@@ -744,7 +743,7 @@ module.exports = {
             collector.on('end', (c, r) => {
                 if(r !== "messageDelete" && r !== "user" && r !== "set"){
                     interaction.editReply({
-                        content: `取消建立新賭盤模板。`, 
+                        content: `取消建立新模板。`, 
                         components: [],
                         embeds: []
                     });
@@ -792,7 +791,7 @@ module.exports = {
                 template = JSON.parse(template);
 
                 interaction.editReply({
-                    content: `以下為選擇要查看的模板。`,
+                    content: `以下為選擇的模板。`,
                     embeds: [templateEmbed(template, interaction)],
                     components: [],
                 });
@@ -810,8 +809,7 @@ module.exports = {
             });
             
         } else if(option === 'betTemplateEdit') {
-            interaction.reply('即將開放本功能，但目前尚無法使用。')
-            /*
+            
             //TODO
             let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/betTemplate`);
             if(!filename[0]) {
@@ -841,23 +839,164 @@ module.exports = {
                 fetchReply: true
             });
 
-            const overtimeLimit = 5 * 60;
-            const collector = msg.createMessageComponentCollector({time: overtimeLimit * 1000 });
+            const filter1 = (i) => {i.deferUpdate(); return i.user.id === interaction.user.id};
+            let collected = await msg.awaitMessageComponent({ filter: filter1, componentType: 'SELECT_MENU', time: 600 * 1000 });
+            let tempName = collected.values[0];
+            if (!tempName) return interaction.editReply(`設定失敗: 輸入逾時，已取消設定。`);
 
+            let tempBuffer = fs.readFileSync(`./data/guildData/${interaction.guild.id}/betTemplate/${tempName}.json`);
+            tempBuffer = JSON.parse(tempBuffer);
+
+            let template = new guild.betTemplateObject(tempBuffer.name, tempBuffer.description, [], tempBuffer.priority);
+            tempBuffer.option.forEach(val => {
+                template.addOption({name: val.name, description: val.description});
+            });
+            interaction.editReply({
+                content: "已選擇要修改的模板。 該模板的設定如下。\n" +
+                    `🛠️請選擇要執行的操作。`,
+                embeds: [templateEmbed(template, interaction)],
+                components: [buttomComponent(template.option.length)],
+            })
+
+            const overtimeLimit = 5 * 60;
+            const titleLengthLimit = 40;
+            const descriptionLengthLimit = 250;
+            let mode = "";
             let removeOption = "";
-            let template;
+            const collector = msg.createMessageComponentCollector({time: overtimeLimit * 1000 });
+            const filter = message => message.author.id === interaction.user.id;
 
             collector.on('collect', async i => {
                 if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
                 await i.deferUpdate();
-                if(!removeOption) {
-                    removeOption = i.values[0];
-                    template = fs.readFileSync(`./data/guildData/${interaction.guild.id}/betTemplate/${removeOption}.json`);
-                    template = JSON.parse(template);
 
+                if(!i.values) mode = i.customId;
+                else removeOption = i.values[0];
+                
+                if(mode === "add") {
+                    interaction.editReply({
+                        content: "建立新選項: 為這個賭盤模板新增選項。\n" +
+                            `⬇️請在這個頻道中輸入要新增的**選項名稱**(上限${titleLengthLimit}字)。`,
+                        embeds: [],
+                        components: [],
+                    })
+                    collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
+                    let collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+                    let name = collected.first().content;
+                    let reason = "";
+                    let description = "";
+
+                    if (!name) 
+                        reason = `選項新增失敗: 名稱輸入逾時，取消新增選項。`;
+                    if(name.length > titleLengthLimit) 
+                        reason = `選項新增失敗: 名稱超過字數限制，取消新增選項。`;
+                    if(template.isNameUsed(name)) reason = `選項新增失敗: 此選項名稱已使用。`;
+
+                    if(!reason) {
+                        interaction.editReply({
+                            content: "選項名稱設定成功: 「" + name + "」。\n" +
+                                `⬇️請在這個頻道中輸入要設定的**選項說明**(上限${descriptionLengthLimit}字)。`,
+                                components: [],
+                        })
+                        collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
+                        collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+                        description = collected.first().content;
+
+                        if (!description) 
+                            reason = `選項新增失敗: 說明輸入逾時，取消新增選項。`;
+                        if(description.length > descriptionLengthLimit) 
+                            reason = `選項新增失敗: 說明超過字數限制，取消新增選項。`;
+                    }
+
+                    if(reason) {
+                        interaction.editReply({
+                            content: `${reason}\n` +
+                                `🛠️請選擇要執行的操作。`,
+                            embeds: [templateEmbed(template, interaction)],
+                            components: [buttomComponent(template.option.length)],
+                        })
+                    } else {
+                        template.addOption({name: name, description: description});
+                        interaction.editReply({
+                            content: `選項新增成功: 新增第 ${template.option.length} 個選項「${name}」。\n` +
+                                `🛠️請選擇要執行的操作。`,
+                            embeds: [templateEmbed(template, interaction)],
+                            components: [buttomComponent(template.option.length)],
+                        });
+                    }
                     collector.resetTimer({ time: overtimeLimit * 1000 });
-                } else {
+
+                } else if(mode === "remove") {
+                    if(!removeOption) {
+                        let rowData = [];
+                        template.option.forEach((opt) => {
+                            rowData.push({
+                                label: "選項: " + opt.name,
+                                value: opt.name,
+                                description: opt.description
+                            });
+                        });
+                        
+                        const row = new Discord.MessageActionRow()
+                        .addComponents(
+                            new Discord.MessageSelectMenu()
+                                .setCustomId('optionSelect')
+                                .setPlaceholder('選擇要刪除的選項')
+                                .addOptions(rowData),
+                        );
+                        interaction.editReply({
+                            content: 
+                                `🛠️請選擇要要刪除的選項。`, 
+                            components: [row],
+                        });
+                        collector.resetTimer({ time: overtimeLimit * 1000 });
+                    } else {
+                        let removedItem = template.removeOption(removeOption)[0];
+                        interaction.editReply({
+                            content: `選項刪除成功: 移除選項「${removedItem.name}」: ${removedItem.description}。\n` +
+                                `🛠️請選擇要執行的操作。`,
+                            embeds: [templateEmbed(template, interaction)],
+                            components: [buttomComponent(template.option.length)],
+                        });
+                        removedItem = "";
+                    }
+
+
+                } else if(mode === "complete") {
+                    interaction.editReply({
+                        content: `請確認目前的模板設定。\n` +
+                            `🛠️確認後請按下確認按鈕。`,
+                        embeds: [templateEmbed(template, interaction)],
+                        components: [CompleteButtomComponent()],
+                    });
                     
+                } else if(mode === "checked") {
+                    collector.stop("set");
+                    template.option.forEach((value, index) => {
+                        value.id = (index + 1).toString();
+                    });
+                    fs.writeFile(
+                        `./data/guildData/${interaction.guild.id}/betTemplate/${template.name}.json`, 
+                        JSON.stringify(template, null, '\t'),
+                        async function (err) { if (err) return console.log(err) }
+                    );
+                    interaction.editReply({
+                        content: `設定完成: 已修改模板「${template.name}」。`,
+                        embeds: [],
+                        components: [],
+                    });
+
+                } else if(mode === "cancel") {
+                    interaction.editReply({
+                        content: `已取消目前的動作。\n` +
+                            `🛠️請選擇要執行的操作。`,
+                        embeds: [templateEmbed(template, interaction)],
+                        components: [buttomComponent(template.option.length)],
+                    });
+                    collector.resetTimer({ time: overtimeLimit * 1000 });
+
+                } else {
+                    throw "Error: interaction/setting/betTemplateCreate | 不存在的模式呼喚";
                 }
             });
 
@@ -871,7 +1010,7 @@ module.exports = {
                 }
             });
             //TODOEND
-            */
+            
             
         } else if(option === 'betTemplateDelete') {
             let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/betTemplate`);
@@ -1117,6 +1256,11 @@ function  CompleteButtomComponent() {
                     .setCustomId('checked')
                     .setLabel('確認新增模板')
                     .setStyle('SUCCESS'),
+                /*
+                new Discord.MessageButton()
+                    .setCustomId('priority-checked')
+                    .setLabel('確認新增模板(設定開盤優先順序)')
+                    .setStyle('SUCCESS'),*/
                 new Discord.MessageButton()
                     .setCustomId('cancel')
                     .setLabel('取消確認，繼續設定')
