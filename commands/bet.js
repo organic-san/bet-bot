@@ -66,17 +66,18 @@ module.exports = {
 
                 collector.on('collect', async i => {
                     if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
+                    await i.deferUpdate();
                     if(!target) {
                         target = i.values[0];
                         const row = rowCreate(false);
                         const targetData = guildInformation.betInfo.getOption(target);
-                        i.update({
+                        i.editReply({
                             content: 
                                 `選擇的選項為: ${targetData.name}\n` +  
                                 `目前持有金額為: \$${guildInformation.getUser(interaction.user.id).coins} coin(s)\n請輸入下注金額。`, 
                             components: row
                         });
-                        collector.resetTimer({ time: 180 * 1000 });
+                        collector.resetTimer({ time: 120 * 1000 });
                     } else if (!isMoneySet) {
                         if(i.customId === 'delete') {
                             money = Math.floor(money / 10);
@@ -89,7 +90,7 @@ module.exports = {
                         if(!isMoneySet) {
                             const row = rowCreate(money >= guildInformation.getUser(interaction.user.id).coins);
                             const targetData = guildInformation.betInfo.option.find(element => element.id === target);
-                            i.update({
+                            i.editReply({
                                 content: 
                                     `選擇的選項為: ${targetData.name}\n` + 
                                     `目前持有金額為: \$${guildInformation.getUser(interaction.user.id).coins} coin(s)\n` + 
@@ -98,19 +99,19 @@ module.exports = {
                             });
                         } else {
                             if(money === 0) {
-                                i.update({
+                                i.editReply({
                                     content: `因為輸入金額為 0 coin，因此取消下注。`, 
                                     components: []
                                 });
                             } else {
                                 if(guildInformation.getUser(interaction.user.id).coins - money < 0) {
-                                    return i.update({
+                                    return i.editReply({
                                         content: `持有coin(s)並不足以支付本次下注。`, 
                                         components: []
                                     });
                                 }
                                 if(guildInformation.betInfo.isPlaying !== 1){
-                                    return i.update({
+                                    return i.editReply({
                                         content: `投注期限已過，無法再投注。`, 
                                         components: []
                                     });
@@ -127,7 +128,7 @@ module.exports = {
                                     if (err)
                                         return console.log(err);
                                 });
-                                i.update({
+                                i.editReply({
                                     content: `下注成功!\n對象: ${targetData.name}\n金額: ${money} coin(s)`, 
                                     components: []
                                 });
@@ -178,8 +179,8 @@ module.exports = {
 
         } else {
             //權限
-            if (!interaction.member.permissions.has(Discord.Permissions.FLAGS.MANAGE_GUILD)){ 
-                return interaction.reply({content: "此指令需要管理伺服器的權限才能使用。", ephemeral: true});
+            if (!interaction.member.permissions.has(Discord.Permissions.FLAGS.MANAGE_MESSAGES)){ 
+                return interaction.reply({content: "此指令僅限管理員使用。", ephemeral: true});
             }
         }
         
@@ -189,19 +190,6 @@ module.exports = {
             
             let defaultRaceData = [];
             let defaultRaseRowData = [];
-            const raseFileName = fs.readdirSync('data/raseData').filter(file => file.endsWith('.json'));
-            raseFileName.forEach((fileName, value) => {
-                fs.readFile(`data/raseData/${fileName}`,async (err, text) => {
-                    if (err)
-                        throw err;
-                    defaultRaceData[value] = JSON.parse(text);
-                    defaultRaseRowData.push({
-                        label: defaultRaceData[value].name,
-                        value: value.toString(),
-                        description: defaultRaceData[value].description.slice(0, 50),
-                    });
-                });
-            });
             
             let mode = "";
             let chooseBetID = -1;
@@ -210,44 +198,86 @@ module.exports = {
                 [
                     new Discord.MessageButton()
                         .setCustomId('default')
-                        .setLabel('從預設清單中選擇')
+                        .setLabel('從預設模板中選擇')
                         .setStyle('PRIMARY'),
                     new Discord.MessageButton()
                         .setCustomId('custom')
-                        .setLabel('自行設定')
+                        .setLabel('從自訂模板中選擇')
                         .setStyle('PRIMARY')
                 ]
             );
-            const msg = await interaction.reply({content: "請選擇設定模式(尚未支援自行設定)", components: [row], fetchReply: true});
+            const msg = await interaction.reply({content: "請選擇設定模式", components: [row], fetchReply: true});
 
             const collector = msg.createMessageComponentCollector({time: 120 * 1000 });
             
             collector.on('collect', async i => {
                 if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
+                await i.deferUpdate();
+
                 if(!mode) {
                     mode = i.customId;
+
                     if(mode === "default"){
+                        const raseFileName = fs.readdirSync('data/raseData').filter(file => file.endsWith('.json'));
                         if(raseFileName.length === 0) {
-                            i.update({content: "目前沒有可以選擇的預設模板。", components: []});
+                            i.editReply({content: "目前沒有可以選擇的預設模板。", components: []});
                             collector.stop('set');
+                        } else {
+                            collector.resetTimer({ time: 120 * 1000 });
+                            raseFileName.forEach((fileName, value) => {
+                                try{
+                                    let text = fs.readFileSync(`data/raseData/${fileName}`);
+                                    defaultRaceData[value] = JSON.parse(text);
+                                    defaultRaseRowData.push({
+                                        label: defaultRaceData[value].name,
+                                        value: value.toString(),
+                                        description: defaultRaceData[value].description.slice(0, 50),
+                                    });
+                                }catch(err){
+                                    console.log(err);
+                                }
+                            });
+                            const row = new Discord.MessageActionRow()
+                            .addComponents(
+                                new Discord.MessageSelectMenu()
+                                    .setCustomId('raceSelect')
+                                    .setPlaceholder('選擇一個預設模板')
+                                    .addOptions(defaultRaseRowData),
+                            );
+                            i.editReply({content: "請選擇一個預設模板。", components: [row]});
                         }
-                        collector.resetTimer({ time: 120 * 1000 });
-                        const row = new Discord.MessageActionRow()
-                        .addComponents(
-                            new Discord.MessageSelectMenu()
-                                .setCustomId('raceSelect')
-                                .setPlaceholder('選擇一個預設模板')
-                                .addOptions(defaultRaseRowData),
-                        );
-                    
-                        i.update({content: "請選擇一個預設模板。", components: [row]});
 
                     } else if(mode === "custom") {
-                        i.update({content: "目前並不支援此設定模式。", components: []});
-                        collector.stop('set');
-                        //TODO: 自行設定賭盤
+                        const raseFileName = fs.readdirSync(`data/guildData/${interaction.guild.id}/betTemplate`).filter(file => file.endsWith('.json'));
+                        if(raseFileName.length === 0) {
+                            i.editReply({content: "目前沒有可以選擇的自訂模板。可於/setting進行設定。", components: []});
+                            collector.stop('set');
+                        } else {
+                            collector.resetTimer({ time: 120 * 1000 });
+                            raseFileName.forEach((fileName, value) => {
+                                try{
+                                    let text = fs.readFileSync(`data/guildData/${interaction.guild.id}/betTemplate/${fileName}`);
+                                    defaultRaceData[value] = JSON.parse(text);
+                                    defaultRaseRowData.push({
+                                        label: defaultRaceData[value].name,
+                                        value: value.toString(),
+                                        description: defaultRaceData[value].description.slice(0, 50),
+                                    });
+                                }catch(err){
+                                    console.log(err);
+                                }
+                            });
+                            const row = new Discord.MessageActionRow()
+                            .addComponents(
+                                new Discord.MessageSelectMenu()
+                                    .setCustomId('raceSelect')
+                                    .setPlaceholder('選擇一個預設模板')
+                                    .addOptions(defaultRaseRowData),
+                            );
+                            i.editReply({content: "請選擇一個預設模板。", components: [row]});
+                        }
                     }
-                } else if(mode === 'default') {
+                } else {
                     if(chooseBetID === -1) {
                         chooseBetID = i.values;
                         collector.resetTimer({ time: 120 * 1000 });
@@ -284,12 +314,12 @@ module.exports = {
                                     .setStyle('PRIMARY'),
                             ]
                         );
-                        i.update({content: "此為模板預覽，確認後請點擊下方按鈕以開啟賭盤。",embeds: [embed], components: [row]})
+                        i.editReply({content: "此為模板預覽，確認後請點擊下方按鈕以開啟賭盤。",embeds: [embed], components: [row]})
                     
                     } else {
                         if(guildInformation.betInfo.isPlaying !== 0) {
                             collector.stop('set');
-                            return i.update({
+                            return i.editReply({
                                 content: `已經有其他賭盤正在執行，無法開啟賭盤。`, 
                                 embeds: [],
                                 components: []
@@ -320,7 +350,7 @@ module.exports = {
                             [],
                             defaultRaceData[chooseBetID].priority
                         )
-                        i.update({
+                        i.editReply({
                             content: `設定完成。已將賭盤設為「${defaultRaceData[chooseBetID].name}」。從現在開始所有用戶可以下注。`,
                             embeds: [],
                             components: []
@@ -449,6 +479,7 @@ module.exports = {
                      * @type {Map<string, guild.User>}
                      */
                     let userList = new Map();
+                    //XXX: 這邊很亂，管一下 詳細說明往下滑
                     let filename = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`);
                     filename.forEach(filename => {
                         let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${filename}`);
@@ -495,6 +526,7 @@ module.exports = {
                             });
                             if(guildInformation.getUser(val.id)) {
                                 guildInformation.users.set(key, val);
+                                //XXX: 關於這裡的部分，應該改成調整既有參數，而非直接複寫
                             }
                         });
                         collector.stop('set');
@@ -554,6 +586,7 @@ module.exports = {
                             });
                             if(guildInformation.getUser(val.id)) {
                                 guildInformation.users.set(key, val);
+                                //XXX: 這裡也是
                             }
                         });
                         collector.stop('set');
