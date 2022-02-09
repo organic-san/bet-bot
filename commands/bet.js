@@ -22,6 +22,9 @@ module.exports = {
             opt.setName('close')
             .setDescription('關閉賭盤(由管理員操控)')
         ).addSubcommand(opt =>
+            opt.setName('auto-close')
+            .setDescription('設定自動關閉賭盤的時間(由管理員操控)')
+        ).addSubcommand(opt =>
             opt.setName('result')
             .setDescription('開盤(由管理員操控)')
         ),
@@ -413,6 +416,14 @@ module.exports = {
                 }
             });
 
+        }  else if(interaction.options.getSubcommand() === 'auto-close') {
+            if(guildInformation.betInfo.isPlaying != 1) 
+                return interaction.reply({content: "找不到目前能封盤的賭盤。", ephemeral: true});
+            
+            return interaction.reply('目前尚未啟用。')
+            //TODO: auto-close
+
+
         } else if(interaction.options.getSubcommand() === 'result') {
             if(guildInformation.betInfo.isPlaying != 2) 
                 return interaction.reply({content: "找不到目前能開盤的賭盤。如果要開盤，請先封盤。", ephemeral: true});
@@ -479,20 +490,19 @@ module.exports = {
                      * @type {Map<string, guild.User>}
                      */
                     let userList = new Map();
-                    //XXX: 這邊很亂，管一下 詳細說明往下滑
-                    let filename = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`);
-                    filename.forEach(filename => {
-                        let parseJsonlist = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${filename}`);
-                        parseJsonlist = JSON.parse(parseJsonlist);
-                        let newUser = new guild.User(parseJsonlist.id, parseJsonlist.tag);
-                        newUser.toUser(parseJsonlist);
-                        userList.set(newUser.id, newUser);
-                    });
+                    
                     if(target === "cancel") {
                         let rebackList = new Map();
                         guildInformation.betInfo.betRecord.forEach(element => {
-                            userList.get(element.userId).coins += element.coins;
-                            userList.get(element.userId).totalBet -= element.coins;
+                            if(userList.has(element.userId)) {
+                                userList.get(element.userId).coins += element.coins;
+                                userList.get(element.userId).totalBet -= element.coins;
+                            } else {
+                                let newUser = new guild.User(element.userId, 'undefined');
+                                newUser.coins = element.coins;
+                                newUser.totalBet = -element.coins;
+                                userList.set(newUser.id, newUser);
+                            }
                             rebackList.set(element.userId, rebackList.get(element.userId) ? rebackList.get(element.userId) + element.coins : element.coins)
                         })
                         rebackList.forEach((val, key) => {
@@ -500,7 +510,6 @@ module.exports = {
                                 user.send(`**${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」已取消。\n` + 
                                     `已將您賭注的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
                             });
-                            userList.get(key).joinTimes += 1;
                         });
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
@@ -516,17 +525,31 @@ module.exports = {
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
                             JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
-                            if (err)
-                                return console.log(err);
-                        });
-                        userList.forEach((val, key) => {
-                            fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
-                                JSON.stringify(val.outputUser(), null, '\t'),async function (err) {
                                 if (err) return console.log(err);
-                            });
-                            if(guildInformation.getUser(val.id)) {
-                                guildInformation.users.set(key, val);
-                                //XXX: 關於這裡的部分，應該改成調整既有參數，而非直接複寫
+                            }
+                        );
+                        let newUser = new guild.User('0', 'undefined');
+                        userList.forEach((val, key) => {
+                            if(guildInformation.users.has(key)) {
+                                guildInformation.users.get(key).saveTime = 0;
+                                guildInformation.users.get(key).coins += val.coins;
+                                guildInformation.users.get(key).totalBet += val.totalBet;
+                                guildInformation.users.get(key).joinTimes += 1;
+                                fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
+                                    JSON.stringify(guildInformation.users.get(key).outputUser(), null, '\t'),async function (err) {
+                                    if (err) return console.log(err);
+                                });
+                            } else {
+                                let parse = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${key}.json`);
+                                parse = JSON.parse(parse);
+                                newUser.toFullUser(parse);
+                                newUser.coins += val.coins;
+                                newUser.totalBet += val.totalBet;
+                                newUser.joinTimes += 1;
+                                fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
+                                    JSON.stringify(newUser.outputUser(), null, '\t'),async function (err) {
+                                    if (err) return console.log(err);
+                                });
                             }
                         });
                         collector.stop('set');
@@ -537,8 +560,15 @@ module.exports = {
                         let coinGet = (Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10) / 10);
                         guildInformation.betInfo.betRecord.forEach(element => {
                             if(element.optionId === winOption.id) {
-                                userList.get(element.userId).coins += Math.floor(element.coins * coinGet);
-                                userList.get(element.userId).totalGet += Math.floor(element.coins * coinGet);
+                                if(userList.has(element.userId)) {
+                                    userList.get(element.userId).coins += Math.floor(element.coins * coinGet);
+                                    userList.get(element.userId).totalGet += Math.floor(element.coins * coinGet);
+                                } else {
+                                    let newUser = new guild.User(element.userId, 'undefined');
+                                    newUser.coins = Math.floor(element.coins * coinGet);
+                                    newUser.totalGet = Math.floor(element.coins * coinGet);
+                                    userList.set(newUser.id, newUser);
+                                }
                                 rebackList.set(element.userId, 
                                     rebackList.get(element.userId) 
                                         ? rebackList.get(element.userId) + Math.floor(element.coins * coinGet)
@@ -562,7 +592,6 @@ module.exports = {
                                         `已將您獲得的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
                                 })
                             }
-                            userList.get(key).joinTimes += 1;
                         })
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
@@ -579,14 +608,28 @@ module.exports = {
                                 if (err) return console.log(err);
                             }
                         );
+                        let newUser = new guild.User('0', 'undefined');
                         userList.forEach((val, key) => {
-                            fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
-                                JSON.stringify(val.outputUser(), null, '\t'),async function (err) {
-                                if (err) return console.log(err);
-                            });
-                            if(guildInformation.getUser(val.id)) {
-                                guildInformation.users.set(key, val);
-                                //XXX: 這裡也是
+                            if(guildInformation.users.has(key)) {
+                                guildInformation.users.get(key).saveTime = 0;
+                                guildInformation.users.get(key).coins += val.coins;
+                                guildInformation.users.get(key).totalGet += val.totalGet;
+                                guildInformation.users.get(key).joinTimes += 1;
+                                fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
+                                    JSON.stringify(guildInformation.users.get(key).outputUser(), null, '\t'),async function (err) {
+                                    if (err) return console.log(err);
+                                });
+                            } else {
+                                let parse = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${key}.json`);
+                                parse = JSON.parse(parse);
+                                newUser.toFullUser(parse);
+                                newUser.coins += val.coins;
+                                newUser.totalGet += val.totalGet;
+                                newUser.joinTimes += 1;
+                                fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
+                                    JSON.stringify(newUser.outputUser(), null, '\t'),async function (err) {
+                                    if (err) return console.log(err);
+                                });
                             }
                         });
                         collector.stop('set');
