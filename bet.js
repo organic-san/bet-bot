@@ -39,6 +39,8 @@ guildDirs.forEach( file => {
             fs.mkdirSync(`./data/guildData/${file}/awardBox`, err => {if(err) console.error(err)});
         if(!fileDirs.includes("betRecord")) 
             fs.mkdirSync(`./data/guildData/${file}/betRecord`, err => {if(err) console.error(err)});
+        if(!fileDirs.includes("betTemplate")) 
+            fs.mkdirSync(`./data/guildData/${file}/betTemplate`, err => {if(err) console.error(err)});
         let parseJsonlist = fs.readFileSync(`./data/guildData/${file}/basicInfo.json`);
         parseJsonlist = JSON.parse(parseJsonlist);
             
@@ -124,6 +126,7 @@ client.on('interactionCreate', async interaction => {
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}/users`, err => {if(err) console.error(err)});
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}/betRecord`, err => {if(err) console.error(err)});
         fs.mkdirSync(`./data/guildData/${interaction.guild.id}/awardBox`, err => {if(err) console.error(err)});
+        fs.mkdirSync(`./data/guildData/${interaction.guild.id}/betTemplate`, err => {if(err) console.error(err)});
         const basicInfo = new guild.guildInformation(interaction.guild);
         fs.writeFile(
             `./data/guildData/${interaction.guild.id}/basicInfo.json`, 
@@ -148,7 +151,6 @@ client.on('interactionCreate', async interaction => {
     element.recordAt = new Date(Date.now());
 
     //個人資料檢查與建立
-    //TODO: 修正用戶資料讀取: 改成要用的時候再讀，不要統一讀取
     const userData = element.getUser(interaction.user.id);
     if(!userData) {
         const userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
@@ -194,7 +196,10 @@ client.on('interactionCreate', async interaction => {
 
 	} catch (error) {
 		console.error(error);
-		await interaction.reply({ content: '糟糕! 好像出了點錯誤!', ephemeral: true });
+        if(interaction.replied) 
+		    interaction.editReply({ content: '糟糕! 好像出了點錯誤!', embeds: [], components: [] });
+        else
+		    interaction.reply({ content: '糟糕! 好像出了點錯誤!', ephemeral: true });
 	}
 });
 
