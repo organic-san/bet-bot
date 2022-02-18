@@ -421,6 +421,8 @@ module.exports = {
                 return interaction.reply({content: "找不到目前能封盤的賭盤。", ephemeral: true});
             
             return interaction.reply('目前尚未啟用。')
+
+            
             //TODO: auto-close
 
 
