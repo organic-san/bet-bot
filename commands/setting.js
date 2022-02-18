@@ -159,7 +159,6 @@ module.exports = {
                     let nameStr = [[]];
                     let coinStr = [[]];
                     let getStr = [[]];
-                    //TODO: 顯示單一用戶累計獲得量
                     for(let i = 0; i < guildInformation.betInfo.betRecord.length; i++) {
                         let uid = guildInformation.betInfo.betRecord[i].userId;
                         let cis = guildInformation.betInfo.betRecord[i].coins;
@@ -570,6 +569,7 @@ module.exports = {
 
             const filter = message => message.author.id === interaction.user.id;
             let collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+            if(!msg.deletable) return;
             let name = collected.first().content;
             if (!name) return interaction.editReply(`設定失敗: 輸入逾時，已取消設定。`);
             if(name.length > titleLengthLimit) return interaction.editReply(`設定失敗: 超過字數限制，已取消設定。`);
@@ -578,8 +578,9 @@ module.exports = {
                 content: "標題設定成功: 「" + name + "」。\n" +
                     `⬇️請在這個頻道中輸入要設定的**模板說明**(上限${descriptionLengthLimit}字)。`
             })
-
+            
             collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+            if(!msg.deletable) return;
             let description = collected.first().content;
             if (!description) return interaction.editReply(`設定失敗: 輸入逾時，已取消設定。`);
             if(description.length > descriptionLengthLimit) return interaction.editReply(`設定失敗: 超過字數限制，已取消設定。`);
@@ -613,6 +614,7 @@ module.exports = {
                     })
                     collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
                     let collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+                    if(!msg.deletable) return collector.stop("set");
                     let name = collected.first().content;
                     let reason = "";
                     let description = "";
@@ -631,6 +633,7 @@ module.exports = {
                         })
                         collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
                         collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+                        if(!msg.deletable) return collector.stop("set");
                         description = collected.first().content;
 
                         if (!description) 
@@ -700,6 +703,7 @@ module.exports = {
                         embeds: [templateEmbed(template, interaction)],
                         components: [CompleteButtomComponent()],
                     });
+                    //TODO: 賭盤優先順序(建立模板)
                     
                 } else if(mode === "checked") {
                     collector.stop("set");
@@ -810,7 +814,6 @@ module.exports = {
             
         } else if(option === 'betTemplateEdit') {
             
-            //TODO
             let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/betTemplate`);
             if(!filename[0]) {
                 return interaction.reply(`目前並沒有已設定的模板。`)
@@ -882,6 +885,7 @@ module.exports = {
                     })
                     collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
                     let collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+                    if(!msg.deletable) return collector.stop("set");
                     let name = collected.first().content;
                     let reason = "";
                     let description = "";
@@ -900,6 +904,7 @@ module.exports = {
                         })
                         collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
                         collected = await interaction.channel.awaitMessages({filter: filter,  max: 1, time: overtimeLimit * 1000 });
+                        if(!msg.deletable) return collector.stop("set");
                         description = collected.first().content;
 
                         if (!description) 
@@ -969,7 +974,8 @@ module.exports = {
                         embeds: [templateEmbed(template, interaction)],
                         components: [CompleteButtomComponent()],
                     });
-                    
+                    //TODO: 賭盤優先順序(修改模板)
+
                 } else if(mode === "checked") {
                     collector.stop("set");
                     template.option.forEach((value, index) => {
@@ -1009,7 +1015,6 @@ module.exports = {
                     });
                 }
             });
-            //TODOEND
             
             
         } else if(option === 'betTemplateDelete') {
