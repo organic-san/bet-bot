@@ -462,7 +462,7 @@ module.exports = {
             const msg = await interaction.reply({
                 content: 
                     `請選擇要刪除的獎勵箱。`, 
-                components: row,
+                components: [row],
                 fetchReply: true
             });
             const collector = msg.createMessageComponentCollector({time: 120 * 1000 });
@@ -548,12 +548,13 @@ module.exports = {
             });
 
         } else if(option === 'betTemplateCreate') {
+            await interaction.deferReply();
             const overtimeLimit = 5 * 60;
             const titleLengthLimit = 40;
             const descriptionLengthLimit = 250;
             let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/betTemplate`);
             filename.forEach((v, i) => filename[i] = v.slice(0, v.length - 5));
-            const msg = await interaction.reply(
+            const msg = await interaction.editReply(
                 {
                     content: "建立賭盤模板: 建立作為賭盤舉行用的賭盤模板，以進行賭盤。\n" +
                         "建立賭盤模板時的幾項規則: \n" +
