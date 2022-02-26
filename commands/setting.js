@@ -162,7 +162,7 @@ module.exports = {
                     for(let i = 0; i < guildInformation.betInfo.betRecord.length; i++) {
                         let uid = guildInformation.betInfo.betRecord[i].userId;
                         let cis = guildInformation.betInfo.betRecord[i].coins;
-                        let get = guildInformation.betInfo.betRecord[i].optionId === (result.winner.id ? mag : 0);
+                        let get = (guildInformation.betInfo.betRecord[i].optionId === result.winner.id ? mag : 0);
                         if(total.has(uid))
                             total.set(uid, [total.get(uid)[0] + cis, total.get(uid)[1] + cis * get]);
                         else
