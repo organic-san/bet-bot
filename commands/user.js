@@ -285,7 +285,7 @@ module.exports = {
                             });
                             fs.writeFile(
                                 `./data/guildData/${guildInformation.id}/users/${userData.id}.json`, 
-                                JSON.stringify(userData.outputUser(), null, '\t'),async function (err) {
+                                JSON.stringify(userData, null, '\t'),async function (err) {
                                 if (err)
                                     return console.log(err);
                             });
@@ -306,7 +306,7 @@ module.exports = {
                     collector.stop("set");
                     fs.writeFile(
                         `./data/guildData/${guildInformation.id}/users/${userData.id}.json`, 
-                        JSON.stringify(userData.outputUser(), null, '\t'),async function (err) {
+                        JSON.stringify(userData, null, '\t'),async function (err) {
                         if (err)
                             return console.log(err);
                     });

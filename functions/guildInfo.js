@@ -36,7 +36,7 @@ class GuildInformation {
 
     
 
-    outputBasic() {
+    toJSON() {
         return {
             "id": this.id,
             "name": this.name,
@@ -45,10 +45,6 @@ class GuildInformation {
             "betCount": this.betCount,
             "awardBoxCount": this.awardBoxCount,
         }
-    }
-
-    outputBet() {
-        return this.betInfo;
     }
 
     /**
@@ -132,7 +128,7 @@ class User {
         this.lastAwardTime = userObj.lastAwardTime;
     }
 
-    outputUser() {
+    toJSON() {
         return {
             "id": this.id,
             "tag": this.tag,

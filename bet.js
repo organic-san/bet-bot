@@ -73,16 +73,16 @@ client.on('ready', () =>{
 
     setInterval(() => {
         guildInformation.forEach(async (val, key) => {
-            fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val.outputBasic(), null, '\t'),async function (err) {
+            fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val, null, '\t'),async function (err) {
                 if (err)
                     return console.log(err);
             });
-            fs.writeFile(`./data/guildData/${key}/betInfo.json`, JSON.stringify(val.outputBet(), null, '\t'),async function (err) {
+            fs.writeFile(`./data/guildData/${key}/betInfo.json`, JSON.stringify(val.betInfo, null, '\t'),async function (err) {
                 if (err)
                     return console.log(err);
             });
             val.users.forEach((ele, id) => {
-                fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele.outputUser(), null, '\t'),async function (err) {
+                fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele, null, '\t'),async function (err) {
                     if (err)
                         return console.log(err);
                 });
@@ -103,7 +103,7 @@ client.on('ready', () =>{
                 }
             });
         });
-        time = new Date();
+        let time = new Date();
         console.log(`Saved in ${time} (auto)`);
         //TODO: 除錯用資料傳送處理
         /*
@@ -129,11 +129,11 @@ client.on('interactionCreate', async interaction => {
         const basicInfo = new guild.guildInformation(interaction.guild);
         fs.writeFile(
             `./data/guildData/${interaction.guild.id}/basicInfo.json`, 
-            JSON.stringify(basicInfo.outputBasic(), null, '\t'), err => {if(err) console.error(err)}
+            JSON.stringify(basicInfo, null, '\t'), err => {if(err) console.error(err)}
         );
         fs.writeFile(
             `./data/guildData/${interaction.guild.id}/betInfo.json`, 
-            JSON.stringify(basicInfo.outputBet(), null, '\t'), err => {if(err) console.error(err)}
+            JSON.stringify(basicInfo.betInfo, null, '\t'), err => {if(err) console.error(err)}
         );
         guildInformation.set(interaction.guild.id, basicInfo)
         console.log(`${client.user.tag} 加入了 ${interaction.guild.name} (${interaction.guild.id}) (缺少伺服器資料觸發/interaction)`);
@@ -158,7 +158,7 @@ client.on('interactionCreate', async interaction => {
             const userData = new guild.User(interaction.user.id, interaction.user.tag);
             fs.writeFile(
                 `./data/guildData/${interaction.guild.id}/users/${interaction.user.id}.json`,
-                JSON.stringify(userData.outputUser(), null, '\t'), err => {if(err) console.error(err)}
+                JSON.stringify(userData, null, '\t'), err => {if(err) console.error(err)}
             );
             element.addUser(userData);
         } else {
@@ -210,16 +210,16 @@ client.on('messageCreate', async msg =>{
     if(msg.author.id === process.env.OWNER1_ID || msg.author.id === process.env.OWNER2_ID){
         if(msg.content.startsWith("bet^s")){
             guildInformation.forEach(async (val, key) => {
-                fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val.outputBasic(), null, '\t'),async function (err) {
+                fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val, null, '\t'),async function (err) {
                     if (err)
                         return console.log(err);
                 });
-                fs.writeFile(`./data/guildData/${key}/betInfo.json`, JSON.stringify(val.outputBet(), null, '\t'),async function (err) {
+                fs.writeFile(`./data/guildData/${key}/betInfo.json`, JSON.stringify(val.betInfo, null, '\t'),async function (err) {
                     if (err)
                         return console.log(err);
                 });
                 val.users.forEach((ele, id) => {
-                    fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele.outputUser(), null, '\t'),async function (err) {
+                    fs.writeFile(`./data/guildData/${key}/users/${ele.id}.json`, JSON.stringify(ele, null, '\t'),async function (err) {
                         if (err)
                             return console.log(err);
                     });
@@ -240,7 +240,7 @@ client.on('messageCreate', async msg =>{
                     }
                 });
             });
-            time = new Date();
+            let time = new Date();
             console.log(`Saved in ${time} (handle)`);
             //TODO: 除錯用資料傳送處理
             /*

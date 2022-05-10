@@ -241,7 +241,7 @@ module.exports = {
                     }
                     fs.writeFile(
                         `./data/guildData/${interaction.guild.id}/users/${filename}`, 
-                        JSON.stringify(newUser.outputUser(), null, '\t'
+                        JSON.stringify(newUser, null, '\t'
                     ),async function (err) {
                         if (err)
                             return console.log(err);
@@ -360,7 +360,7 @@ module.exports = {
                                 err => { if (err) return console.log(err);}
                             );
                             fs.writeFile(`./data/guildData/${guildInformation.id}/basicInfo.json`,
-                                JSON.stringify(guildInformation.outputBasic(), null, '\t'),
+                                JSON.stringify(guildInformation, null, '\t'),
                                 err => { if (err) return console.log(err);}
                             );
                         }

@@ -127,7 +127,7 @@ module.exports = {
                                 guildInformation.betInfo.totalBet += money;
                                 fs.writeFile(
                                     `./data/guildData/${guildInformation.id}/users/${guildInformation.getUser(interaction.user.id).id}.json`, 
-                                    JSON.stringify(guildInformation.getUser(interaction.user.id).outputUser(), null, '\t'),async function (err) {
+                                    JSON.stringify(guildInformation.getUser(interaction.user.id), null, '\t'),async function (err) {
                                     if (err)
                                         return console.log(err);
                                 });
@@ -360,7 +360,7 @@ module.exports = {
                         });
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
-                            JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
+                            JSON.stringify(guildInformation.betInfo, null, '\t'),async function (err) {
                             if (err)
                                 return console.log(err);
                         });
@@ -526,7 +526,7 @@ module.exports = {
                         )
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
-                            JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
+                            JSON.stringify(guildInformation.betInfo, null, '\t'),async function (err) {
                                 if (err) return console.log(err);
                             }
                         );
@@ -538,7 +538,7 @@ module.exports = {
                                 guildInformation.users.get(key).totalBet += val.totalBet;
                                 guildInformation.users.get(key).joinTimes += 1;
                                 fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
-                                    JSON.stringify(guildInformation.users.get(key).outputUser(), null, '\t'),async function (err) {
+                                    JSON.stringify(guildInformation.users.get(key), null, '\t'),async function (err) {
                                     if (err) return console.log(err);
                                 });
                             } else {
@@ -549,7 +549,7 @@ module.exports = {
                                 newUser.totalBet += val.totalBet;
                                 newUser.joinTimes += 1;
                                 fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
-                                    JSON.stringify(newUser.outputUser(), null, '\t'),async function (err) {
+                                    JSON.stringify(newUser, null, '\t'),async function (err) {
                                     if (err) return console.log(err);
                                 });
                             }
@@ -606,7 +606,7 @@ module.exports = {
                         );
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
-                            JSON.stringify(guildInformation.outputBet(), null, '\t'),async function (err) {
+                            JSON.stringify(guildInformation.betInfo, null, '\t'),async function (err) {
                                 if (err) return console.log(err);
                             }
                         );
@@ -618,7 +618,7 @@ module.exports = {
                                 guildInformation.users.get(key).totalGet += val.totalGet;
                                 guildInformation.users.get(key).joinTimes += 1;
                                 fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
-                                    JSON.stringify(guildInformation.users.get(key).outputUser(), null, '\t'),async function (err) {
+                                    JSON.stringify(guildInformation.users.get(key), null, '\t'),async function (err) {
                                     if (err) return console.log(err);
                                 });
                             } else {
@@ -629,7 +629,7 @@ module.exports = {
                                 newUser.totalGet += val.totalGet;
                                 newUser.joinTimes += 1;
                                 fs.writeFile(`./data/guildData/${interaction.guild.id}/users/${key}.json`, 
-                                    JSON.stringify(newUser.outputUser(), null, '\t'),async function (err) {
+                                    JSON.stringify(newUser, null, '\t'),async function (err) {
                                     if (err) return console.log(err);
                                 });
                             }
