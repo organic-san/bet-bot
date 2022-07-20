@@ -60,7 +60,7 @@ client.on('ready', () =>{
     console.log(`登入成功: ${client.user.tag} 於 ${new Date()}`);
     client.user.setActivity('/help'/*, { type: 'PLAYING' }*/);
 
-    setTimeout(() => {
+    setTimeout(async () => {
         console.log(`設定成功: ${new Date()}`);
         //TODO: 除錯用資料傳送處理
         /*
@@ -69,6 +69,7 @@ client.on('ready', () =>{
             client.channels.fetch(process.env.CHECK_CH_ID2).then(channel => channel.send(`登入成功: <t:${Math.floor(client.readyTimestamp / 1000)}:F>`));
         */
         isready = true;
+        
     }, parseInt(process.env.LOADTIME) * 1000);
 
     setInterval(() => {
@@ -250,6 +251,19 @@ client.on('messageCreate', async msg =>{
             console.log(guildInformation.get(msg.guild.id));
         }else if(msg.content.startsWith("bet^a")){
             console.log(guildInformation.get(msg.guild.id).getUser(msg.author.id).saveTime=10);
+        }else if(msg.content.startsWith(".say")){
+            const word = msg.content.split(/\s+/);
+            if(!word[1]) return;
+            if(!Number.isNaN(parseInt(word[1]))){
+                let matches = word[1].match(/^<#!?(\d+)>$/) ?? mention.match(/\d+/);
+                if (!matches) return;
+                if(matches[0].startsWith("<")) matches = matches[1]; else matches = matches[0];
+                let channelt = client.channels.cache.get(matches);
+                channelt.send(msg.content.substring(word[0].length + word[1].length + 2))
+            }else{
+                msg.channel.send(msg.content.substring(word[0].length + 1));
+            }
+            msg.delete().catch(() => {});
         }
     }
 })
