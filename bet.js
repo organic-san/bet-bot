@@ -255,7 +255,7 @@ client.on('messageCreate', async msg =>{
             const word = msg.content.split(/\s+/);
             if(!word[1]) return;
             if(!Number.isNaN(parseInt(word[1]))){
-                let matches = word[1].match(/^<#!?(\d+)>$/) ?? mention.match(/\d+/);
+                let matches = word[1].match(/^<#!?(\d+)>$/) ?? word[1].match(/\d+/);
                 if (!matches) return;
                 if(matches[0].startsWith("<")) matches = matches[1]; else matches = matches[0];
                 let channelt = client.channels.cache.get(matches);
