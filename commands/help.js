@@ -27,7 +27,8 @@ module.exports = {
             .addField(`其他`, 
                 "\`/daily\` - 每日獎勵，每日3:00(UTC+8)重置領取次數\n" + 
                 "\`/user info\` - 查看該用戶的資訊\n" +
-                "\`/user ranking\` - 顯示伺服器中的排名\n")
+                "\`/user ranking\` - 顯示伺服器中的排名\n" +
+                "\`/gacha\` - 日版賽馬娘遊戲當期轉蛋模擬器\n")
             .addField("設定相關(需要管理伺服器權限)", 
                 "\`/bet create\` - 設定並開啟賭盤\n" + 
                 "\`/bet close\` - 關閉賭盤\n" + 
