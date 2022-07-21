@@ -13,7 +13,7 @@ module.exports = {
             .setRequired(true)
         ).addIntegerOption(opt => 
             opt.setName('much')
-            .setDescription('要抽的次數，每10次轉蛋將會有一次SR/二星必中')
+            .setDescription('要抽的次數，每10次轉蛋將會有一次SR/二星必中，抽取數大於10抽將只顯示SSR/三星結果')
             .setRequired(true)
         ),
 	tag: "gacha",
@@ -27,60 +27,62 @@ module.exports = {
         const type = interaction.options.getString('type');
         if(much > 200) return interaction.editReply("請不要輸入大於一井(200抽)的數量。")
         if(much < 1) return interaction.editReply("請不要輸入小於1抽的數量。")
-        let result = ``;
-        interaction.editReply(`${type === "umamusume" ? "賽馬娘池" : "支援卡池"} 抽取 ${much} 抽 結果如下:\n`);
+        let result = `${type === "umamusume" ? "賽馬娘池" : "支援卡池"} 抽取 ${much} 抽 結果如下:\n`;
+        let count = 0;
         if(type === "umamusume") {
+            if(much > 10) result += "(抽取數大於10抽將只顯示☆3以上的結果)\n"
             for(let i = 0; i < much; i++) {
                 if(Math.random() < (i % 10 !== 9 ? gachaData.star3Percent : gachaData.roll10Star3Percent)) {
                     if(Math.random() < gachaData.pickUpStar3Percent) {
-                        result += `☆3 ${gachaData.pickUpStar3[Math.floor(Math.random() * gachaData.pickUpStar3.length)]} (pickup)\n`;
+                        result += `${i + 1}: ☆3 ${gachaData.pickUpStar3[Math.floor(Math.random() * gachaData.pickUpStar3.length)]} (pickup)\n`;
                     } else {
-                        result += `☆3 ${gachaData.noPickUpStar3[Math.floor(Math.random() * gachaData.noPickUpStar3.length)]}\n`;
+                        result += `${i + 1}: ☆3 ${gachaData.noPickUpStar3[Math.floor(Math.random() * gachaData.noPickUpStar3.length)]}\n`;
                     }
-                } else if(Math.random() < (i % 10 !== 9 ? (gachaData.star3Percent + gachaData.star2Percent) : (gachaData.roll10Star3Percent + gachaData.roll10Star2Percent))) {
+                    count ++;
+                } else if((Math.random() < (i % 10 !== 9 ? (gachaData.star3Percent + gachaData.star2Percent) : (gachaData.roll10Star3Percent + gachaData.roll10Star2Percent))
+                        && much <= 10)) {
                     if(Math.random() < gachaData.pickUpStar2Percent) {
-                        result += `☆2 ${gachaData.pickUpStar2[Math.floor(Math.random() * gachaData.pickUpStar2.length)]} (pickup)\n`;
+                        result += `${i + 1}: ☆2 ${gachaData.pickUpStar2[Math.floor(Math.random() * gachaData.pickUpStar2.length)]} (pickup)\n`;
                     } else {
-                        result += `☆2 ${gachaData.noPickUpStar2[Math.floor(Math.random() * gachaData.noPickUpStar2.length)]}\n`;
+                        result += `${i + 1}: ☆2 ${gachaData.noPickUpStar2[Math.floor(Math.random() * gachaData.noPickUpStar2.length)]}\n`;
                     }
-                } else {
-                    result += `☆1 ${gachaData.noPickUpStar1[Math.floor(Math.random() * gachaData.noPickUpStar1.length)]}\n`;
+                } else if(much <= 10){
+                    result += `${i + 1}: ☆1 ${gachaData.noPickUpStar1[Math.floor(Math.random() * gachaData.noPickUpStar1.length)]}\n`;
                 }
-                if(i % 50 === 49) {
-                    interaction.channel.send(result + '_ _');
-                    result = "";
-                }
-                if((i % 10 === 9) && (i % 50 !== 49)) result += '\n';
             }
-            if(result) interaction.channel.send(result);
+            result += "\n總☆3數: " + count + " 個。";
+            if(count > 30) result = 
+                `賽馬娘池 抽取 ${much} 抽 結果如下:\n(抽取數大於10抽將只顯示☆3以上的結果)\n\n抽到太多☆3了! 無法顯示結果!\n\n總☆3數: ${count} 個。`
+            interaction.editReply(result);
         } else if(type === "support") {
+            if(much > 10) result += "(抽取數大於10抽將只顯示SSR以上的結果)\n"
             for(let i = 0; i < much; i++) {
                 if(Math.random() < (i % 10 !== 9 ? gachaData.SSRPercent : gachaData.roll10SSRPercent)) {
                     if(Math.random() < gachaData.pickUpSSRPercent) {
-                        result += `SSR ${gachaData.pickUpSSR[Math.floor(Math.random() * gachaData.pickUpSSR.length)]} (pickup)\n`;
+                        result += `${i + 1}: SSR ${gachaData.pickUpSSR[Math.floor(Math.random() * gachaData.pickUpSSR.length)]} (pickup)\n`;
                     } else {
-                        result += `SSR ${gachaData.noPickUpSSR[Math.floor(Math.random() * gachaData.noPickUpSSR.length)]}\n`;
+                        result += `${i + 1}: SSR ${gachaData.noPickUpSSR[Math.floor(Math.random() * gachaData.noPickUpSSR.length)]}\n`;
                     }
-                } else if(Math.random() < (i % 10 !== 9 ? (gachaData.SSRPercent + gachaData.SRPercent) : (gachaData.roll10SSRPercent + gachaData.roll10SRPercent))) {
+                    count ++;
+                } else if((Math.random() < (i % 10 !== 9 ? (gachaData.SSRPercent + gachaData.SRPercent) : (gachaData.roll10SSRPercent + gachaData.roll10SRPercent)))
+                        && much <= 10) {
                     if(Math.random() < gachaData.pickUpSRPercent) {
-                        result += `SR   ${gachaData.pickUpSR[Math.floor(Math.random() * gachaData.pickUpSR.length)]} (pickup)\n`;
+                        result += `${i + 1}: SR   ${gachaData.pickUpSR[Math.floor(Math.random() * gachaData.pickUpSR.length)]} (pickup)\n`;
                     } else {
-                        result += `SR   ${gachaData.noPickUpSR[Math.floor(Math.random() * gachaData.noPickUpSR.length)]}\n`;
+                        result += `${i + 1}: SR   ${gachaData.noPickUpSR[Math.floor(Math.random() * gachaData.noPickUpSR.length)]}\n`;
                     }
-                } else {
+                } else if(much <= 10){
                     if(Math.random() < gachaData.pickUpRPercent) {
-                        result += `R     ${gachaData.pickUpR[Math.floor(Math.random() * gachaData.pickUpR.length)]} (pickup)\n`;
+                        result += `${i + 1}: R     ${gachaData.pickUpR[Math.floor(Math.random() * gachaData.pickUpR.length)]} (pickup)\n`;
                     } else {
-                        result += `R     ${gachaData.noPickUpR[Math.floor(Math.random() * gachaData.noPickUpR.length)]}\n`;
+                        result += `${i + 1}: R     ${gachaData.noPickUpR[Math.floor(Math.random() * gachaData.noPickUpR.length)]}\n`;
                     }
                 }
-                if(i % 50 === 49) {
-                    interaction.channel.send(result + '_ _');
-                    result = "";
-                }
-                if((i % 10 === 9) && (i % 50 !== 49)) result += '\n';
             }
-            if(result) interaction.channel.send(result);
+            result += "\n總SSR數: " + count + " 個。";
+            if(count > 30) result = 
+                `支援卡池 抽取 ${much} 抽 結果如下:\n(抽取數大於10抽將只顯示SSR以上的結果)\n\n抽到太多SSR了! 無法顯示結果!\n\n總SSR數: ${count} 個。`
+            interaction.editReply(result);
         }
         
 	},
