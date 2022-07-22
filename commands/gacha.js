@@ -53,7 +53,7 @@ module.exports = {
             result += "\n總☆3數: " + count + " 個。";
             if(count > 30) result = 
                 `賽馬娘池 抽取 ${much} 抽 結果如下:\n(抽取數大於10抽將只顯示☆3以上的結果)\n\n抽到太多☆3了! 無法顯示結果!\n\n總☆3數: ${count} 個。`
-            interaction.editReply(result).catch(() => {});
+            interaction.editReply(result);
         } else if(type === "support") {
             if(much > 10) result += "(抽取數大於10抽將只顯示SSR以上的結果)\n"
             for(let i = 0; i < much; i++) {
@@ -82,7 +82,7 @@ module.exports = {
             result += "\n總SSR數: " + count + " 個。";
             if(count > 30) result = 
                 `支援卡池 抽取 ${much} 抽 結果如下:\n(抽取數大於10抽將只顯示SSR以上的結果)\n\n抽到太多SSR了! 無法顯示結果!\n\n總SSR數: ${count} 個。`
-            interaction.editReply(result).catch(() => {});
+            interaction.editReply(result);
         }
         
 	},
