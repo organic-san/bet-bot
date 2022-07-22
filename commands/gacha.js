@@ -22,11 +22,11 @@ module.exports = {
      * @param {Discord.CommandInteraction} interaction 
      */
 	async execute(interaction, gachaData) {
-        await interaction.deferReply();
+        await interaction.deferReply().catch(() => {});
         const much = interaction.options.getInteger('much');
         const type = interaction.options.getString('type');
-        if(much > 200) return interaction.editReply("請不要輸入大於一井(200抽)的數量。")
-        if(much < 1) return interaction.editReply("請不要輸入小於1抽的數量。")
+        if(much > 200) return interaction.editReply("請不要輸入大於一井(200抽)的數量。").catch(() => {});
+        if(much < 1) return interaction.editReply("請不要輸入小於1抽的數量。").catch(() => {});
         let result = `${type === "umamusume" ? "賽馬娘池" : "支援卡池"} 抽取 ${much} 抽 結果如下:\n`;
         let count = 0;
         if(type === "umamusume") {
@@ -53,7 +53,7 @@ module.exports = {
             result += "\n總☆3數: " + count + " 個。";
             if(count > 30) result = 
                 `賽馬娘池 抽取 ${much} 抽 結果如下:\n(抽取數大於10抽將只顯示☆3以上的結果)\n\n抽到太多☆3了! 無法顯示結果!\n\n總☆3數: ${count} 個。`
-            interaction.editReply(result);
+            interaction.editReply(result).catch(() => {});
         } else if(type === "support") {
             if(much > 10) result += "(抽取數大於10抽將只顯示SSR以上的結果)\n"
             for(let i = 0; i < much; i++) {
@@ -82,7 +82,7 @@ module.exports = {
             result += "\n總SSR數: " + count + " 個。";
             if(count > 30) result = 
                 `支援卡池 抽取 ${much} 抽 結果如下:\n(抽取數大於10抽將只顯示SSR以上的結果)\n\n抽到太多SSR了! 無法顯示結果!\n\n總SSR數: ${count} 個。`
-            interaction.editReply(result);
+            interaction.editReply(result).catch(() => {});
         }
         
 	},
