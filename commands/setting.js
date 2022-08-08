@@ -21,6 +21,7 @@ module.exports = {
             .addChoice('查看賭盤模板', 'betTemplateShow')
             .addChoice('修改既有的賭盤模板', 'betTemplateEdit')
             .addChoice('刪除賭盤模板', 'betTemplateDelete')
+            .addChoice('調整金額獲得比例', 'adjustTaxRate')
             .setRequired(true)
         ),
     tag: "guildInfo",
@@ -1105,6 +1106,67 @@ module.exports = {
                         content: `取消刪除。`, 
                         components: [],
                         embeds: []
+                    });
+                }
+            });
+        } else if(option === "adjustTaxRate") {
+            const row = rowCreate(false);
+            const msg = await interaction.reply({
+                content: 
+                    `目前設定的 發還金額比例 為 ${guildInformation.taxRate} %\n` + 
+                    `點選下方面板調整發還金額比例(最終抽成比例將以開盤當下為標準，若賠率低於1則賠率將設為1)`,
+                components: row, 
+                fetchReply: true
+            });
+
+            const collector = msg.createMessageComponentCollector({time: 120 * 1000 });
+
+            let rate = 0;
+            let isSet = false;
+            collector.on('collect', async i => {
+                if(i.user.id !== interaction.user.id) return i.reply({content: "僅可由指令使用者觸發這些操作。", ephemeral: true});
+                if(!isSet) {
+                    if(i.customId === 'delete') {
+                        rate = Math.floor(rate / 10);
+                    } else if(i.customId === 'complete') {
+                        isSet = true;
+                    } else {
+                        rate += i.customId;
+                        rate = Math.min(rate, 100);
+                    }
+                    const row = rowCreate(rate >= 100);
+                    if(isSet) {
+                        if(rate === 0) {
+                            i.update({
+                                content: `發還金額比例請至少設定為大於等於 1 %。`, 
+                                components: []
+                            });
+                        } else {
+                            guildInformation.taxRate = rate;
+                            i.update({
+                                content: `已將發還金額比例設為 ${guildInformation.taxRate} %。`, 
+                                components: []
+                            });
+                        }
+                        collector.stop("set");
+                    } else {
+                        i.update({
+                            content: 
+                                `目前設定的 發還金額比例 為 ${guildInformation.taxRate} %\n` + 
+                                `點選下方面板調整發還金額比例(最終抽成比例將以開盤當下為標準，若賠率低於1則賠率將設為1)\n` +
+                                `\`\`\`\n調整後的發還金額比例: ${rate} %\n\`\`\``, 
+                            components: row
+                        });
+                    }
+                    collector.resetTimer({ time: 120 * 1000 });
+                }
+            });
+
+            collector.on('end', (c, r) => {
+                if(r !== "messageDelete" && r !== "user" && r !== "set"){
+                    interaction.editReply({
+                        content: `取消設定。`, 
+                        components: []
                     });
                 }
             });

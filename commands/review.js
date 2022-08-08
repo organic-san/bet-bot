@@ -103,12 +103,13 @@ function createResultEmbed(result, interaction) {
     }
     
     result.option.forEach(option => {
+        let odds = oddsCalc(option.betCount, result.totalBet, result.betTaxRate);
         if(option.id === result.winner.id) {
             embed.addField("🏆 " + option.id + ". " + option.name + ' (獲勝選項)', option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
-                `賠率: ${option.betCount>0 ? Math.floor((result.totalBet / option.betCount) * 10) / 10 : "無法計算賠率"}`)
+                `賠率: ${odds === 0 ? "無法計算賠率" : odds}`)
         } else {
             embed.addField("📔 " + option.id + ". " + option.name, option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
-                `賠率: ${option.betCount>0 ? Math.floor((result.totalBet / option.betCount) * 10) / 10 : "無法計算賠率"}`)
+                `賠率: ${odds === 0 ? "無法計算賠率" : odds}`)
         }
         
     })
@@ -138,4 +139,9 @@ function createRow(now, max) {
             ]
         );
     return row;
+}
+
+function oddsCalc(betCoins, totalBetCoins, taxRate) {
+    if(betCoins === 0) return 0;
+    else return Math.max(1, Math.floor((totalBetCoins / betCoins) * (taxRate / 100) * 10 ) / 10);
 }

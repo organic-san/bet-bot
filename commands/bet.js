@@ -44,11 +44,12 @@ module.exports = {
 
                 let playRaseRowData = [];
                 guildInformation.betInfo.option.forEach(option => {
+                    let odds = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, guildInformation.taxRate);
                     playRaseRowData.push({
                         label: option.name,
                         value: option.id,
                         description: `累計賭金: ${option.betCount} coin(s) ` + 
-                            `賠率: ${option.betCount>0 ? Math.floor((guildInformation.betInfo.totalBet / option.betCount) * 10) / 10 : "尚無法計算賠率"}`
+                            `賠率: ${odds === 0 ? "尚無法計算賠率" : odds}`
                     });
                 })
                 const row = new Discord.MessageActionRow()
@@ -175,8 +176,9 @@ module.exports = {
             }
             
             guildInformation.betInfo.option.forEach(option => {
+                let odds = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, guildInformation.taxRate);
                 embed.addField("📔 " + option.id + ". " + option.name, option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
-                    `賠率: ${option.betCount>0 ? Math.floor((guildInformation.betInfo.totalBet / option.betCount) * 10) / 10 : "尚無法計算賠率"}`)
+                    `賠率: ${odds === 0 ? "尚無法計算賠率" : odds}`)
             })
             interaction.reply({embeds: [embed]});
 
@@ -521,8 +523,8 @@ module.exports = {
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
                             JSON.stringify(guildInformation.outputBetRecord(
-                                new guild.betGameOptionObject("0", "賭盤取消", "本次賭盤取消，所有coin(s)退回原投注者。")
-                            ), null, '\t'), err => {if(err) console.error(err)}
+                                new guild.betGameOptionObject("0", "賭盤取消", "本次賭盤取消，所有coin(s)退回原投注者。"), guildInformation.taxRate
+                            , guildInformation.taxRate), null, '\t'), err => {if(err) console.error(err)}
                         )
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
@@ -559,7 +561,7 @@ module.exports = {
                     } else {
                         let rebackList = new Map();
                         const winOption = guildInformation.betInfo.getOption(target);
-                        let coinGet = (Math.floor((guildInformation.betInfo.totalBet / winOption.betCount) * 10) / 10);
+                        let coinGet = oddsCalc(winOption.betCount, guildInformation.betInfo.totalBet, guildInformation.taxRate);
                         guildInformation.betInfo.betRecord.forEach(element => {
                             if(element.optionId === winOption.id) {
                                 if(userList.has(element.userId)) {
@@ -602,7 +604,7 @@ module.exports = {
                         });
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
-                            JSON.stringify(guildInformation.outputBetRecord(winOption), null, '\t'), err => {if(err) console.error(err)}
+                            JSON.stringify(guildInformation.outputBetRecord(winOption, guildInformation.taxRate), null, '\t'), err => {if(err) console.error(err)}
                         );
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`, 
@@ -728,4 +730,9 @@ function rowCreate(isOver) {
                     .setDisabled(false),
             ]),
     ];
+}
+
+function oddsCalc(betCoins, totalBetCoins, taxRate) {
+    if(betCoins === 0) return 0;
+    else return Math.max(1, Math.floor((totalBetCoins / betCoins) * (taxRate / 100) * 10 ) / 10);
 }

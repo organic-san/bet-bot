@@ -12,6 +12,7 @@ class GuildInformation {
         this.joinedAt = new Date(Date.now());
         this.recordAt = new Date(Date.now());
         this.awardBoxCount = 0;
+        this.taxRate = 100;
         /**
          * @type {Map<string, User>}
          */
@@ -32,6 +33,7 @@ class GuildInformation {
         this.recordAt = obj.recordAt;
         this.awardBoxCount = obj.awardBoxCount ?? 0;
         this.betInfo.toBetGameObject(obj.betInfo);
+        this.taxRate = obj.taxRate ?? 100;
     }
 
     
@@ -44,22 +46,25 @@ class GuildInformation {
             "recordAt": this.recordAt,
             "betCount": this.betCount,
             "awardBoxCount": this.awardBoxCount,
+            "taxRate": this.taxRate,
         }
     }
 
     /**
      * 
      * @param {BetGameOptionObject} winner 
+     * @param {BetGameOptionObject} betTaxRate 
      * @returns 
      */
-    outputBetRecord(winner) {
+    outputBetRecord(winner, betTaxRate) {
         const newRecord = new BetRecordObject(
             this.betInfo.name, 
             this.betInfo.id, 
             this.betInfo.description,
             this.betInfo.option,
             winner,
-            this.betInfo.totalBet
+            this.betInfo.totalBet,
+            betTaxRate
             )
         return newRecord;
     }
@@ -330,8 +335,9 @@ class BetRecordObject {
          * @param {BetGameOptionObject} winner 
          * @param {Number} totalBet 
          * @param {Array<Array<number>>} priority
+         * @param {number} taxRate
          */    
-    constructor(name, id, description, option, winner, totalBet, priority) {
+    constructor(name, id, description, option, winner, totalBet, taxRate, priority) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -342,6 +348,7 @@ class BetRecordObject {
         this.totalBet = totalBet ?? 0;
         this.priority = priority ?? [];
         this.winner = winner ?? new BetGameOptionObject;
+        this.betTaxRate = taxRate ?? 100;
     }
 
     toBetRecordObject(obj) {
@@ -356,6 +363,7 @@ class BetRecordObject {
         });
         this.priority = obj.priority ?? [];
         this.winner.toOption(obj.winner);
+        this.betTaxRate = obj.betTaxRate ?? 100;
         
     }
 }
