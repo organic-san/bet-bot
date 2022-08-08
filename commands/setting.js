@@ -668,7 +668,7 @@ module.exports = {
                             rowData.push({
                                 label: "選項: " + opt.name,
                                 value: opt.name,
-                                description: opt.description
+                                description: opt.description.slice(0, 50)
                             });
                         });
                         
@@ -939,7 +939,7 @@ module.exports = {
                             rowData.push({
                                 label: "選項: " + opt.name,
                                 value: opt.name,
-                                description: opt.description
+                                description: opt.description.slice(0, 50)
                             });
                         });
                         
