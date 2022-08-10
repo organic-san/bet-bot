@@ -30,8 +30,11 @@ for (const file of commandFiles) {
  */
 let guildInformation = new Map;
 
-let gachaData = fs.readFileSync(`./data/gacha.json`);
-gachaData = JSON.parse(gachaData);
+let gachaData = {jp: undefined, tc: undefined};
+gachaData.jp = fs.readFileSync(`./data/gacha.json`);
+gachaData.jp = JSON.parse(gachaData.jp);
+gachaData.tc = fs.readFileSync(`./data/gachaTC.json`);
+gachaData.tc = JSON.parse(gachaData.tc);
 
 const guildDirs = fs.readdirSync('./data/guildData');
 guildDirs.forEach( file => {
