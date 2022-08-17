@@ -272,8 +272,10 @@ client.on('messageCreate', async msg =>{
             }
             msg.delete().catch(() => {});
         }else if(msg.content.startsWith("bet^gu")){
-            gachaData = fs.readFileSync(`./data/gacha.json`);
-            gachaData = JSON.parse(gachaData);
+            gachaData.jp = fs.readFileSync(`./data/gacha.json`);
+            gachaData.jp = JSON.parse(gachaData);
+            gachaData.tc = fs.readFileSync(`./data/gachaTC.json`);
+            gachaData.tc = JSON.parse(gachaData);
         }
     }
 })

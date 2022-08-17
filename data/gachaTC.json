@@ -1,9 +1,9 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0.06329113924,
+    "pickUpRPercent": 0,
     "pickUpRNormalPercent": 0.04746835443,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
@@ -11,7 +11,7 @@
     "roll10SSRPercent": 0.03,
     "roll10SRPercent": 0.97,
     "roll10RPercent": 0,
-    "pickUpStar3Percent": 0.5,
+    "pickUpStar3Percent": 0.25,
     "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "star3Percent": 0.03,
@@ -21,22 +21,21 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[超越那個背影] 里見光鑽 (耐力)",
-        "[被逼近的熱情推著] 北部玄駒 (速度)"
+        "[由故鄉直達的聲援！] 雪之美人 (智力)"
     ],
-    "pickUpSR": [],
-    "pickUpR": [
-        "[特雷森學園] 待兼唐懷瑟",
-        "[特雷森學園] 里見光鑽",
-        "[特雷森學園] 北部玄駒"
+    "pickUpSR": [
+        "[將雛菊獻給妳] 西野花 (力量)"
     ],
+    "pickUpR": [],
     "pickUpStar3": [
-        "【超越地平線】東海帝皇 (新衣裝)",
-        "【空之盡頭】目白麥昆 (新衣裝)"
+        "【閃光少女】真機伶"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        
+        "[超越那個背影] 里見光鑽 (耐力)",
+        "[被逼近的熱情推著] 北部玄駒 (速度)",
         "[由故鄉直達的聲援！] 雪之美人 (智力)",
         "[與笨蛋一起笑] 目白善信 (毅力)",
         "[渦輪引擎全開宣言！] 雙渦輪 (速度)",
@@ -63,7 +62,6 @@
         "[站上日本第一的舞台] 特別週 (毅力)"
     ],
     "noPickUpSR": [
-        "[將雛菊獻給妳] 西野花 (力量)",
         "[熱身運動不可以偷懶] 生野狄杜斯 (智力)",
         "[派對玩咖與派對之夜！] 大德太陽 (力量)",
         "[見習魔女與漫漫長夜] 東商變革 (速度)",
@@ -143,7 +141,10 @@
         "[特雷森學園] 丸善斯基",
         "[特雷森學園] 東海帝皇",
         "[特雷森學園] 無聲鈴鹿",
-        "[特雷森學園] 特別週"
+        "[特雷森學園] 特別週",
+        "[特雷森學園] 待兼唐懷瑟",
+        "[特雷森學園] 里見光鑽",
+        "[特雷森學園] 北部玄駒"
     ],
     "noPickUpStar3": [
         "【特別夢想家】特別週",
@@ -157,7 +158,9 @@
         "【皇帝之路】魯道夫象徵",
         "【pf.Victory formula...】琵琶晨光",
         "【MB-19890425】美浦波旁",
-        "【薔薇之夢】米浴"
+        "【薔薇之夢】米浴",
+        "【超越地平線】東海帝皇 (新衣裝)",
+        "【空之盡頭】目白麥昆 (新衣裝)"
     ],
     "noPickUpStar2": [
         "【火紅鬥爭】黃金船",
