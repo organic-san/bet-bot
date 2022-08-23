@@ -36,10 +36,7 @@ module.exports = {
         let gDt;
         if(version === "JP") gDt = gachaData.jp;
         else if(version === "TC") gDt = gachaData.tc;
-        else if(version === "JP2") {
-            gDt = fs.readFileSync(`./data/gachaJP2.json`);
-            gDt = JSON.parse(gDt);
-        }
+        else if(version === "JP2") gDt = gachaData.jp2;
         if(much > 200) return interaction.reply("請不要輸入大於一井(200抽)的數量。").catch(() => {});
         if(much < 1) return interaction.reply("請不要輸入小於1抽的數量。").catch(() => {});
         let result = `${type === "umamusume" ? "賽馬娘池" : "支援卡池"} 抽取 ${much} 抽 結果如下:\n`;

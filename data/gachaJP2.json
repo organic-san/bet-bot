@@ -11,8 +11,8 @@
     "roll10SSRPercent": 0.03,
     "roll10SRPercent": 0.97,
     "roll10RPercent": 0,
-    "pickUpStar3NormalPercent": 0.25,
     "pickUpStar3Percent": 0.25,
+    "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "star3Percent": 0.03,
     "star2Percent": 0.18,
@@ -26,7 +26,7 @@
     ],
     "pickUpSR": [],
     "pickUpR": [
-        "[イベントプロデューサー] ライトハロー (友人)"
+        "[イベントプロデューサー] ライトハロー"
     ],
     "pickUpStar3": [
         "【黄昏トライアンフ】スマートファルコン (新衣装)"
