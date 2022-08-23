@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require('discord.js');
+const fs = require('fs');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -8,7 +9,8 @@ module.exports = {
         .addStringOption(opt => 
             opt.setName('version')
             .setDescription('轉蛋的版本，根據版本會有不同的轉蛋範圍與pickup角色/支援卡。')
-            .addChoice('日文版', "JP")
+            .addChoice('日文版舊池', "JP")
+            .addChoice('日文版新池', "JP2")
             .addChoice('繁體中文版', "TC")
             .setRequired(true)
         ).addStringOption(opt => 
@@ -34,6 +36,10 @@ module.exports = {
         let gDt;
         if(version === "JP") gDt = gachaData.jp;
         else if(version === "TC") gDt = gachaData.tc;
+        else if(version === "JP2") {
+            gDt = fs.readFileSync(`./data/gachaJP2.json`);
+            gDt = JSON.parse(gDt);
+        }
         if(much > 200) return interaction.reply("請不要輸入大於一井(200抽)的數量。").catch(() => {});
         if(much < 1) return interaction.reply("請不要輸入小於1抽的數量。").catch(() => {});
         let result = `${type === "umamusume" ? "賽馬娘池" : "支援卡池"} 抽取 ${much} 抽 結果如下:\n`;
