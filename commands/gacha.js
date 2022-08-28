@@ -9,9 +9,9 @@ module.exports = {
         .addStringOption(opt => 
             opt.setName('version')
             .setDescription('轉蛋的版本，根據版本會有不同的轉蛋範圍與pickup角色/支援卡。')
-            .addChoice('日文版舊池', "JP")
-            .addChoice('日文版新池', "JP2")
-            .addChoice('繁體中文版', "TC")
+            .addChoice('日文版pick-up轉蛋', "JP")
+            .addChoice('日文版新育成紀念轉蛋', "JP2")
+            .addChoice('繁體中文版特選轉蛋', "TC")
             .setRequired(true)
         ).addStringOption(opt => 
             opt.setName('type')

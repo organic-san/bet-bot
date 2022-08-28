@@ -1,7 +1,7 @@
 {
-    "pickUpSSRPercent": 0.25,
+    "pickUpSSRPercent": 0.5,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0.125,
+    "pickUpSRPercent": 0,
     "pickUpSRNormalPercent": 0.125,
     "pickUpRPercent": 0,
     "pickUpRNormalPercent": 0.04746835443,
@@ -11,7 +11,7 @@
     "roll10SSRPercent": 0.03,
     "roll10SRPercent": 0.97,
     "roll10RPercent": 0,
-    "pickUpStar3Percent": 0.25,
+    "pickUpStar3Percent": 0.5,
     "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "star3Percent": 0.03,
@@ -21,18 +21,21 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[It's on the house.] マンハッタンカフェ (スタミナ)"
+        "[テイオー・オー・オー！！！] トウカイテイオー",
+        "[TT Ignition!] ツインターボ"
     ],
-    "pickUpSR": [
-        "[ゆるっと、まにまに] セイウンスカイ (賢さ)"
-    ],
+    "pickUpSR": [],
     "pickUpR": [],
     "pickUpStar3": [
-        "【陰陽八卦☆開運衣】コパノリッキー"
+        "【Dream Deliverer】ウイニングチケット (スチームパンク)",
+        "【ディファレンス・エンジニア】ナリタタイシン (スチームパンク)"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[from the GROUND UP] ライトハロー (友人)",
+        "[Q≠0] アグネスタキオン (スピード)",
+        "[It's on the house.] マンハッタンカフェ (スタミナ)",
         "[おセンチ注意報♪] マルゼンスキー (スピード)",
         "[一天地六に身を任せ] ナカヤマフェスタ (賢さ)",
         "[尊尚親愛] 玉座に集いし者たち (グループ)",
@@ -107,6 +110,7 @@
         "[心と足元は温かく] イクノディクタス (根性)"
     ],
     "noPickUpSR": [
+        "[ゆるっと、まにまに] セイウンスカイ (賢さ)",
         "[泥まみれのコンパネーロ] エルコンドルパサー (スピード)",
         "[GRMAラーメン♪] ファインモーション (パワー)",
         "[0500・定刻通り] エイシンフラッシュ (スピード)",
@@ -231,7 +235,8 @@
         "[トレセン学園] メジロアルダン",
         "[トレセン学園] メジロドーベル",
         "[トレセン学園] アドマイヤベガ",
-        "[トレセン学園] ミスターシービー"
+        "[トレセン学園] ミスターシービー",
+        "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
         "【スペシャルドリーマー】スペシャルウィーク",
@@ -306,7 +311,9 @@
         "【unsigned】エアシャカール",
         "【さざ波フェアレディ】メジロマックイーン (水着)",
         "【RUN！乱！ランチャー！！】ゴールドシップ (水着)",
-        "【黒鉄の大志】バンブーメモリー"
+        "【黒鉄の大志】バンブーメモリー",
+        "【陰陽八卦☆開運衣】コパノリッキー",
+        "【黄昏トライアンフ】スマートファルコン (新衣装)"
     ],
     "noPickUpStar2": [
         "【ワイルドトップギア】ウオッカ",

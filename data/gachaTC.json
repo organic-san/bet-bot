@@ -3,7 +3,7 @@
     "pickUpSSRNormalPercent": 0.25,
     "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0,
+    "pickUpRPercent": 0.09493670886,
     "pickUpRNormalPercent": 0.04746835443,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
@@ -21,14 +21,17 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[由故鄉直達的聲援！] 雪之美人 (智力)"
+        "[令我靜靜燃燒努力的事物] 八重無敵 (力量)"
     ],
     "pickUpSR": [
-        "[將雛菊獻給妳] 西野花 (力量)"
+        "[我推薦這幾本書！] 荒漠英雄 (耐力)"
     ],
-    "pickUpR": [],
+    "pickUpR": [
+        "[特雷森學園] 八重無敵",
+        "[特雷森學園] 荒漠英雄"
+    ],
     "pickUpStar3": [
-        "【閃光少女】真機伶"
+        "【Nevertheless】成田大進"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
@@ -147,6 +150,7 @@
         "[特雷森學園] 北部玄駒"
     ],
     "noPickUpStar3": [
+        "【閃光少女】真機伶",
         "【特別夢想家】特別週",
         "【無聲純真】無聲鈴鹿",
         "【歡樂巔峰】東海帝皇",
