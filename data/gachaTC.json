@@ -1,9 +1,9 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0,
+    "pickUpRPercent": 0.09493670886,
     "pickUpRNormalPercent": 0.04746835443,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
@@ -21,17 +21,23 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[一顆的安適感] 超級小溪 (耐力)",
-        "[歡迎來到特雷森學園！] 駿川手綱 (友人)"
+        "[正值盛開的櫻花] 櫻花千代王 (耐力)"
     ],
-    "pickUpSR": [],
-    "pickUpR": [],
+    "pickUpSR": [
+        "[世界的珍珠，其名為] 採珠 (毅力)"
+    ],
+    "pickUpR": [
+        "[特雷森學園] 櫻花千代王",
+        "[特雷森學園] 採珠"
+    ],
     "pickUpStar3": [
-        "【絕對純粹☆LOVE】醒目飛鷹"
+        "【Maverick】成田白仁"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[一顆的安適感] 超級小溪 (耐力)",
+        "[歡迎來到特雷森學園！] 駿川手綱 (友人)",
         "[令我靜靜燃燒努力的事物] 八重無敵 (力量)",
         "[超越那個背影] 里見光鑽 (耐力)",
         "[被逼近的熱情推著] 北部玄駒 (速度)",
@@ -147,6 +153,7 @@
         "[特雷森學園] 北部玄駒"
     ],
     "noPickUpStar3": [
+        "【絕對純粹☆LOVE】醒目飛鷹",
         "【Nevertheless】成田大進",
         "【閃光少女】真機伶",
         "【特別夢想家】特別週",

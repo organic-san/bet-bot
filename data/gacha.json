@@ -1,9 +1,9 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0,
+    "pickUpRPercent": 0.09493670886,
     "pickUpRNormalPercent": 0.04746835443,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
@@ -21,17 +21,23 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[これが私のウマドル道☆] スマートファルコン (パワー)",
-        "[輝く景色の、その先に] サイレンススズカ (スピード)"
+        "[嗚呼華麗ナル一族] ダイイチルビー"
     ],
-    "pickUpSR": [],
-    "pickUpR": [],
+    "pickUpSR": [
+        "[The 3rd MIRACLE] ケイエスミラクル"
+    ],
+    "pickUpR": [
+        "[トレセン学園] ダイイチルビー",
+        "[トレセン学園] ケイエスミラクル"
+    ],
     "pickUpStar3": [
-        "【めんこいめんこいむつのはな】ユキノビジン"
+        "【Rocket☆Star】シーキングザパール"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[これが私のウマドル道☆] スマートファルコン (パワー)",
+        "[輝く景色の、その先に] サイレンススズカ (スピード)",
         "[テイオー・オー・オー！！！] トウカイテイオー (賢さ)",
         "[TT Ignition!] ツインターボ (根性)",
         "[from the GROUND UP] ライトハロー (友人)",
@@ -238,6 +244,7 @@
         "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
+        "【めんこいめんこいむつのはな】ユキノビジン",
         "【Dream Deliverer】ウイニングチケット (スチームパンク)",
         "【ディファレンス・エンジニア】ナリタタイシン (スチームパンク)",
         "【スペシャルドリーマー】スペシャルウィーク",
