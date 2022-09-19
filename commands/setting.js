@@ -172,6 +172,11 @@ module.exports = {
                     }
                     let c = 0;
                     total.forEach((v, k) => {
+                        if(c % 20 === 1) {
+                            nameStr[Math.floor(c/20)] = [];
+                            coinStr[Math.floor(c/20)] = [];
+                            getStr[Math.floor(c/20)] = [];
+                        }
                         nameStr[Math.floor(c/20)].push('<@' + k + '>');
                         coinStr[Math.floor(c/20)].push(v[0] + ' coin(s)');
                         getStr[Math.floor(c/20)].push(Math.floor(v[1]) + ' coin(s)');
