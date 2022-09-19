@@ -172,7 +172,7 @@ module.exports = {
                     }
                     let c = 0;
                     total.forEach((v, k) => {
-                        if(c % 20 === 1) {
+                        if(c % 20 === 0) {
                             nameStr[Math.floor(c/20)] = [];
                             coinStr[Math.floor(c/20)] = [];
                             getStr[Math.floor(c/20)] = [];
