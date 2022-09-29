@@ -1,9 +1,9 @@
 {
-    "pickUpSSRPercent": 0.25,
+    "pickUpSSRPercent": 0.5,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0.125,
+    "pickUpSRPercent": 0,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0.09493670886,
+    "pickUpRPercent": 0,
     "pickUpRNormalPercent": 0.04746835443,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
@@ -11,7 +11,7 @@
     "roll10SSRPercent": 0.03,
     "roll10SRPercent": 0.97,
     "roll10RPercent": 0,
-    "pickUpStar3Percent": 0.25,
+    "pickUpStar3Percent": 0.5,
     "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "star3Percent": 0.03,
@@ -21,21 +21,23 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[嗚呼華麗ナル一族] ダイイチルビー"
+        "[月下の悪魔ちゃん♪]メジロパーマー (スタミナ)",
+        "[お日さま天使ちゃん♪]ダイタクヘリオス (スピード)"
     ],
     "pickUpSR": [
-        "[The 3rd MIRACLE] ケイエスミラクル"
+        
     ],
     "pickUpR": [
-        "[トレセン学園] ダイイチルビー",
-        "[トレセン学園] ケイエスミラクル"
+        
     ],
     "pickUpStar3": [
-        "【Rocket☆Star】シーキングザパール"
+        "【愛麗♡キョンシー】アグネスデジタル",
+        "【Dot-o'-Lantern】メイショウドトウ"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[嗚呼華麗ナル一族] ダイイチルビー",
         "[これが私のウマドル道☆] スマートファルコン (パワー)",
         "[輝く景色の、その先に] サイレンススズカ (スピード)",
         "[テイオー・オー・オー！！！] トウカイテイオー (賢さ)",
@@ -115,6 +117,7 @@
         "[心と足元は温かく] イクノディクタス (根性)"
     ],
     "noPickUpSR": [
+        "[The 3rd MIRACLE] ケイエスミラクル",
         "[ゆるっと、まにまに] セイウンスカイ (賢さ)",
         "[泥まみれのコンパネーロ] エルコンドルパサー (スピード)",
         "[GRMAラーメン♪] ファインモーション (パワー)",
@@ -163,6 +166,8 @@
         "[／／／WARNING GATE／／／] シンコウウインディ (スピード)"
     ],
     "noPickUpR": [
+        "[トレセン学園] ダイイチルビー",
+        "[トレセン学園] ケイエスミラクル",
         "[トレセン学園] ツルマルツヨシ",
         "[トレセン学園] ゴールドシップ",
         "[トレセン学園] サクラチヨノオー",
@@ -244,6 +249,7 @@
         "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
+        "【Rocket☆Star】シーキングザパール",
         "【めんこいめんこいむつのはな】ユキノビジン",
         "【Dream Deliverer】ウイニングチケット (スチームパンク)",
         "【ディファレンス・エンジニア】ナリタタイシン (スチームパンク)",
