@@ -1,19 +1,20 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0,
+    "pickUpRPercent": 0.09493670886,
     "pickUpRNormalPercent": 0.04746835443,
+    "pickUpRNormalPercent2": 0.09493670886,
+    "pickUpStar3Percent": 0.25,
+    "pickUpStar3NormalPercent": 0.25,
+    "pickUpStar2Percent": 0,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
     "RPercent": 0.79,
     "roll10SSRPercent": 0.03,
     "roll10SRPercent": 0.97,
     "roll10RPercent": 0,
-    "pickUpStar3Percent": 0.25,
-    "pickUpStar3NormalPercent": 0.25,
-    "pickUpStar2Percent": 0,
     "star3Percent": 0.03,
     "star2Percent": 0.18,
     "star1Percent": 0.79,
@@ -21,24 +22,26 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[感謝を指先まで込めて] ファインモーション (賢さ)",
-        "[おセンチ注意報♪] マルゼンスキー (スピード)"
+        "[A Win Foreshadowed] シンボリクリスエス (スタミナ)"
     ],
     "pickUpSR": [
-        
+        "[『フレフレ、ツヨシ！』] ツルマルツヨシ (根性)"
     ],
     "pickUpR": [
-        
+        "[トレセン学園] シンボリクリスエス",
+        "[トレセン学園] タニノギムレット"
     ],
     "pickUpStar3": [
-        "【Flare】アストンマーチャン"
+        "【Fluttertail Spirit】ヤマニンゼファー"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[感謝を指先まで込めて] ファインモーション (賢さ)",
+        "[おセンチ注意報♪] マルゼンスキー (スピード)",
         "[月下の悪魔ちゃん♪]メジロパーマー (スタミナ)",
         "[お日さま天使ちゃん♪]ダイタクヘリオス (スピード)",
-        "[嗚呼華麗ナル一族] ダイイチルビー",
+        "[嗚呼華麗ナル一族] ダイイチルビー (パワー)",
         "[これが私のウマドル道☆] スマートファルコン (パワー)",
         "[輝く景色の、その先に] サイレンススズカ (スピード)",
         "[テイオー・オー・オー！！！] トウカイテイオー (賢さ)",
@@ -116,7 +119,7 @@
         "[心と足元は温かく] イクノディクタス (根性)"
     ],
     "noPickUpSR": [
-        "[The 3rd MIRACLE] ケイエスミラクル",
+        "[The 3rd MIRACLE] ケイエスミラクル (根性)",
         "[ゆるっと、まにまに] セイウンスカイ (賢さ)",
         "[泥まみれのコンパネーロ] エルコンドルパサー (スピード)",
         "[GRMAラーメン♪] ファインモーション (パワー)",
@@ -248,7 +251,7 @@
         "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
-        
+        "【Flare】アストンマーチャン",
         "【愛麗♡キョンシー】アグネスデジタル",
         "【Dot-o'-Lantern】メイショウドトウ",
         "【Rocket☆Star】シーキングザパール",
