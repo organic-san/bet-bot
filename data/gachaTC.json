@@ -1,19 +1,19 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0,
+    "pickUpRPercent": 0.09493670886,
     "pickUpRNormalPercent": 0.04746835443,
+    "pickUpStar3Percent": 0.25,
+    "pickUpStar3NormalPercent": 0.25,
+    "pickUpStar2Percent": 0,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
     "RPercent": 0.79,
     "roll10SSRPercent": 0.03,
     "roll10SRPercent": 0.97,
     "roll10RPercent": 0,
-    "pickUpStar3Percent": 0.25,
-    "pickUpStar3NormalPercent": 0.25,
-    "pickUpStar2Percent": 0,
     "star3Percent": 0.03,
     "star2Percent": 0.18,
     "star1Percent": 0.79,
@@ -21,21 +21,23 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[朝向輝煌景色的前方] 無聲鈴鹿 (速度)",
-        "[劈開天際的閃電娘！] 玉藻十字 (耐力)"
+        "[Head-on fight！] 青竹回憶 (力量)"
     ],
     "pickUpSR": [
-        
+        "【///WARNING GATE///】新光風 (速度)"
     ],
     "pickUpR": [
-        
+        "【特雷森學園】新光風",
+        "【特雷森學園】青竹回憶"
     ],
     "pickUpStar3": [
-        "【青雲釣術】青雲天空"
+        "【亞馬遜青金石】菱亞馬遜"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[朝向輝煌景色的前方] 無聲鈴鹿 (速度)",
+        "[劈開天際的閃電娘！] 玉藻十字 (耐力)",
         "[身為新娘！！] 川上公主 (速度)",
         "[敬請享用第一口！] 菱曙 (毅力)",
         "[正值盛開的櫻花] 櫻花千代王 (耐力)",
@@ -157,6 +159,7 @@
         "[特雷森學園] 北部玄駒"
     ],
     "noPickUpStar3": [
+        "【青雲釣術】青雲天空",
         "【陽光捧花】重砲",
         "【榮譽橡木冠】氣槽",
         "【Maverick】成田白仁",
