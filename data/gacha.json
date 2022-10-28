@@ -1,12 +1,12 @@
 {
-    "pickUpSSRPercent": 0.25,
+    "pickUpSSRPercent": 0.5,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0.125,
+    "pickUpSRPercent": 0,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0.09493670886,
+    "pickUpRPercent": 0,
     "pickUpRNormalPercent": 0.04746835443,
     "pickUpRNormalPercent2": 0.09493670886,
-    "pickUpStar3Percent": 0.25,
+    "pickUpStar3Percent": 0.5,
     "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "SSRPercent": 0.03,
@@ -22,21 +22,21 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[A Win Foreshadowed] シンボリクリスエス (スタミナ)"
+        "[駆けよ、駆けよ、駆けよ！！] オグリキャップ",
+        "[天まで焦がせ祈りの火] ヤエノムテキ"
     ],
     "pickUpSR": [
-        "[『フレフレ、ツヨシ！』] ツルマルツヨシ (根性)"
     ],
     "pickUpR": [
-        "[トレセン学園] シンボリクリスエス",
-        "[トレセン学園] タニノギムレット"
     ],
     "pickUpStar3": [
-        "【Fluttertail Spirit】ヤマニンゼファー"
+        "【猛ル鳴神】タマモクロス",
+        "【夢ノ金原】イナリワン"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[A Win Foreshadowed] シンボリクリスエス (スタミナ)",
         "[感謝を指先まで込めて] ファインモーション (賢さ)",
         "[おセンチ注意報♪] マルゼンスキー (スピード)",
         "[月下の悪魔ちゃん♪]メジロパーマー (スタミナ)",
@@ -119,6 +119,7 @@
         "[心と足元は温かく] イクノディクタス (根性)"
     ],
     "noPickUpSR": [
+        "[『フレフレ、ツヨシ！』] ツルマルツヨシ (根性)",
         "[The 3rd MIRACLE] ケイエスミラクル (根性)",
         "[ゆるっと、まにまに] セイウンスカイ (賢さ)",
         "[泥まみれのコンパネーロ] エルコンドルパサー (スピード)",
@@ -168,6 +169,8 @@
         "[／／／WARNING GATE／／／] シンコウウインディ (スピード)"
     ],
     "noPickUpR": [
+        "[トレセン学園] シンボリクリスエス",
+        "[トレセン学園] タニノギムレット",
         "[トレセン学園] ダイイチルビー",
         "[トレセン学園] ケイエスミラクル",
         "[トレセン学園] ツルマルツヨシ",
@@ -251,6 +254,7 @@
         "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
+        "【Fluttertail Spirit】ヤマニンゼファー",
         "【Flare】アストンマーチャン",
         "【愛麗♡キョンシー】アグネスデジタル",
         "【Dot-o'-Lantern】メイショウドトウ",
