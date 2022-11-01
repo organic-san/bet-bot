@@ -1,11 +1,11 @@
 {
-    "pickUpSSRPercent": 0.25,
+    "pickUpSSRPercent": 0.5,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0.125,
+    "pickUpSRPercent": 0,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0.09493670886,
+    "pickUpRPercent": 0,
     "pickUpRNormalPercent": 0.04746835443,
-    "pickUpStar3Percent": 0.25,
+    "pickUpStar3Percent": 0.5,
     "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "SSRPercent": 0.03,
@@ -21,21 +21,21 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[Head-on fight！] 青竹回憶 (力量)"
+        "[看來明天全國將染成一片鮮紅♪] 青雲天空 (智力)",
+        "[今晚隨華爾滋起舞] 帝王光輝 (力量)"
     ],
     "pickUpSR": [
-        "【///WARNING GATE///】新光風 (速度)"
     ],
     "pickUpR": [
-        "【特雷森學園】新光風",
-        "【特雷森學園】青竹回憶"
     ],
     "pickUpStar3": [
-        "【亞馬遜青金石】菱亞馬遜"
+        "【羽蛇神武鬥家】神鷹",
+        "【神聖翡翠治癒師】草上飛"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[Head-on fight！] 青竹回憶 (力量)",
         "[朝向輝煌景色的前方] 無聲鈴鹿 (速度)",
         "[劈開天際的閃電娘！] 玉藻十字 (耐力)",
         "[身為新娘！！] 川上公主 (速度)",
@@ -68,6 +68,7 @@
         "[站上日本第一的舞台] 特別週 (毅力)"
     ],
     "noPickUpSR": [
+        "[///WARNING GATE///] 新光風 (速度)",
         "[世界的珍珠，其名為] 採珠 (毅力)",
         "[我推薦這幾本書！] 荒漠英雄 (耐力)",
         "[熱身運動不可以偷懶] 生野狄杜斯 (智力)",
@@ -97,6 +98,8 @@
     ],
     "noPickUpR": [
         "[特雷森學園] 櫻花千代王",
+        "[特雷森學園] 新光風",
+        "[特雷森學園] 青竹回憶",
         "[特雷森學園] 採珠",
         "[特雷森學園] 八重無敵",
         "[特雷森學園] 荒漠英雄",
@@ -159,6 +162,7 @@
         "[特雷森學園] 北部玄駒"
     ],
     "noPickUpStar3": [
+        "【亞馬遜青金石】菱亞馬遜",
         "【青雲釣術】青雲天空",
         "【陽光捧花】重砲",
         "【榮譽橡木冠】氣槽",
