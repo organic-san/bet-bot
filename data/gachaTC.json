@@ -1,11 +1,11 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0,
+    "pickUpRPercent": 0.04746835443,
     "pickUpRNormalPercent": 0.04746835443,
-    "pickUpStar3Percent": 0.5,
+    "pickUpStar3Percent": 0.25,
     "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "SSRPercent": 0.03,
@@ -21,20 +21,22 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[看來明天全國將染成一片鮮紅♪] 青雲天空 (智力)",
-        "[今晚隨華爾滋起舞] 帝王光輝 (力量)"
+        "[痛快！決勝球！] 目白雷恩 (毅力)"
     ],
     "pickUpSR": [
+        "[她心裡的暴風] 目白阿爾丹 (智力)"
     ],
     "pickUpR": [
+        "[特雷森學園] 目白阿爾丹"
     ],
     "pickUpStar3": [
-        "【羽蛇神武鬥家】神鷹",
-        "【神聖翡翠治癒師】草上飛"
+        "【流星歌舞劇】富士奇石"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[看來明天全國將染成一片鮮紅♪] 青雲天空 (智力)",
+        "[今晚隨華爾滋起舞] 帝王光輝 (力量)",
         "[Head-on fight！] 青竹回憶 (力量)",
         "[朝向輝煌景色的前方] 無聲鈴鹿 (速度)",
         "[劈開天際的閃電娘！] 玉藻十字 (耐力)",
@@ -162,6 +164,8 @@
         "[特雷森學園] 北部玄駒"
     ],
     "noPickUpStar3": [
+        "【羽蛇神武鬥家】神鷹",
+        "【神聖翡翠治癒師】草上飛",
         "【亞馬遜青金石】菱亞馬遜",
         "【青雲釣術】青雲天空",
         "【陽光捧花】重砲",
