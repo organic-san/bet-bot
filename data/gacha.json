@@ -1,7 +1,7 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
     "pickUpRPercent": 0,
     "pickUpRNormalPercent": 0.04746835443,
@@ -22,19 +22,21 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[一粒の安らぎ] スーパークリーク (スタミナ)",
-        "[Dear Mr. C.B.] ミスターシービー (賢さ)"
+        "[Danke schön] エイシンフラッシュ"
     ],
     "pickUpSR": [
+        " [ストップ、委員長！] ナリタトップロード"
     ],
     "pickUpR": [
     ],
     "pickUpStar3": [
-        "【死中求活】ナカヤマフェスタ"
+        "【Butterfly Sting】ワンダーアキュート"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[一粒の安らぎ] スーパークリーク (スタミナ)",
+        "[Dear Mr. C.B.] ミスターシービー (賢さ)",
         "[駆けよ、駆けよ、駆けよ！！] オグリキャップ (賢さ)",
         "[天まで焦がせ祈りの火] ヤエノムテキ (根性)",
         "[A Win Foreshadowed] シンボリクリスエス (スタミナ)",
@@ -253,6 +255,7 @@
         "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
+        "【死中求活】ナカヤマフェスタ",
         "【猛ル鳴神】タマモクロス",
         "【夢ノ金原】イナリワン",
         "【Fluttertail Spirit】ヤマニンゼファー",
