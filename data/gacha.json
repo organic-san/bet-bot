@@ -1,12 +1,12 @@
 {
-    "pickUpSSRPercent": 0.25,
+    "pickUpSSRPercent": 0.5,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0.125,
+    "pickUpSRPercent": 0,
     "pickUpSRNormalPercent": 0.125,
     "pickUpRPercent": 0,
     "pickUpRNormalPercent": 0.04746835443,
     "pickUpRNormalPercent2": 0.09493670886,
-    "pickUpStar3Percent": 0.25,
+    "pickUpStar3Percent": 0.5,
     "pickUpStar3NormalPercent": 0.25,
     "pickUpStar2Percent": 0,
     "SSRPercent": 0.03,
@@ -22,19 +22,22 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[Danke schön] エイシンフラッシュ"
+        "[GLAD TIDINGS] ナリタブライアン (パワー)",
+        "[Are you merry?] エアグルーヴ (賢さ)"
     ],
     "pickUpSR": [
-        " [ストップ、委員長！] ナリタトップロード"
     ],
     "pickUpR": [
+        "[トレセン学園] サクラローレル"
     ],
     "pickUpStar3": [
-        "【Butterfly Sting】ワンダーアキュート"
+        "【不凍のアクア・ウィタエ】ウオッカ",
+        "【緋色のニュイ・エトワレ】ダイワスカーレット"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[Danke schön] エイシンフラッシュ (スピード)",
         "[一粒の安らぎ] スーパークリーク (スタミナ)",
         "[Dear Mr. C.B.] ミスターシービー (賢さ)",
         "[駆けよ、駆けよ、駆けよ！！] オグリキャップ (賢さ)",
@@ -120,6 +123,7 @@
         "[心と足元は温かく] イクノディクタス (根性)"
     ],
     "noPickUpSR": [
+        " [ストップ、委員長！] ナリタトップロード",
         "[『フレフレ、ツヨシ！』] ツルマルツヨシ (根性)",
         "[The 3rd MIRACLE] ケイエスミラクル (根性)",
         "[ゆるっと、まにまに] セイウンスカイ (賢さ)",
@@ -255,6 +259,7 @@
         "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
+        "【Butterfly Sting】ワンダーアキュート",
         "【死中求活】ナカヤマフェスタ",
         "【猛ル鳴神】タマモクロス",
         "【夢ノ金原】イナリワン",
