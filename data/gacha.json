@@ -1,9 +1,9 @@
 {
-    "pickUpSSRPercent": 0.5,
+    "pickUpSSRPercent": 0.25,
     "pickUpSSRNormalPercent": 0.25,
-    "pickUpSRPercent": 0,
+    "pickUpSRPercent": 0.125,
     "pickUpSRNormalPercent": 0.125,
-    "pickUpRPercent": 0,
+    "pickUpRPercent": 0.04746835443,
     "pickUpRNormalPercent": 0.04746835443,
     "pickUpRNormalPercent2": 0.09493670886,
     "pickUpStar3Percent": 0.25,
@@ -22,19 +22,22 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpSSR": [
-        "[from the GROUND UP] ライトハロー (友人)",
-        "[フォーメーション：PARTY] マヤノトップガン (スピード)"
+        "[誰も知らない風へ] ヤマニンゼファー (根性)"
     ],
     "pickUpSR": [
+        "[偉大なるフォトグラフィーア] テイエムオペラオー (スタミナ)"
     ],
     "pickUpR": [
+        "[トレセン学園] ヤマニンゼファー"
     ],
     "pickUpStar3": [
-        "【Heroic Author】ゼンノロブロイ"
+        "【餓狼】ナリタブライアン"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpSSR": [
+        "[from the GROUND UP] ライトハロー (友人)",
+        "[フォーメーション：PARTY] マヤノトップガン (スピード)",
         "[GLAD TIDINGS] ナリタブライアン (パワー)",
         "[Are you merry?] エアグルーヴ (賢さ)",
         "[Danke schön] エイシンフラッシュ (スピード)",
@@ -258,6 +261,7 @@
         "[イベントプロデューサー] ライトハロー"
     ],
     "noPickUpStar3": [
+        "【Heroic Author】ゼンノロブロイ",
         "【不凍のアクア・ウィタエ】ウオッカ (クリスマス)",
         "【緋色のニュイ・エトワレ】ダイワスカーレット (クリスマス)",
         "【Butterfly Sting】ワンダーアキュート",
