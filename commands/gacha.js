@@ -76,23 +76,23 @@ module.exports = {
                 const rnd = Math.random();
                 if(rnd < (i % 10 !== 9 ? gDt.SSRPercent : gDt.roll10SSRPercent)) {
                     if(Math.random() < (gDt.PUSSR.length * gDt.pickUpSSRNormalPercent)) {
-                        result.push({link: gDt.PUSSR[Math.floor(Math.random() * gDt.PUSSR.length)], type: "PUSSR"});
+                        result.push({link: gDt.PUSSR[Math.floor(Math.random() * gDt.PUSSR.length)], type: "PUSSR", time: i});
                     } else {
-                        result.push({link: gDt.SSR[Math.floor(Math.random() * gDt.SSR.length)], type: "SSR"});
+                        result.push({link: gDt.SSR[Math.floor(Math.random() * gDt.SSR.length)], type: "SSR", time: i});
                     }
                     count ++;
                 } else if((rnd < (i % 10 !== 9 ? (gDt.SSRPercent + gDt.SRPercent) : (gDt.roll10SSRPercent + gDt.roll10SRPercent)))
                         && much <= 10) {
                     if(Math.random() < gDt.PUSR.length * gDt.pickUpSRNormalPercent) {
-                        result.push({link: gDt.PUSR[Math.floor(Math.random() * gDt.PUSR.length)], type: "PUSR"});
+                        result.push({link: gDt.PUSR[Math.floor(Math.random() * gDt.PUSR.length)], type: "PUSR", time: i});
                     } else {
-                        result.push({link: gDt.SR[Math.floor(Math.random() * gDt.SR.length)], type: "SR"});
+                        result.push({link: gDt.SR[Math.floor(Math.random() * gDt.SR.length)], type: "SR", time: i});
                     }
                 } else if(much <= 10){
                     if(Math.random() < gDt.PUR.length * gDt.pickUpRNormalPercent) {
-                        result.push({link: gDt.PUR[Math.floor(Math.random() * gDt.PUR.length)], type: "PUR"});
+                        result.push({link: gDt.PUR[Math.floor(Math.random() * gDt.PUR.length)], type: "PUR", time: i});
                     } else {
-                        result.push({link: gDt.R[Math.floor(Math.random() * gDt.R.length)], type: "R"});
+                        result.push({link: gDt.R[Math.floor(Math.random() * gDt.R.length)], type: "R", time: i});
                     }
                 }
             }
@@ -102,6 +102,7 @@ module.exports = {
             const canvasHight = Math.ceil(result.length / 5) * picHight + 46;
             const canvas = Canvas.createCanvas(pivWide * 5, canvasHight);
             const context = canvas.getContext('2d');
+            context.font = "18px Sans";
 
             const img = await Canvas.loadImage(`./pic/write.png`);
             context.drawImage(img, 0, 0, pivWide * 5, canvasHight);
@@ -109,11 +110,13 @@ module.exports = {
             for(let i = 0; i < result.length; i++){
                 const img = await Canvas.loadImage(fs.readFileSync(`./pic/${dirRute}${result[i].type}/${result[i].link}`));
                 if(img) context.drawImage(img, pivWide * (i % 5), picHight * Math.floor(i / 5), pivWide, picHight);
+                const numBlock = await Canvas.loadImage(`./pic/number.png`);
+                context.drawImage(numBlock, pivWide * (i % 5), (picHight * Math.floor(i / 5) + 162), 100 * 0.8, 56 * 0.8);
+                context.fillText((result[i].time + 1).toString().padStart(3, ' '), pivWide * (i % 5) + 24, (picHight * Math.floor(i / 5) + 192));
             }
 
-            context.font = "18px Sans";
-            context.fillText(`${version === "JP" ? "日文版pick-up轉蛋" : "繁體中文版特選轉蛋"} 支援卡池 抽取 ${much} 抽 ` + 
-                `${count > 10 ? "(抽取數大於10抽將只顯示SSR以上的結果)" : ""}\n總SSR數: ${count} 個`, 5, canvasHight -29);
+            context.fillText(`${version === "JP" ? "日文版pick-up轉蛋" : "繁體中文版特選轉蛋"} 支援卡池 抽取 ${much} 抽 結果如上` + 
+                `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為第幾抽，抽取數大於10抽將只顯示SSR以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'profile-image.png');
 
             interaction.editReply({ files: [attachment] }).catch(() => {});
