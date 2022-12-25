@@ -288,8 +288,20 @@ client.on('messageCreate', async msg =>{
         }else if(msg.content.startsWith("bet^gu")){
             gachaData.jp = fs.readFileSync(`./data/gacha.json`);
             gachaData.jp = JSON.parse(gachaData.jp);
+            gachaData.jp.SSR = fs.readdirSync('./pic/SSR').filter(file => file.endsWith('.png'));
+            gachaData.jp.SR = fs.readdirSync('./pic/SR').filter(file => file.endsWith('.png'));
+            gachaData.jp.R = fs.readdirSync('./pic/R').filter(file => file.endsWith('.png'));
+            gachaData.jp.PUSSR = fs.readdirSync('./pic/PUSSR').filter(file => file.endsWith('.png'));
+            gachaData.jp.PUSR = fs.readdirSync('./pic/PUSR').filter(file => file.endsWith('.png'));
+            gachaData.jp.PUR = fs.readdirSync('./pic/PUR').filter(file => file.endsWith('.png'));
             gachaData.tc = fs.readFileSync(`./data/gachaTC.json`);
             gachaData.tc = JSON.parse(gachaData.tc);
+            gachaData.tc.SSR = fs.readdirSync('./pic/TCSSR').filter(file => file.endsWith('.png'));
+            gachaData.tc.SR = fs.readdirSync('./pic/TCSR').filter(file => file.endsWith('.png'));
+            gachaData.tc.R = fs.readdirSync('./pic/TCR').filter(file => file.endsWith('.png'));
+            gachaData.tc.PUSSR = fs.readdirSync('./pic/TCPUSSR').filter(file => file.endsWith('.png'));
+            gachaData.tc.PUSR = fs.readdirSync('./pic/TCPUSR').filter(file => file.endsWith('.png'));
+            gachaData.tc.PUR = fs.readdirSync('./pic/TCPUR').filter(file => file.endsWith('.png'));
         }
     }
 })
