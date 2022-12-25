@@ -119,7 +119,7 @@ module.exports = {
                 context.fillText((result[i].time + 1).toString().padStart(3, ' '), pivWide * (i % 5) + 24, (picHight * Math.floor(i / 5) + 192));
             }
 
-            context.fillText(`${version === "JP" ? "日文版pick-up轉蛋" : "繁體中文版特選轉蛋"} 支援卡池 抽取 ${much} 抽 結果如上` + 
+            context.fillText(`${version === "JP" ? "日文版pick-up轉蛋" : "繁體中文版特選轉蛋"} 支援卡池 抽取 ${much} 抽結果` + 
                 `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為第幾抽，抽取數大於10抽將只顯示SSR以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
