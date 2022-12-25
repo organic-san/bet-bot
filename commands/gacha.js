@@ -116,9 +116,7 @@ module.exports = {
                 `${count > 10 ? "(抽取數大於10抽將只顯示SSR以上的結果)" : ""}\n總SSR數: ${count} 個`, 5, canvasHight -29);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'profile-image.png');
 
-            interaction.editReply({
-                files: [attachment]
-            })
+            interaction.editReply({ files: [attachment] }).catch(() => {});
 
             /*
             //舊的轉蛋生成
