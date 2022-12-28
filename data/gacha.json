@@ -2,9 +2,12 @@
     "pickUpSSRNormalPercent": 0.25,
     "pickUpSRNormalPercent": 0.125,
     "pickUpRNormalPercent": 0.04746835443,
-    "pickUpStar3Percent": 0.25,
-    "pickUpStar3NormalPercent": 0.25,
+
+    "pickUpStar3Percent": 0.5,
+
     "pickUpStar2Percent": 0,
+
+    "pickUpStar3NormalPercent": 0.25,
     "SSRPercent": 0.03,
     "SRPercent": 0.18,
     "RPercent": 0.79,
@@ -18,11 +21,13 @@
     "roll10Star2Percent": 0.97,
     "roll10Star1Percent": 0,
     "pickUpStar3": [
-        "【餓狼】ナリタブライアン"
+        "【真打・慶鶴之志】キタサンブラック (新年)",
+        "【花形・弥栄之翠】サトノダイヤモンド (新年)"
     ],
     "pickUpStar2": [],
     "pickUpStar1": [],
     "noPickUpStar3": [
+        "【餓狼】ナリタブライアン",
         "【Heroic Author】ゼンノロブロイ",
         "【不凍のアクア・ウィタエ】ウオッカ (クリスマス)",
         "【緋色のニュイ・エトワレ】ダイワスカーレット (クリスマス)",
