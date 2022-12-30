@@ -28,25 +28,44 @@ for (const file of commandFiles) {
 /**
  * @type {Map<string, guild.guildInformation>}
  */
-let guildInformation = new Map;
+const guildInformation = new Map;
 
-let gachaData = {jp: undefined, tc: undefined, jp2: undefined};
+const gachaData = {jp: undefined, tc: undefined, jp2: undefined};
+
 gachaData.jp = fs.readFileSync(`./data/gacha.json`);
 gachaData.jp = JSON.parse(gachaData.jp);
-gachaData.jp.SSR = fs.readdirSync('./pic/SSR').filter(file => file.endsWith('.png'));
-gachaData.jp.SR = fs.readdirSync('./pic/SR').filter(file => file.endsWith('.png'));
-gachaData.jp.R = fs.readdirSync('./pic/R').filter(file => file.endsWith('.png'));
-gachaData.jp.PUSSR = fs.readdirSync('./pic/PUSSR').filter(file => file.endsWith('.png'));
-gachaData.jp.PUSR = fs.readdirSync('./pic/PUSR').filter(file => file.endsWith('.png'));
-gachaData.jp.PUR = fs.readdirSync('./pic/PUR').filter(file => file.endsWith('.png'));
+
+fs.readdir('./pic/SSR', (err, files) => gachaData.jp.SSR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/SR', (err, files) => gachaData.jp.SR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/R', (err, files) => gachaData.jp.R = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/PUSSR', (err, files) => gachaData.jp.PUSSR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/PUSR', (err, files) => gachaData.jp.PUSR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/PUR', (err, files) => gachaData.jp.PUR = files.filter(file => file.endsWith('.png')));
+
+fs.readdir('./pic/star3', (err, files) => gachaData.jp.star3 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/star2', (err, files) => gachaData.jp.star2 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/star1', (err, files) => gachaData.jp.star1 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/PUstar3', (err, files) => gachaData.jp.PUstar3 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/PUstar2', (err, files) => gachaData.jp.PUstar2 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/PUstar1', (err, files) => gachaData.jp.PUstar1 = files.filter(file => file.endsWith('.png')));
+
 gachaData.tc = fs.readFileSync(`./data/gachaTC.json`);
 gachaData.tc = JSON.parse(gachaData.tc);
-gachaData.tc.SSR = fs.readdirSync('./pic/TCSSR').filter(file => file.endsWith('.png'));
-gachaData.tc.SR = fs.readdirSync('./pic/TCSR').filter(file => file.endsWith('.png'));
-gachaData.tc.R = fs.readdirSync('./pic/TCR').filter(file => file.endsWith('.png'));
-gachaData.tc.PUSSR = fs.readdirSync('./pic/TCPUSSR').filter(file => file.endsWith('.png'));
-gachaData.tc.PUSR = fs.readdirSync('./pic/TCPUSR').filter(file => file.endsWith('.png'));
-gachaData.tc.PUR = fs.readdirSync('./pic/TCPUR').filter(file => file.endsWith('.png'));
+
+fs.readdir('./pic/TCSSR', (err, files) => gachaData.tc.SSR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCSR', (err, files) => gachaData.tc.SR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCR', (err, files) => gachaData.tc.R = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCPUSSR', (err, files) => gachaData.tc.PUSSR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCPUSR', (err, files) => gachaData.tc.PUSR = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCPUR', (err, files) => gachaData.tc.PUR = files.filter(file => file.endsWith('.png')));
+
+fs.readdir('./pic/TCstar3', (err, files) => gachaData.tc.star3 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCstar2', (err, files) => gachaData.tc.star2 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCstar1', (err, files) => gachaData.tc.star1 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCPUstar3', (err, files) => gachaData.tc.PUstar3 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCPUstar2', (err, files) => gachaData.tc.PUstar2 = files.filter(file => file.endsWith('.png')));
+fs.readdir('./pic/TCPUstar1', (err, files) => gachaData.tc.PUstar1 = files.filter(file => file.endsWith('.png')));
+
 gachaData.jp2 = fs.readFileSync(`./data/gachaJP2.json`);
 gachaData.jp2 = JSON.parse(gachaData.jp2);
 
@@ -288,20 +307,37 @@ client.on('messageCreate', async msg =>{
         }else if(msg.content.startsWith("bet^gu")){
             gachaData.jp = fs.readFileSync(`./data/gacha.json`);
             gachaData.jp = JSON.parse(gachaData.jp);
-            gachaData.jp.SSR = fs.readdirSync('./pic/SSR').filter(file => file.endsWith('.png'));
-            gachaData.jp.SR = fs.readdirSync('./pic/SR').filter(file => file.endsWith('.png'));
-            gachaData.jp.R = fs.readdirSync('./pic/R').filter(file => file.endsWith('.png'));
-            gachaData.jp.PUSSR = fs.readdirSync('./pic/PUSSR').filter(file => file.endsWith('.png'));
-            gachaData.jp.PUSR = fs.readdirSync('./pic/PUSR').filter(file => file.endsWith('.png'));
-            gachaData.jp.PUR = fs.readdirSync('./pic/PUR').filter(file => file.endsWith('.png'));
+
+            fs.readdir('./pic/SSR', (err, files) => gachaData.jp.SSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/SR', (err, files) => gachaData.jp.SR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/R', (err, files) => gachaData.jp.R = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/PUSSR', (err, files) => gachaData.jp.PUSSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/PUSR', (err, files) => gachaData.jp.PUSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/PUR', (err, files) => gachaData.jp.PUR = files.filter(file => file.endsWith('.png')));
+
+            fs.readdir('./pic/star3', (err, files) => gachaData.jp.star3 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/star2', (err, files) => gachaData.jp.star2 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/star1', (err, files) => gachaData.jp.star1 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/PUstar3', (err, files) => gachaData.jp.PUstar3 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/PUstar2', (err, files) => gachaData.jp.PUstar2 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/PUstar1', (err, files) => gachaData.jp.PUstar1 = files.filter(file => file.endsWith('.png')));
+
             gachaData.tc = fs.readFileSync(`./data/gachaTC.json`);
             gachaData.tc = JSON.parse(gachaData.tc);
-            gachaData.tc.SSR = fs.readdirSync('./pic/TCSSR').filter(file => file.endsWith('.png'));
-            gachaData.tc.SR = fs.readdirSync('./pic/TCSR').filter(file => file.endsWith('.png'));
-            gachaData.tc.R = fs.readdirSync('./pic/TCR').filter(file => file.endsWith('.png'));
-            gachaData.tc.PUSSR = fs.readdirSync('./pic/TCPUSSR').filter(file => file.endsWith('.png'));
-            gachaData.tc.PUSR = fs.readdirSync('./pic/TCPUSR').filter(file => file.endsWith('.png'));
-            gachaData.tc.PUR = fs.readdirSync('./pic/TCPUR').filter(file => file.endsWith('.png'));
+
+            fs.readdir('./pic/TCSSR', (err, files) => gachaData.tc.SSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCSR', (err, files) => gachaData.tc.SR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCR', (err, files) => gachaData.tc.R = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCPUSSR', (err, files) => gachaData.tc.PUSSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCPUSR', (err, files) => gachaData.tc.PUSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCPUR', (err, files) => gachaData.tc.PUR = files.filter(file => file.endsWith('.png')));
+
+            fs.readdir('./pic/TCstar3', (err, files) => gachaData.tc.star3 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCstar2', (err, files) => gachaData.tc.star2 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCstar1', (err, files) => gachaData.tc.star1 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCPUstar3', (err, files) => gachaData.tc.PUstar3 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCPUstar2', (err, files) => gachaData.tc.PUstar2 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/TCPUstar1', (err, files) => gachaData.tc.PUstar1 = files.filter(file => file.endsWith('.png')));
         }
     }
 })
