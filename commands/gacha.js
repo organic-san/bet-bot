@@ -43,7 +43,7 @@ module.exports = {
         let count = 0;
         if(type === "umamusume") {
             let dirRute = (version === "JP" ? "" : "TC");
-            await interaction.deferReply();
+            await interaction.deferReply().catch(() => {});
             let result = [];
 
             for(let i = 0; i < much; i++) {
@@ -126,7 +126,7 @@ module.exports = {
 
         } else if(type === "support") {
             let dirRute = (version === "JP" ? "" : "TC");
-            await interaction.deferReply();
+            await interaction.deferReply().catch(() => {});
             let result = [];
 
             for(let i = 0; i < much; i++) {
