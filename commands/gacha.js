@@ -2,6 +2,11 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require('discord.js');
 const fs = require('fs');
 const Canvas = require('canvas');
+const gachaName = {
+    JP: "日文版pick-up轉蛋",
+    JP2: "日文版青春杯轉蛋",
+    TC: "繁體中文版特選轉蛋"
+}
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -10,8 +15,9 @@ module.exports = {
         .addStringOption(opt => 
             opt.setName('version')
             .setDescription('轉蛋的版本，根據版本會有不同的轉蛋範圍與pickup角色/支援卡。')
-            .addChoice('日文版pick-up轉蛋', "JP")
-            .addChoice('繁體中文版特選轉蛋', "TC")
+            .addChoice(gachaName.JP, "JP")
+            .addChoice(gachaName.JP2, "JP2")
+            .addChoice(gachaName.TC, "TC")
             .setRequired(true)
         ).addStringOption(opt => 
             opt.setName('type')
@@ -34,18 +40,19 @@ module.exports = {
         const type = interaction.options.getString('type');
         const version = interaction.options.getString('version');
         let gDt;
+
         if(version === "JP") gDt = gachaData.jp;
         else if(version === "TC") gDt = gachaData.tc;
         else if(version === "JP2") gDt = gachaData.jp2;
+
         if(much > 200) return interaction.reply("請不要輸入大於一井(200抽)的數量。").catch(() => {});
         if(much < 1) return interaction.reply("請不要輸入小於1抽的數量。").catch(() => {});
-        let result = `${type === "umamusume" ? "賽馬娘池" : "支援卡池"} 抽取 ${much} 抽 結果如下:\n`;
         let count = 0;
-        if(type === "umamusume") {
-            let dirRute = (version === "JP" ? "" : "TC");
-            await interaction.deferReply().catch(() => {});
-            let result = [];
+        let dirRute = (version + "/");
+        await interaction.deferReply().catch(() => {});
+        let result = [];
 
+        if(type === "umamusume") {
             for(let i = 0; i < much; i++) {
                 const rnd = Math.random();
                 if(rnd < (i % 10 !== 9 ? gDt.star3Percent : gDt.roll10Star3Percent)) {
@@ -118,17 +125,13 @@ module.exports = {
                 }
             }
 
-            context.fillText(`${version === "JP" ? "日文版pick-up轉蛋" : "繁體中文版特選轉蛋"} 賽馬娘轉蛋 抽取 ${much} 抽結果` + 
+            context.fillText(`${gachaName[version]} 賽馬娘轉蛋 抽取 ${much} 抽結果` + 
                 `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為第幾抽，抽取數大於10抽將只顯示★3以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
             interaction.editReply({ files: [attachment] }).catch(() => {});
 
         } else if(type === "support") {
-            let dirRute = (version === "JP" ? "" : "TC");
-            await interaction.deferReply().catch(() => {});
-            let result = [];
-
             for(let i = 0; i < much; i++) {
                 const rnd = Math.random();
                 if(rnd < (i % 10 !== 9 ? gDt.SSRPercent : gDt.roll10SSRPercent)) {
@@ -176,7 +179,7 @@ module.exports = {
                 context.fillText((result[i].time + 1).toString().padStart(3, ' '), pivWide * (i % 5) + 24, (picHight * Math.floor(i / 5) + 192));
             }
 
-            context.fillText(`${version === "JP" ? "日文版pick-up轉蛋" : "繁體中文版特選轉蛋"} 支援卡轉蛋 抽取 ${much} 抽結果` + 
+            context.fillText(`${gachaName[version]} 支援卡轉蛋 抽取 ${much} 抽結果` + 
                 `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為第幾抽，抽取數大於10抽將只顯示SSR以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
