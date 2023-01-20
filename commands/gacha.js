@@ -71,7 +71,7 @@ module.exports = {
                     }
                 } else if(much <= 10){
                     if(Math.random() < gDt.PUstar1.length * gDt.pickUpStar1NormalPercent) {
-                        result.push({link: gDt.PUstar1[Math.floor(Math.random() * gDt.PUstar1.length)], type: "PUstar1", time: i, pickup: false});
+                        result.push({link: gDt.PUstar1[Math.floor(Math.random() * gDt.PUstar1.length)], type: "PUstar1", time: i, pickup: true});
                     } else {
                         result.push({link: gDt.star1[Math.floor(Math.random() * gDt.star1.length)], type: "star1", time: i, pickup: false});
                     }
@@ -150,7 +150,7 @@ module.exports = {
                     }
                 } else if(much <= 10){
                     if(Math.random() < gDt.PUR.length * gDt.pickUpRNormalPercent) {
-                        result.push({link: gDt.PUR[Math.floor(Math.random() * gDt.PUR.length)], type: "PUR", time: i, pickup: false});
+                        result.push({link: gDt.PUR[Math.floor(Math.random() * gDt.PUR.length)], type: "PUR", time: i, pickup: true});
                     } else {
                         result.push({link: gDt.R[Math.floor(Math.random() * gDt.R.length)], type: "R", time: i, pickup: false});
                     }
