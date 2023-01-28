@@ -16,7 +16,6 @@ module.exports = {
             opt.setName('version')
             .setDescription('轉蛋的版本，根據版本會有不同的轉蛋範圍與pickup角色/支援卡。')
             .addChoice(gachaName.JP, "JP")
-            .addChoice(gachaName.JP2, "JP2")
             .addChoice(gachaName.TC, "TC")
             .setRequired(true)
         ).addStringOption(opt => 
