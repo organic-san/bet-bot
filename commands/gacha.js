@@ -142,13 +142,13 @@ module.exports = {
                     count ++;
                 } else if((rnd < (i % 10 !== 9 ? (gDt.SSRPercent + gDt.SRPercent) : (gDt.roll10SSRPercent + gDt.roll10SRPercent)))
                         && much <= 10) {
-                    if(Math.random() < gDt.PUSR.length * gDt.pickUpSRNormalPercent) {
+                    if(Math.random() < gDt.pickUpSRNormalPercent) {
                         result.push({link: gDt.PUSR[Math.floor(Math.random() * gDt.PUSR.length)], type: "PUSR", time: i, pickup: true});
                     } else {
                         result.push({link: gDt.SR[Math.floor(Math.random() * gDt.SR.length)], type: "SR", time: i, pickup: false});
                     }
                 } else if(much <= 10){
-                    if(Math.random() < gDt.PUR.length * gDt.pickUpRNormalPercent) {
+                    if(Math.random() < gDt.pickUpRNormalPercent) {
                         result.push({link: gDt.PUR[Math.floor(Math.random() * gDt.PUR.length)], type: "PUR", time: i, pickup: true});
                     } else {
                         result.push({link: gDt.R[Math.floor(Math.random() * gDt.R.length)], type: "R", time: i, pickup: false});
