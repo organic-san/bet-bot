@@ -53,19 +53,19 @@ if (fs.existsSync('./pic/JP2')) {
     gachaData.jp2 = fs.readFileSync(`./data/gacha.json`);
     gachaData.jp2 = JSON.parse(gachaData.jp2);
     
-    fs.readdir('./pic/jp2/SSR', (err, files) => gachaData.jp2.SSR = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/SR', (err, files) => gachaData.jp2.SR = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/R', (err, files) => gachaData.jp2.R = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/PUSSR', (err, files) => gachaData.jp2.PUSSR = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/PUSR', (err, files) => gachaData.jp2.PUSR = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/PUR', (err, files) => gachaData.jp2.PUR = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/SSR', (err, files) => gachaData.jp2.SSR = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/SR', (err, files) => gachaData.jp2.SR = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/R', (err, files) => gachaData.jp2.R = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/PUSSR', (err, files) => gachaData.jp2.PUSSR = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/PUSR', (err, files) => gachaData.jp2.PUSR = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/PUR', (err, files) => gachaData.jp2.PUR = files.filter(file => file.endsWith('.png')));
     
-    fs.readdir('./pic/jp2/star3', (err, files) => gachaData.jp2.star3 = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/star2', (err, files) => gachaData.jp2.star2 = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/star1', (err, files) => gachaData.jp2.star1 = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/PUstar3', (err, files) => gachaData.jp2.PUstar3 = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/PUstar2', (err, files) => gachaData.jp2.PUstar2 = files.filter(file => file.endsWith('.png')));
-    fs.readdir('./pic/jp2/PUstar1', (err, files) => gachaData.jp2.PUstar1 = files.filter(file => file.endsWith('.png')));    
+    fs.readdir('./pic/JP2/star3', (err, files) => gachaData.jp2.star3 = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/star2', (err, files) => gachaData.jp2.star2 = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/star1', (err, files) => gachaData.jp2.star1 = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/PUstar3', (err, files) => gachaData.jp2.PUstar3 = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/PUstar2', (err, files) => gachaData.jp2.PUstar2 = files.filter(file => file.endsWith('.png')));
+    fs.readdir('./pic/JP2/PUstar1', (err, files) => gachaData.jp2.PUstar1 = files.filter(file => file.endsWith('.png')));    
 }
 
 gachaData.tc = fs.readFileSync(`./data/gachaTC.json`);
@@ -84,9 +84,6 @@ fs.readdir('./pic/TC/star1', (err, files) => gachaData.tc.star1 = files.filter(f
 fs.readdir('./pic/TC/PUstar3', (err, files) => gachaData.tc.PUstar3 = files.filter(file => file.endsWith('.png')));
 fs.readdir('./pic/TC/PUstar2', (err, files) => gachaData.tc.PUstar2 = files.filter(file => file.endsWith('.png')));
 fs.readdir('./pic/TC/PUstar1', (err, files) => gachaData.tc.PUstar1 = files.filter(file => file.endsWith('.png')));
-
-gachaData.jp2 = fs.readFileSync(`./data/gachaJP2.json`);
-gachaData.jp2 = JSON.parse(gachaData.jp2);
 
 const guildDirs = fs.readdirSync('./data/guildData');
 guildDirs.forEach( file => {
@@ -340,6 +337,23 @@ client.on('messageCreate', async msg =>{
             fs.readdir('./pic/JP/PUstar3', (err, files) => gachaData.jp.PUstar3 = files.filter(file => file.endsWith('.png')));
             fs.readdir('./pic/JP/PUstar2', (err, files) => gachaData.jp.PUstar2 = files.filter(file => file.endsWith('.png')));
             fs.readdir('./pic/JP/PUstar1', (err, files) => gachaData.jp.PUstar1 = files.filter(file => file.endsWith('.png')));
+
+            gachaData.jp2 = fs.readFileSync(`./data/gacha.json`);
+            gachaData.jp2 = JSON.parse(gachaData.jp);
+
+            fs.readdir('./pic/JP2/SSR', (err, files) => gachaData.jp2.SSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/SR', (err, files) => gachaData.jp2.SR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/R', (err, files) => gachaData.jp2.R = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/PUSSR', (err, files) => gachaData.jp2.PUSSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/PUSR', (err, files) => gachaData.jp2.PUSR = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/PUR', (err, files) => gachaData.jp2.PUR = files.filter(file => file.endsWith('.png')));
+
+            fs.readdir('./pic/JP2/star3', (err, files) => gachaData.jp2.star3 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/star2', (err, files) => gachaData.jp2.star2 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/star1', (err, files) => gachaData.jp2.star1 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/PUstar3', (err, files) => gachaData.jp2.PUstar3 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/PUstar2', (err, files) => gachaData.jp2.PUstar2 = files.filter(file => file.endsWith('.png')));
+            fs.readdir('./pic/JP2/PUstar1', (err, files) => gachaData.jp2.PUstar1 = files.filter(file => file.endsWith('.png')));
 
             gachaData.tc = fs.readFileSync(`./data/gachaTC.json`);
             gachaData.tc = JSON.parse(gachaData.tc);

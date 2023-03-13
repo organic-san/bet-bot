@@ -4,7 +4,7 @@ const fs = require('fs');
 const Canvas = require('canvas');
 const gachaName = {
     JP: "日文版pick-up轉蛋",
-    JP2: "日文版青春杯轉蛋",
+    JP2: "日文版2周年紀念轉蛋",
     TC: "繁體中文版特選轉蛋"
 }
 
@@ -16,6 +16,7 @@ module.exports = {
             opt.setName('version')
             .setDescription('轉蛋的版本，根據版本會有不同的轉蛋範圍與pickup角色/支援卡。')
             .addChoice(gachaName.JP, "JP")
+            .addChoice(gachaName.JP2, "JP2")
             .addChoice(gachaName.TC, "TC")
             .setRequired(true)
         ).addStringOption(opt => 
@@ -125,7 +126,7 @@ module.exports = {
             }
 
             context.fillText(`${gachaName[version]} 賽馬娘轉蛋 抽取 ${much} 抽結果` + 
-                `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為第幾抽，抽取數大於10抽將只顯示★3以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
+                `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為抽取數，抽取數大於10抽將只顯示★3以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
             interaction.editReply({ files: [attachment] }).catch(() => {});
@@ -179,7 +180,7 @@ module.exports = {
             }
 
             context.fillText(`${gachaName[version]} 支援卡轉蛋 抽取 ${much} 抽結果` + 
-                `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為第幾抽，抽取數大於10抽將只顯示SSR以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
+                `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為抽取數，抽取數大於10抽將只顯示SSR以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
             interaction.editReply({ files: [attachment] }).catch(() => {});
