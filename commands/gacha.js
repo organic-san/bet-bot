@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require('discord.js');
 const fs = require('fs');
 const Canvas = require('canvas');
-Canvas.registerFont('font/NotoSansTC-Regular.otf', { family: 'Sans' });
+Canvas.registerFont('font/TaipeiSansTCBeta-Regular.ttf', { family: 'a', });
 
 const gachaName = {
     JP: "日文版pick-up轉蛋",
@@ -83,7 +83,7 @@ module.exports = {
             const canvasHight = Math.ceil(result.length / 5) * picHight + 50;
             const canvas = Canvas.createCanvas(pivWide * 5, canvasHight);
             const context = canvas.getContext('2d');
-            context.font = "16px Sans";
+            context.font = "18px a";
 
             const img = await Canvas.loadImage(`./pic/write.png`);
             context.drawImage(img, 0, 0, pivWide * 5, canvasHight);
@@ -163,7 +163,7 @@ module.exports = {
             const canvasHight = Math.ceil(result.length / 5) * picHight + 46;
             const canvas = Canvas.createCanvas(pivWide * 5, canvasHight);
             const context = canvas.getContext('2d');
-            context.font = "18px Sans";
+            context.font = "18px a";
 
             const img = await Canvas.loadImage(`./pic/write.png`);
             context.drawImage(img, 0, 0, pivWide * 5, canvasHight);
