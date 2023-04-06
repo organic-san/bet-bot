@@ -2,6 +2,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require('discord.js');
 const fs = require('fs');
 const Canvas = require('canvas');
+Canvas.registerFont('font/NotoSansTC-Regular.otf', { family: 'Sans' });
+
 const gachaName = {
     JP: "日文版pick-up轉蛋",
     JP2: "日文版2周年紀念轉蛋",
