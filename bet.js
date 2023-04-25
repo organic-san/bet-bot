@@ -247,8 +247,8 @@ client.on('interactionCreate', async interaction => {
 	try {
         if(command.tag === "interaction") await command.execute(interaction);
         if(command.tag === "gacha") await command.execute(interaction, gachaData);
-		if(command.tag === "guildInfo") await command.execute(interaction, guildInformation.get(interaction.guild.id));
-		//if(command.tag === "musicList") await command.execute(interaction, musicList.get(interaction.guild.id));
+		//if(command.tag === "guildInfo") await command.execute(interaction, guildInformation.get(interaction.guild.id));
+		if(command.tag === "guildInfo") await interaction.reply({ content: "本功能暫時無法使用。", ephemeral: true });
 
 	} catch (error) {
 		console.error(error);
