@@ -172,6 +172,7 @@ client.on('ready', () =>{
 
 client.on('interactionCreate', async interaction => {
     if(!isready) return;
+    if(!interaction.isApplicationCommand()) return;
 
     if(!interaction.guild && interaction.isCommand()) return interaction.reply("無法在私訊中使用斜線指令!");
     
@@ -257,6 +258,30 @@ client.on('interactionCreate', async interaction => {
         else
 		    interaction.reply({ content: '糟糕! 好像出了點錯誤!', ephemeral: true });
 	}
+});
+
+client.on('interactionCreate', async interaction => {
+    if(!isready) return;
+    if (!interaction.isButton()) return;
+    //await interaction.deferUpdate().catch(() => {});
+
+    const [commandFlag] = interaction.customId.split(':');
+    console.log("ButtonInteraction/CommandName: " + interaction.customId + ", from guild: " + interaction.guild.name);
+
+    if(commandFlag == 'gacha') {
+        const [ , version, type, much] = interaction.customId.split(':');
+        //interaction.followUp({ content: "處理中..." });
+        interaction.options = new class {
+            getInteger(T) {
+                if(T === 'much') return much;
+            }
+            getString(T) {
+                if(T === 'type') return type;
+                if(T === 'version') return version;
+            }
+        }
+        client.commands.get('gacha').execute(interaction, gachaData);
+    }
 });
 
 client.on('messageCreate', async msg =>{

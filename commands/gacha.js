@@ -37,6 +37,7 @@ module.exports = {
      * @param {Discord.CommandInteraction} interaction 
      */
 	async execute(interaction, gachaData) {
+        await interaction.deferReply().catch(() => {});
         const much = interaction.options.getInteger('much');
         const type = interaction.options.getString('type');
         const version = interaction.options.getString('version');
@@ -45,12 +46,12 @@ module.exports = {
         if(version === "JP") gDt = gachaData.jp;
         else if(version === "TC") gDt = gachaData.tc;
         else if(version === "JP2") gDt = gachaData.jp2;
+        else return interaction.editReply({ content: "抱歉，目前資料庫中不存在這個遊戲版本。" });
 
-        if(much > 200) return interaction.reply("請不要輸入大於一井(200抽)的數量。").catch(() => {});
-        if(much < 1) return interaction.reply("請不要輸入小於1抽的數量。").catch(() => {});
+        if(much > 200) return interaction.editReply("請不要輸入大於一井(200抽)的數量。").catch(() => {});
+        if(much < 1) return interaction.editReply("請不要輸入小於1抽的數量。").catch(() => {});
         let count = 0;
         let dirRute = (version + "/");
-        await interaction.deferReply().catch(() => {});
         let result = [];
 
         if(type === "umamusume") {
@@ -127,10 +128,21 @@ module.exports = {
             }
 
             context.fillText(`${gachaName[version]} 賽馬娘轉蛋 抽取 ${much} 抽結果` + 
-                `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為抽取數，抽取數大於10抽將只顯示★3以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
+                `\n總SSR數: ${count} 個 ${much > 10 ? "(抽取數大於10抽將只顯示★3以上的結果)" : ""}`, 5, canvasHight - 29);
+            context.fillText(`@gold ship#8391`, 600, canvasHight - 11);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
-            interaction.editReply({ files: [attachment] }).catch(() => {});
+            const row = new Discord.MessageActionRow()
+            .addComponents(
+                [
+                    new Discord.MessageButton()
+                        .setCustomId(`gacha:${version}:${type}:${much}`)
+                        .setLabel('再抽一次')
+                        .setStyle('PRIMARY'),
+                ]
+            );
+
+            interaction.editReply({ content: `${interaction.user}`, files: [attachment], components: [row] }).catch(() => {});
 
         } else if(type === "support") {
             for(let i = 0; i < much; i++) {
@@ -181,10 +193,23 @@ module.exports = {
             }
 
             context.fillText(`${gachaName[version]} 支援卡轉蛋 抽取 ${much} 抽結果` + 
-                `\n總SSR數: ${count} 個 ${much > 10 ? "(左下角數字為抽取數，抽取數大於10抽將只顯示SSR以上的結果)" : "(左下角數字為第幾抽)"}`, 5, canvasHight - 29);
+                `\n總SSR數: ${count} 個 ${much > 10 ? "(抽取數大於10抽將只顯示SSR以上的結果)" : ""}`, 5, canvasHight - 29);
+            context.fillText(`@gold ship#8391`, 600, canvasHight - 11);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
-            interaction.editReply({ files: [attachment] }).catch(() => {});
+            const row = new Discord.MessageActionRow()
+            .addComponents(
+                [
+                    new Discord.MessageButton()
+                        .setCustomId(`gacha:${version}:${type}:${much}`)
+                        .setLabel('再抽一次')
+                        .setStyle('PRIMARY'),
+                ]
+            );
+
+            interaction.editReply({ content: `${interaction.user}`, files: [attachment], components: [row] }).catch(() => {});
+        } else {
+            return interaction.editReply({ content: "抱歉，目前資料庫中不存在這個轉蛋種類。" });
         }
 	},
 };
