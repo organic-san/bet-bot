@@ -129,7 +129,7 @@ module.exports = {
 
             context.fillText(`${gachaName[version]} 賽馬娘轉蛋 抽取 ${much} 抽結果` + 
                 `\n總SSR數: ${count} 個 ${much > 10 ? "(抽取數大於10抽將只顯示★3以上的結果)" : ""}`, 5, canvasHight - 29);
-            context.fillText(`@gold ship#8391`, 600, canvasHight - 11);
+            context.fillText(`@${interaction.client.user.tag}`, 600, canvasHight - 11);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
             const row = new Discord.MessageActionRow()
@@ -194,7 +194,7 @@ module.exports = {
 
             context.fillText(`${gachaName[version]} 支援卡轉蛋 抽取 ${much} 抽結果` + 
                 `\n總SSR數: ${count} 個 ${much > 10 ? "(抽取數大於10抽將只顯示SSR以上的結果)" : ""}`, 5, canvasHight - 29);
-            context.fillText(`@gold ship#8391`, 600, canvasHight - 11);
+            context.fillText(`@${interaction.client.user.tag}`, 600, canvasHight - 11);
             const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'image.png');
 
             const row = new Discord.MessageActionRow()
