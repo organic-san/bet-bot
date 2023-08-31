@@ -6,7 +6,7 @@ Canvas.registerFont('font/TaipeiSansTCBeta-Regular.ttf', { family: 'a', });
 
 const gachaName = {
     JP: "日文版pick-up轉蛋",
-    JP2: "日文版2周年紀念轉蛋",
+    JP2: "日文版2.5周年紀念轉蛋",
     TC: "繁體中文版特選轉蛋"
 }
 
@@ -19,6 +19,7 @@ module.exports = {
             .setDescription('轉蛋的版本，根據版本會有不同的轉蛋範圍與pickup角色/支援卡。')
             .addChoice(gachaName.JP, "JP")
             .addChoice(gachaName.TC, "TC")
+            .addChoice(gachaName.JP2, "JP2")
             .setRequired(true)
         ).addStringOption(opt => 
             opt.setName('type')
