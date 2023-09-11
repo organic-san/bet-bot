@@ -46,7 +46,7 @@ module.exports = {
 
         if(version === "JP") gDt = gachaData.jp;
         else if(version === "TC") gDt = gachaData.tc;
-        else if(version === "JP2") gDt = gachaData.jp2;
+        //else if(version === "JP2") gDt = gachaData.jp2;
         else return interaction.editReply({ content: "抱歉，目前資料庫中不存在這個遊戲版本。" });
 
         if(much > 200) return interaction.editReply("請不要輸入大於一井(200抽)的數量。").catch(() => {});
