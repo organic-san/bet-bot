@@ -246,14 +246,14 @@ module.exports = {
                     } else {
                         money += i.customId;
                         if(optionChoose === 'add') {
-                            money = Math.min(money, 100000);
+                            money = Math.min(money, 1000_0000);
                         } else {
                             money = Math.min(money, userData.coins);
                         }
                         
                     }
                     if(!isMoneySet) {
-                        const row = rowCreate(optionChoose === 'add' ? money >= 100000 : money >= userData.coins);
+                        const row = rowCreate(optionChoose === 'add' ? money >= 1000_0000 : money >= userData.coins);
                         i.editReply({
                             content: 
                                 `選擇的對象為: <@${userData.id}>\n` +  
