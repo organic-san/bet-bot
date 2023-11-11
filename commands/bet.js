@@ -191,15 +191,14 @@ module.exports = {
             guildInformation.betInfo.option.forEach(option => {
                 let odds1 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, 80);
                 let odds2 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, 20);
-                let odds3 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, 20);
                 embed.addField("📔 " + option.id + ". " + option.name, option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
-                    `第一名賠率: ${odds1 === 0 ? "尚無法計算賠率" : odds1} ` + 
-                    `第二名賠率: ${odds2 === 0 ? "尚無法計算賠率" : odds2} ` +
-                    `第三名賠率: ${odds3 === 0 ? "尚無法計算賠率" : odds3}`);
+                    `獨贏賠率: ${odds1 === 0 ? "尚無法計算賠率" : odds1} ` + 
+                    `位置賠率: ${odds2 === 0 ? "尚無法計算賠率" : odds2} `);
             })
-            interaction.reply({embeds: [embed]});
 
             // 臨時區域結束
+
+            interaction.reply({embeds: [embed]});
 
         } else {
             //權限
@@ -862,7 +861,7 @@ module.exports = {
                                     user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」。\n` + 
                                         `本次賭盤已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
                                         `開出的第二名選項是: ${winOption2.name}。\n` +
-                                        `本開出的第三名選項是: ${winOption3.name}。\n` +
+                                        `開出的第三名選項是: ${winOption3.name}。\n` +
                                         `您並未贏得賭盤。`).catch((err) => console.log(err))
                                 })
                             } else {
