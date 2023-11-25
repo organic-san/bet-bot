@@ -557,7 +557,7 @@ module.exports = {
             await interaction.deferReply();
             const overtimeLimit = 5 * 60;
             const titleLengthLimit = 40;
-            const descriptionLengthLimit = 750;
+            const descriptionLengthLimit = 1500;
             let filename = fs.readdirSync(`./data/guildData/${guildInformation.id}/betTemplate`);
             filename.forEach((v, i) => filename[i] = v.slice(0, v.length - 5));
             const msg = await interaction.editReply(
@@ -870,7 +870,7 @@ module.exports = {
 
             const overtimeLimit = 5 * 60;
             const titleLengthLimit = 40;
-            const descriptionLengthLimit = 750;
+            const descriptionLengthLimit = 1500;
             let mode = "";
             let removeOption = "";
             const collector = msg.createMessageComponentCollector({time: overtimeLimit * 1000 });
