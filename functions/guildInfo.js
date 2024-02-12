@@ -36,8 +36,6 @@ class GuildInformation {
         this.taxRate = obj.taxRate ?? 100;
     }
 
-    
-
     toJSON() {
         return {
             "id": this.id,
@@ -160,8 +158,10 @@ class BetGameObject {
      * @param {Number} count
      * @param {Array<BetGameResultObject>} betRecord
      * @param {Array<Array<number>>} priority
+     * @param {boolean} autoClose
+     * @param {number} autoCloseDate
      */    
-    constructor(name, id, description, option, isPlaying, count, betRecord, priority) {
+    constructor(name, id, description, option, isPlaying, count, betRecord, priority, autoClose, autoCloseDate) {
         this.isPlaying = isPlaying;
         this.count = count;
         this.id = id;
@@ -171,6 +171,8 @@ class BetGameObject {
         this.betRecord = betRecord;
         this.priority = priority;
         this.totalBet = 0;
+        this.autoClose = autoClose ?? false;
+        this.autoCloseDate = autoCloseDate ?? 0;
     }
 
     toBetGameObject(obj) {
@@ -181,6 +183,8 @@ class BetGameObject {
         this.description = obj.description ?? 'nothing';
         this.totalBet = obj.totalBet ?? 0;
         this.priority = obj.priority ?? [];
+        this.autoCloseDate = obj.autoCloseDate ?? 0;
+        this.autoClose = obj.autoClose ?? false;
         obj.option.forEach(option => {
             const newBetOpt = new BetGameOptionObject(0, 'undefined', 'nothing');
             newBetOpt.toOption(option);
@@ -211,6 +215,11 @@ class BetGameObject {
      */
     addRecord(userId, optionId, coinMuch) {
         this.betRecord.push(new BetGameResultObject(userId, coinMuch, optionId));
+    }
+
+    setAutoClose(date) {
+        this.autoClose = true;
+        this.autoCloseDate = date;
     }
 
 }

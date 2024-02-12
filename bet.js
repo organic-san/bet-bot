@@ -1,6 +1,5 @@
 const Discord = require('discord.js');
 const fs = require('fs');
-const { array } = require('zod');
 const guild = require('./functions/guildInfo.js');
 
 require('dotenv').config();
@@ -8,9 +7,10 @@ require('dotenv').config();
 const options = {
     restTimeOffset: 100,
     intents: [
-        Discord.Intents.FLAGS.GUILDS,
-        Discord.Intents.FLAGS.GUILD_MESSAGES,
-        Discord.Intents.FLAGS.DIRECT_MESSAGES
+        Discord.GatewayIntentBits.Guilds,
+        Discord.GatewayIntentBits.MessageContent,
+        Discord.GatewayIntentBits.GuildMessages,
+        Discord.GatewayIntentBits.DirectMessages,
     ],
 };
 
@@ -129,6 +129,9 @@ client.on('ready', () =>{
 
     setInterval(() => {
         guildInformation.forEach(async (val, key) => {
+            if (val.betInfo.autoClose && val.betInfo.autoCloseDate < Date.now()) {
+                val.betInfo.isPlaying = 2;
+            }
             fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val, null, '\t'),async function (err) {
                 if (err)
                     return console.log(err);
@@ -158,6 +161,8 @@ client.on('ready', () =>{
                     });
                 }
             });
+
+            
         });
         let time = new Date();
         console.log(`Saved in ${time} (auto)`);
@@ -172,7 +177,7 @@ client.on('ready', () =>{
 
 client.on('interactionCreate', async interaction => {
     if(!isready) return;
-    if(!interaction.isApplicationCommand()) return;
+    if(!interaction.isChatInputCommand()) return;
 
     if(!interaction.guild && interaction.isCommand()) return interaction.reply("無法在私訊中使用斜線指令!");
     
