@@ -8,10 +8,10 @@ module.exports = {
         .setDescription('與系統相關的設定(由管理員操控)')
         .addSubcommand(opt =>
             opt.setName('show-record')
-                .setDescription('顯示賭盤的投注紀錄')
+                .setDescription('顯示投注的投注紀錄')
         ).addSubcommand(opt =>
             opt.setName('show-result')
-                .setDescription('顯示上次賭盤的下注結果')
+                .setDescription('顯示上次投注的下注結果')
         ).addSubcommand(opt =>
             opt.setName('reset-coins')
                 .setDescription('重置所有人的coin(s)')
@@ -34,10 +34,10 @@ module.exports = {
 
         if (interaction.options.getSubcommand() === 'show-record') {
             //if(guildInformation.betInfo.isPlaying === 0) 
-            //    return interaction.reply({content: "目前並未舉行賭盤。", components:[]});
+            //    return interaction.reply({content: "目前並未舉行投注。", components:[]});
 
             if (guildInformation.betInfo.betRecord.length === 0)
-                return interaction.reply({ content: "賭盤中搜尋不到投注紀錄。", components: [] });
+                return interaction.reply({ content: "投注中搜尋不到投注紀錄。", components: [] });
 
             const row = new Discord.ActionRowBuilder()
                 .addComponents(
@@ -67,7 +67,7 @@ module.exports = {
                 for (let i = 0; i < Math.floor((guildInformation.betInfo.betRecord.length - 1) / onePpageMax) + 1; i++) {
                     const embed = new Discord.EmbedBuilder()
                         .setColor(process.env.EMBEDCOLOR)
-                        .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${playing === 1 ? "🟢投注中" : (playing === 2 ? "🔴封盤中" : "🟡已開盤")}`)
+                        .setTitle(`目前投注: ${guildInformation.betInfo.name} | ${playing === 1 ? "🟢投注中" : (playing === 2 ? "🔴封盤中" : "🟡已開盤")}`)
                         .setTimestamp()
                         .setFooter({
                             text: `${interaction.guild.name} | 第 ${i + 1} 頁`,
@@ -109,10 +109,10 @@ module.exports = {
 
         } else if (interaction.options.getSubcommand() === 'show-result') {
             if (guildInformation.betInfo.isPlaying !== 0)
-                return interaction.reply({ content: "賭盤正進行中，尚未產生結果。", components: [] });
+                return interaction.reply({ content: "投注正進行中，尚未產生結果。", components: [] });
 
             if (guildInformation.betInfo.betRecord.length === 0)
-                return interaction.reply({ content: "上次賭盤沒有下注紀錄。", components: [] });
+                return interaction.reply({ content: "上次投注沒有下注紀錄。", components: [] });
 
             const row = new Discord.ActionRowBuilder()
                 .addComponents(
@@ -183,7 +183,7 @@ module.exports = {
                     for (let i = 0; i < nameStr.length; i++) {
                         const embed = new Discord.EmbedBuilder()
                             .setColor(process.env.EMBEDCOLOR)
-                            .setTitle(`賭盤: ${guildInformation.betInfo.name} 的結果`)
+                            .setTitle(`投注: ${guildInformation.betInfo.name} 的結果`)
                             .setTimestamp()
                             .setFooter({
                                 text: `${interaction.guild.name} | 第 ${i + 1} 頁`,
@@ -214,7 +214,7 @@ module.exports = {
 
         } else if (interaction.options.getSubcommand() === 'reset-coins') {
             if (guildInformation.betInfo.isPlaying !== 0)
-                return interaction.reply({ content: "請先關閉當前賭盤再執行本操作。", components: [] });
+                return interaction.reply({ content: "請先關閉當前投注再執行本操作。", components: [] });
 
             const row = new Discord.MessageActionRow()
                 .addComponents(

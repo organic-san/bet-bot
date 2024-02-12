@@ -12,16 +12,16 @@ module.exports = {
                 .setDescription('下注')
         ).addSubcommand(opt =>
             opt.setName('info')
-                .setDescription('目前賭盤情形，查看選項、賠率等')
+                .setDescription('目前投注情形，查看選項、賠率等')
         ).addSubcommand(opt =>
             opt.setName('create')
-                .setDescription('設定賭盤(由管理員操控)')
+                .setDescription('設定投注(由管理員操控)')
         ).addSubcommand(opt =>
             opt.setName('close')
-                .setDescription('關閉賭盤(由管理員操控)')
+                .setDescription('關閉投注(由管理員操控)')
         ).addSubcommand(opt =>
             opt.setName('auto-close')
-                .setDescription('設定自動關閉賭盤的時間(由管理員操控)')
+                .setDescription('設定自動關閉投注的時間(由管理員操控)')
                 .addStringOption(opt =>
                     opt.setName('date')
                         .setDescription('設定自動封盤日期，請依以下格式輸入: yyyy/mm/dd hh:mm:ss (GMT+8時間)')
@@ -55,9 +55,9 @@ module.exports = {
 
         if (interaction.options.getSubcommand() === 'play') {
             if (guildInformation.betInfo.isPlaying === 0)
-                return interaction.reply({ content: "目前並未舉行賭盤活動，活動舉行請洽伺服器管理員。", ephemeral: true });
+                return interaction.reply({ content: "目前並未舉行投注活動，活動舉行請洽伺服器管理員。", ephemeral: true });
             if (guildInformation.betInfo.isPlaying === 2)
-                return interaction.reply({ content: "賭盤已封盤，無法再下注。", ephemeral: true });
+                return interaction.reply({ content: "投注已封盤，無法再下注。", ephemeral: true });
 
             let playRaseRowData = [];
             guildInformation.betInfo.option.forEach(option => {
@@ -174,14 +174,14 @@ module.exports = {
 
         } else if (interaction.options.getSubcommand() === 'info') {
             if (guildInformation.betInfo.isPlaying === 0)
-                return interaction.reply({ content: "目前並未舉行賭盤活動，活動舉行請洽伺服器管理員。", ephemeral: true });
+                return interaction.reply({ content: "目前並未舉行投注活動，活動舉行請洽伺服器管理員。", ephemeral: true });
 
             const embed = new Discord.EmbedBuilder()
                 .setColor(process.env.EMBEDCOLOR)
-                .setTitle(`目前賭盤: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "🟢投注中" : "🔴封盤中"}`)
+                .setTitle(`目前投注: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "🟢投注中" : "🔴封盤中"}`)
                 .setDescription(guildInformation.betInfo.description)
                 .addFields({
-                    name: `目前賭盤資訊`,
+                    name: `目前投注資訊`,
                     value: `選項數量: ${guildInformation.betInfo.option.length}\n` + 
                         `總累計賭金:  ${guildInformation.betInfo.totalBet}` +
                         `${guildInformation.betInfo.autoClose ? `\n自動封盤時間: <t:${guildInformation.betInfo.autoCloseDate / 1000}:R>` : ""}`
@@ -226,7 +226,7 @@ module.exports = {
 
         if (interaction.options.getSubcommand() === 'create') {
             if (guildInformation.betInfo.isPlaying != 0)
-                return interaction.reply({ content: "目前已有其他賭盤進行中，請先關閉其他賭盤再建立新賭盤。", ephemeral: true });
+                return interaction.reply({ content: "目前已有其他投注進行中，請先關閉其他投注再建立新投注。", ephemeral: true });
 
             let defaultRaceData = [];
             let defaultRaseRowData = [];
@@ -342,17 +342,17 @@ module.exports = {
                                 [
                                     new Discord.ButtonBuilder()
                                         .setCustomId('promise')
-                                        .setLabel('確認開啟賭盤')
+                                        .setLabel('確認開啟投注')
                                         .setStyle(Discord.ButtonStyle.Primary),
                                 ]
                             );
-                        i.editReply({ content: "此為模板預覽，確認後請點擊下方按鈕以開啟賭盤。", embeds: [embed], components: [row] })
+                        i.editReply({ content: "此為模板預覽，確認後請點擊下方按鈕以開啟投注。", embeds: [embed], components: [row] })
 
                     } else {
                         if (guildInformation.betInfo.isPlaying !== 0) {
                             collector.stop('set');
                             return i.editReply({
-                                content: `已經有其他賭盤正在執行，無法開啟賭盤。`,
+                                content: `已經有其他投注正在執行，無法開啟投注。`,
                                 embeds: [],
                                 components: []
                             });
@@ -383,7 +383,7 @@ module.exports = {
                             defaultRaceData[chooseBetID].priority
                         )
                         i.editReply({
-                            content: `設定完成。已將賭盤設為「${defaultRaceData[chooseBetID].name}」。從現在開始所有用戶可以下注。`,
+                            content: `設定完成。已將投注設為「${defaultRaceData[chooseBetID].name}」。從現在開始所有用戶可以下注。`,
                             embeds: [],
                             components: []
                         });
@@ -411,7 +411,7 @@ module.exports = {
 
         } else if (interaction.options.getSubcommand() === 'close') {
             if (guildInformation.betInfo.isPlaying != 1)
-                return interaction.reply({ content: "找不到目前能封盤的賭盤。", ephemeral: true });
+                return interaction.reply({ content: "找不到目前能封盤的投注。", ephemeral: true });
 
             const row = new Discord.ActionRowBuilder()
                 .addComponents(
@@ -447,9 +447,9 @@ module.exports = {
 
         } else if (interaction.options.getSubcommand() === 'auto-close') {
             if (guildInformation.betInfo.isPlaying === 0)
-                return interaction.reply({ content: "找不到目前能封盤的賭盤。", ephemeral: true });
+                return interaction.reply({ content: "找不到目前能封盤的投注。", ephemeral: true });
             if (guildInformation.betInfo.isPlaying === 2)
-                return interaction.reply({ content: "賭盤已封盤，無法再設定自動封盤。", ephemeral: true });
+                return interaction.reply({ content: "投注已封盤，無法再設定自動封盤。", ephemeral: true });
 
             let date = Date.parse(interaction.options.getString('date'));
 
@@ -505,7 +505,7 @@ module.exports = {
 
         } else if (interaction.options.getSubcommand() === 'result') {
             if (guildInformation.betInfo.isPlaying != 2)
-                return interaction.reply({ content: "找不到目前能開盤的賭盤。如果要開盤，請先封盤。", ephemeral: true });
+                return interaction.reply({ content: "找不到目前能開盤的投注。如果要開盤，請先封盤。", ephemeral: true });
 
             let optionData = [];
             guildInformation.betInfo.option.forEach(option => {
@@ -516,9 +516,9 @@ module.exports = {
                 });
             })
             optionData.push({
-                label: "取消賭盤",
+                label: "取消投注",
                 value: "cancel",
-                description: `取消賭盤，並向所有投注的用戶發還他們投注的coin(s)。`
+                description: `取消投注，並向所有投注的用戶發還他們投注的coin(s)。`
             })
             const row = new Discord.ActionRowBuilder()
                 .addComponents(
@@ -546,7 +546,7 @@ module.exports = {
                                     .setStyle(Discord.ButtonStyle.Primary),
                             ]
                         );
-                    const targetData = guildInformation.betInfo.getOption(target) ?? { name: "取消賭盤", betCount: 1 };
+                    const targetData = guildInformation.betInfo.getOption(target) ?? { name: "取消投注", betCount: 1 };
                     i.update({
                         content: `目前要開盤的選項為: ${targetData.name}。\n` +
                             `${targetData.betCount === 0 ? "若開啟此選項，將沒有人會贏得投注。\n" : ""}確認選項無誤，請按下下方按鈕。`,
@@ -558,7 +558,7 @@ module.exports = {
                     if (guildInformation.betInfo.isPlaying !== 2) {
                         collector.stop('set');
                         return i.update({
-                            content: `本次賭盤已由其他人關閉。`,
+                            content: `本次投注已由其他人關閉。`,
                             embeds: [],
                             components: []
                         });
@@ -586,19 +586,19 @@ module.exports = {
                         })
                         rebackList.forEach((val, key) => {
                             interaction.client.users.fetch(key).then(user => {
-                                user.send(`**${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」已取消。\n` +
+                                user.send(`**${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」已取消。\n` +
                                     `已將您賭注的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
                             });
                         });
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
-                            content: `已取消賭盤，正在發還coin(s)。`,
+                            content: `已取消投注，正在發還coin(s)。`,
                             components: []
                         });
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
                             JSON.stringify(guildInformation.outputBetRecord(
-                                new guild.betGameOptionObject("0", "賭盤取消", "本次賭盤取消，所有coin(s)退回原投注者。"), guildInformation.taxRate
+                                new guild.betGameOptionObject("0", "投注取消", "本次投注取消，所有coin(s)退回原投注者。"), guildInformation.taxRate
                                 , guildInformation.taxRate), null, '\t'), err => { if (err) console.error(err) }
                         )
                         fs.writeFile(
@@ -660,21 +660,21 @@ module.exports = {
                         rebackList.forEach((val, key) => {
                             if (val === 0) {
                                 interaction.client.users.fetch(key).then(user => {
-                                    user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」。\n` +
-                                        `本次賭盤已開盤，開出的選項是: ${winOption.name}。\n` +
-                                        `您並未贏得賭盤。`).catch((err) => console.log(err))
+                                    user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
+                                        `本次投注已開盤，開出的選項是: ${winOption.name}。\n` +
+                                        `您並未贏得投注。`).catch((err) => console.log(err))
                                 })
                             } else {
                                 interaction.client.users.fetch(key).then(user => {
-                                    user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」中贏得投注!\n` +
-                                        `本次賭盤已開盤，開出的選項是: ${winOption.name}。\n` +
+                                    user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」中贏得投注!\n` +
+                                        `本次投注已開盤，開出的選項是: ${winOption.name}。\n` +
                                         `已將您獲得的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
                                 })
                             }
                         })
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
-                            content: `本次賭盤獲勝選項為 ${winOption.name}。已將所有coin(s)發還。`,
+                            content: `本次投注獲勝選項為 ${winOption.name}。已將所有coin(s)發還。`,
                             components: []
                         });
                         fs.writeFile(
@@ -726,7 +726,7 @@ module.exports = {
             });
         } else if (interaction.options.getSubcommand() === 'resultsp') {
             if (guildInformation.betInfo.isPlaying != 2)
-                return interaction.reply({ content: "找不到目前能開盤的賭盤。如果要開盤，請先封盤。", ephemeral: true });
+                return interaction.reply({ content: "找不到目前能開盤的投注。如果要開盤，請先封盤。", ephemeral: true });
 
             let optionData = [];
             guildInformation.betInfo.option.forEach(option => {
@@ -737,9 +737,9 @@ module.exports = {
                 });
             })
             optionData.push({
-                label: "取消賭盤",
+                label: "取消投注",
                 value: "cancel",
-                description: `取消賭盤，並向所有投注的用戶發還他們投注的coin(s)。`
+                description: `取消投注，並向所有投注的用戶發還他們投注的coin(s)。`
             })
             const row = new Discord.ActionRowBuilder()
                 .addComponents(
@@ -781,9 +781,9 @@ module.exports = {
                                         .setStyle(Discord.ButtonStyle.Primary),
                                 ]
                             );
-                        const targetData1 = guildInformation.betInfo.getOption(opt[0]) ?? { name: "取消賭盤", betCount: 1 };
-                        const targetData2 = guildInformation.betInfo.getOption(opt[1]) ?? { name: "取消賭盤", betCount: 1 };
-                        const targetData3 = guildInformation.betInfo.getOption(opt[2]) ?? { name: "取消賭盤", betCount: 1 };
+                        const targetData1 = guildInformation.betInfo.getOption(opt[0]) ?? { name: "取消投注", betCount: 1 };
+                        const targetData2 = guildInformation.betInfo.getOption(opt[1]) ?? { name: "取消投注", betCount: 1 };
+                        const targetData3 = guildInformation.betInfo.getOption(opt[2]) ?? { name: "取消投注", betCount: 1 };
                         i.update({
                             content: `目前要開盤的第一選項為: ${targetData1.name}。\n` +
                                 `目前要開盤的第二選項為: ${targetData2.name}。\n` +
@@ -802,7 +802,7 @@ module.exports = {
                     if (guildInformation.betInfo.isPlaying !== 2) {
                         collector.stop('set');
                         return i.update({
-                            content: `本次賭盤已由其他人關閉。`,
+                            content: `本次投注已由其他人關閉。`,
                             embeds: [],
                             components: []
                         });
@@ -830,19 +830,19 @@ module.exports = {
                         })
                         rebackList.forEach((val, key) => {
                             interaction.client.users.fetch(key).then(user => {
-                                user.send(`**${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」已取消。\n` +
+                                user.send(`**${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」已取消。\n` +
                                     `已將您賭注的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
                             });
                         });
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
-                            content: `已取消賭盤，正在發還coin(s)。`,
+                            content: `已取消投注，正在發還coin(s)。`,
                             components: []
                         });
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
                             JSON.stringify(guildInformation.outputBetRecord(
-                                new guild.betGameOptionObject("0", "賭盤取消", "本次賭盤取消，所有coin(s)退回原投注者。"), guildInformation.taxRate
+                                new guild.betGameOptionObject("0", "投注取消", "本次投注取消，所有coin(s)退回原投注者。"), guildInformation.taxRate
                                 , guildInformation.taxRate), null, '\t'), err => { if (err) console.error(err) }
                         )
                         fs.writeFile(
@@ -919,16 +919,16 @@ module.exports = {
                         rebackList.forEach((val, key) => {
                             if (val === 0) {
                                 interaction.client.users.fetch(key).then(user => {
-                                    user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」。\n` +
-                                        `本次賭盤已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
+                                    user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
+                                        `本次投注已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
                                         `開出的第二名選項是: ${winOption2.name}。\n` +
                                         `開出的第三名選項是: ${winOption3.name}。\n` +
-                                        `您並未贏得賭盤。`).catch((err) => console.log(err))
+                                        `您並未贏得投注。`).catch((err) => console.log(err))
                                 })
                             } else {
                                 interaction.client.users.fetch(key).then(user => {
-                                    user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的賭盤「${guildInformation.betInfo.name}」中贏得投注!\n` +
-                                        `本次賭盤已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
+                                    user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」中贏得投注!\n` +
+                                        `本次投注已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
                                         `開出的第二名選項是: ${winOption2.name}。\n` +
                                         `開出的第三名選項是: ${winOption3.name}。\n` +
                                         `已將您獲得的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
@@ -938,7 +938,7 @@ module.exports = {
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
                             content:
-                                `本次賭盤已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
+                                `本次投注已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
                                 `開出的第二名選項是: ${winOption2.name}。\n` +
                                 `開出的第三名選項是: ${winOption3.name}。\n` +
                                 `已將所有coin(s)發還。`,

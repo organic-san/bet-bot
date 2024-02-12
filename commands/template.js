@@ -8,16 +8,16 @@ module.exports = {
         .setDescription('投注的樣板設定(由管理員操控)')
         .addSubcommand(opt =>
             opt.setName('create')
-                .setDescription('建立新的賭盤模板')
+                .setDescription('建立新的投注模板')
         ).addSubcommand(opt =>
             opt.setName('show')
-                .setDescription('顯示已設定的賭盤模板')
+                .setDescription('顯示已設定的投注模板')
         ).addSubcommand(opt =>
             opt.setName('edit')
-                .setDescription('修改已設定的賭盤模板')
+                .setDescription('修改已設定的投注模板')
         ).addSubcommand(opt =>
             opt.setName('delete')
-                .setDescription('刪除已設定的賭盤模板')
+                .setDescription('刪除已設定的投注模板')
         ),
 
     tag: "guildInfo",
@@ -45,8 +45,8 @@ module.exports = {
 
             const msg = await interaction.editReply(
                 {
-                    content: "建立賭盤模板: 建立作為賭盤舉行用的賭盤模板，以進行賭盤。\n" +
-                        "建立賭盤模板時的幾項規則: \n" +
+                    content: "建立投注模板: 建立作為投注舉行用的投注模板，以進行投注。\n" +
+                        "建立投注模板時的幾項規則: \n" +
                         "1. 標題或選項不可與已設定的模板名稱或選項相同。\n" +
                         "2. 選項至多20項，至少2項。\n" +
                         `3. 名稱類上限為${titleLengthLimit}字。\n` +
@@ -78,7 +78,7 @@ module.exports = {
             const template = new guild.betTemplateObject(name, description, [], []);
 
             interaction.editReply({
-                content: "賭盤說明設定成功! 目前模板的設定如下。\n" +
+                content: "投注說明設定成功! 目前模板的設定如下。\n" +
                     `🛠️請選擇要執行的操作。`,
                 embeds: [templateEmbed(template, interaction)],
                 components: [buttomComponent(template.option.length)],
@@ -97,7 +97,7 @@ module.exports = {
 
                 if (mode === "add") {
                     interaction.editReply({
-                        content: "建立新選項: 為這個賭盤模板新增選項。\n" +
+                        content: "建立新選項: 為這個投注模板新增選項。\n" +
                             `⬇️請在這個頻道中輸入要新增的**選項名稱**(上限${titleLengthLimit}字)。`,
                         embeds: [],
                         components: [],
@@ -193,7 +193,7 @@ module.exports = {
                         embeds: [templateEmbed(template, interaction)],
                         components: [CompleteButtomComponent()],
                     });
-                    //TODO: 賭盤優先順序(建立模板)
+                    //TODO: 投注優先順序(建立模板)
 
                 } else if (mode === "checked") {
                     collector.stop("set");
@@ -254,7 +254,7 @@ module.exports = {
             let rowData = [];
             filename.forEach((opt) => {
                 rowData.push({
-                    label: "賭盤: " + opt,
+                    label: "投注: " + opt,
                     value: opt,
                 });
             });
@@ -313,7 +313,7 @@ module.exports = {
             let rowData = [];
             filename.forEach((opt) => {
                 rowData.push({
-                    label: "賭盤: " + opt,
+                    label: "投注: " + opt,
                     value: opt,
                 });
             });
@@ -368,7 +368,7 @@ module.exports = {
 
                 if (mode === "add") {
                     interaction.editReply({
-                        content: "建立新選項: 為這個賭盤模板新增選項。\n" +
+                        content: "建立新選項: 為這個投注模板新增選項。\n" +
                             `⬇️請在這個頻道中輸入要新增的**選項名稱**(上限${titleLengthLimit}字)。`,
                         embeds: [],
                         components: [],
@@ -516,7 +516,7 @@ module.exports = {
             let rowData = [];
             filename.forEach((opt) => {
                 rowData.push({
-                    label: "賭盤: " + opt,
+                    label: "投注: " + opt,
                     value: opt,
                 });
             });

@@ -5,7 +5,7 @@ const fs = require('fs');
 module.exports = {
     data: new Discord.SlashCommandBuilder()
         .setName('review')
-        .setDescription('查看過去的賭盤資訊'),
+        .setDescription('查看過去的投注資訊'),
     tag: "guildInfo",
 
     /**
@@ -83,9 +83,9 @@ module.exports = {
 function createResultEmbed(result, interaction) {
     const embed = new Discord.EmbedBuilder()
         .setColor(process.env.EMBEDCOLOR)
-        .setTitle(`第 ${result.id} 次賭盤: ${result.name}`)
+        .setTitle(`第 ${result.id} 次投注: ${result.name}`)
         .setDescription(result.description)
-        .addFields({ name: `賭盤資訊`, value: `選項數量: ${result.option.length}\n總累計賭金:  ${result.totalBet}` })
+        .addFields({ name: `投注資訊`, value: `選項數量: ${result.option.length}\n總累計賭金:  ${result.totalBet}` })
         .setTimestamp()
         .setFooter({
             text: `${interaction.guild.name}`,
