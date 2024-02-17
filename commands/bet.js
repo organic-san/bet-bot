@@ -42,7 +42,7 @@ module.exports = {
      * @param {guild.guildInformation} guildInformation
      */
     async execute(interaction, guildInformation) {
-        
+
         if (guildInformation.betInfo.autoClose && (guildInformation.betInfo.autoCloseDate < Date.now())) {
             guildInformation.betInfo.isPlaying = 2;
             fs.writeFile(
@@ -95,7 +95,7 @@ module.exports = {
                     i.editReply({
                         content:
                             `選擇的選項為: ${targetData.name}\n` +
-                            `目前持有金額為: \$${guildInformation.getUser(interaction.user.id).coins} coin(s)\n請輸入下注金額。`,
+                            `目前持有金額為: \$${guildInformation.getUser(interaction.user.id).coins} coin(s)\n請輸入下注金額(單次投注最低 $100 coins)。`,
                         components: row
                     });
                     collector.resetTimer({ time: 120 * 1000 });
@@ -116,7 +116,7 @@ module.exports = {
                             content:
                                 `選擇的選項為: ${targetData.name}\n` +
                                 `目前持有金額為: \$${guildInformation.getUser(interaction.user.id).coins} coin(s)\n` +
-                                `請輸入下注金額。\n\`\`\`\n下注金額: \$${money} coin(s)\n\`\`\``,
+                                `請輸入下注金額(單次投注最低 $100 coins)。\n\`\`\`\n下注金額: \$${money} coin(s)\n\`\`\``,
                             components: row
                         });
                     } else {
@@ -134,6 +134,14 @@ module.exports = {
                                     components: []
                                 });
                             }
+
+                            if (money < 100) {
+                                return i.editReply({
+                                    content: `需要投注至少 $100 coins 才能完成投注。`,
+                                    components: []
+                                });
+                            }
+
                             if (guildInformation.betInfo.isPlaying !== 1) {
                                 return i.editReply({
                                     content: `投注期限已過，無法再投注。`,
@@ -182,16 +190,17 @@ module.exports = {
                 .setDescription(guildInformation.betInfo.description)
                 .addFields({
                     name: `目前投注資訊`,
-                    value: `選項數量: ${guildInformation.betInfo.option.length}\n` + 
+                    value: `選項數量: ${guildInformation.betInfo.option.length}\n` +
                         `總累計賭金:  ${guildInformation.betInfo.totalBet}` +
-                        `${guildInformation.betInfo.autoClose ? `\n自動封盤時間: <t:${guildInformation.betInfo.autoCloseDate / 1000}:R>` : ""}`
+                        `${guildInformation.betInfo.autoClose ? `\n` +
+                            `自動封盤時間: <t:${guildInformation.betInfo.autoCloseDate / 1000}:R>` : ""}`
                 })
                 .setTimestamp()
                 .setFooter({
                     text: `${interaction.guild.name}`,
                     iconURL: `https://cdn.discordapp.com/icons/${interaction.guild.id}/${interaction.guild.icon}.jpg`
                 });
-                
+
             // 原本的方式
 
             // guildInformation.betInfo.option.forEach(option => {
@@ -483,13 +492,13 @@ module.exports = {
                     content: `自動封盤時間：<t:${date / 1000}:F> 設定完成。`,
                     components: []
                 })
-                
+
                 fs.writeFile(
                     `./data/guildData/${guildInformation.id}/betInfo.json`,
                     JSON.stringify(guildInformation.betInfo, null, '\t'), async function (err) {
                         if (err)
                             return console.log(err);
-                });
+                    });
 
                 collector.stop("set");
             });

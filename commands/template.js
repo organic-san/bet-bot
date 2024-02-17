@@ -150,6 +150,62 @@ module.exports = {
                     }
                     collector.resetTimer({ time: overtimeLimit * 1000 });
 
+                } else if (mode === "multiadd") {
+                    interaction.editReply({
+                        content: "請透過','符號將選項名稱與說明分開，可以同時輸入多個選項。\n" +
+                            `⬇️請在這個頻道中輸入要新增的**選項內容**(選項名稱與說明上限${titleLengthLimit}字)。`,
+                        embeds: [],
+                        components: [],
+                    })
+                    collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
+                    let collected = await interaction.channel.awaitMessages({ filter: filter, max: 1, time: overtimeLimit * 1000 });
+                    if (!msg.deletable) return collector.stop("set");
+                    let input = collected.first().content;
+                    let reason = "";
+
+                    if (!input) reason = `選項新增失敗: 名稱輸入逾時，取消新增選項。`;
+
+                    let splitedInput = input.split(',');
+
+                    if (splitedInput.length % 2 !== 0) reason = `選項新增失敗: 請一個選項對應一個說明，取消新增選項。`;
+                    if (splitedInput.length / 2 + template.option.length > 20) reason = `選項新增失敗: 選項數量超過上限，取消新增選項。`;
+
+                    let name = [];
+                    let description = [];
+
+                    splitedInput.forEach((value, index) => {
+                        if (index % 2 === 0) {
+                            if (template.isNameUsed(value)) reason = `選項新增失敗: 有選項名稱重複或已使用，取消新增選項。`;
+                            if (name.includes(value)) reason = `選項新增失敗: 有選項名稱重複或已使用，取消新增選項。`;
+                            if (value.length > titleLengthLimit) reason = `選項新增失敗: 名稱超過字數限制，取消新增選項。`;
+                            name.push(value);
+                        } else {
+                            if (value.length > descriptionLengthLimit) reason = `選項新增失敗: 說明超過字數限制，取消新增選項。`;
+                            description.push(value);
+                        }
+                    });
+
+                    if (reason) {
+                        interaction.editReply({
+                            content: `${reason}\n` +
+                                `🛠️請選擇要執行的操作。`,
+                            embeds: [templateEmbed(template, interaction)],
+                            components: [buttomComponent(template.option.length)],
+                        })
+
+                    } else {
+                        name.forEach((value, index) => {
+                            template.addOption({ name: value, description: description[index] });
+                        });
+                        interaction.editReply({
+                            content: `選項新增成功: 新增 ${name.length} 個選項。\n` +
+                                `🛠️請選擇要執行的操作。`,
+                            embeds: [templateEmbed(template, interaction)],
+                            components: [buttomComponent(template.option.length)],
+                        });
+                    }
+                    collector.resetTimer({ time: overtimeLimit * 1000 });
+
                 } else if (mode === "remove") {
                     if (!removeOption) {
                         let rowData = [];
@@ -421,6 +477,62 @@ module.exports = {
                     }
                     collector.resetTimer({ time: overtimeLimit * 1000 });
 
+                } else if (mode === "multiadd") {
+                    interaction.editReply({
+                        content: "請透過','符號將選項名稱與說明分開，可以同時輸入多個選項。\n" +
+                            `⬇️請在這個頻道中輸入要新增的**選項內容**(選項名稱與說明上限${titleLengthLimit}字)。`,
+                        embeds: [],
+                        components: [],
+                    })
+                    collector.resetTimer({ time: overtimeLimit * 1000 + 60 * 1000 });
+                    let collected = await interaction.channel.awaitMessages({ filter: filter, max: 1, time: overtimeLimit * 1000 });
+                    if (!msg.deletable) return collector.stop("set");
+                    let input = collected.first().content;
+                    let reason = "";
+
+                    if (!input) reason = `選項新增失敗: 名稱輸入逾時，取消新增選項。`;
+
+                    let splitedInput = input.split(',');
+
+                    if (splitedInput.length % 2 !== 0) reason = `選項新增失敗: 請一個選項對應一個說明，取消新增選項。`;
+                    if (splitedInput.length / 2 + template.option.length > 20) reason = `選項新增失敗: 選項數量超過上限，取消新增選項。`;
+
+                    let name = [];
+                    let description = [];
+
+                    splitedInput.forEach((value, index) => {
+                        if (index % 2 === 0) {
+                            if (template.isNameUsed(value)) reason = `選項新增失敗: 有選項名稱重複或已使用，取消新增選項。`;
+                            if (name.includes(value)) reason = `選項新增失敗: 有選項名稱重複或已使用，取消新增選項。`;
+                            if (value.length > titleLengthLimit) reason = `選項新增失敗: 名稱超過字數限制，取消新增選項。`;
+                            name.push(value);
+                        } else {
+                            if (value.length > descriptionLengthLimit) reason = `選項新增失敗: 說明超過字數限制，取消新增選項。`;
+                            description.push(value);
+                        }
+                    });
+
+                    if (reason) {
+                        interaction.editReply({
+                            content: `${reason}\n` +
+                                `🛠️請選擇要執行的操作。`,
+                            embeds: [templateEmbed(template, interaction)],
+                            components: [buttomComponent(template.option.length)],
+                        })
+
+                    } else {
+                        name.forEach((value, index) => {
+                            template.addOption({ name: value, description: description[index] });
+                        });
+                        interaction.editReply({
+                            content: `選項新增成功: 新增 ${name.length} 個選項。\n` +
+                                `🛠️請選擇要執行的操作。`,
+                            embeds: [templateEmbed(template, interaction)],
+                            components: [buttomComponent(template.option.length)],
+                        });
+                    }
+                    collector.resetTimer({ time: overtimeLimit * 1000 });
+
                 } else if (mode === "remove") {
                     if (!removeOption) {
                         let rowData = [];
@@ -635,6 +747,11 @@ function buttomComponent(length) {
                 new Discord.ButtonBuilder()
                     .setCustomId('add')
                     .setLabel('添加選項')
+                    .setStyle(Discord.ButtonStyle.Primary)
+                    .setDisabled(length > 20),
+                new Discord.ButtonBuilder()
+                    .setCustomId('multiadd')
+                    .setLabel('批次添加選項')
                     .setStyle(Discord.ButtonStyle.Primary)
                     .setDisabled(length > 20),
                 new Discord.ButtonBuilder()
