@@ -388,8 +388,7 @@ module.exports = {
                             1,
                             guildInformation.betInfo.count,
                             [],
-                            [],
-                            defaultRaceData[chooseBetID].priority
+                            []
                         )
                         i.editReply({
                             content: `設定完成。已將投注設為「${defaultRaceData[chooseBetID].name}」。從現在開始所有用戶可以下注。`,
