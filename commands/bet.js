@@ -43,7 +43,10 @@ module.exports = {
      */
     async execute(interaction, guildInformation) {
 
-        if (guildInformation.betInfo.autoClose && (guildInformation.betInfo.autoCloseDate < Date.now())) {
+        if (guildInformation.betInfo.isPlaying === 1 && 
+            guildInformation.betInfo.autoClose && 
+            (guildInformation.betInfo.autoCloseDate < Date.now())
+        ) {
             guildInformation.betInfo.isPlaying = 2;
             fs.writeFile(
                 `./data/guildData/${guildInformation.id}/betInfo.json`,
