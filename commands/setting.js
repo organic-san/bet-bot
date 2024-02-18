@@ -216,13 +216,13 @@ module.exports = {
             if (guildInformation.betInfo.isPlaying !== 0)
                 return interaction.reply({ content: "請先關閉當前投注再執行本操作。", components: [] });
 
-            const row = new Discord.MessageActionRow()
+            const row = new Discord.ActionRowBuilder()
                 .addComponents(
                     [
-                        new Discord.MessageButton()
+                        new Discord.ButtonBuilder()
                             .setCustomId('promise')
                             .setLabel('確認刪除')
-                            .setStyle('PRIMARY'),
+                            .setStyle(Discord.ButtonStyle.Primary),
                     ]
                 );
             const msg = await interaction.reply({
