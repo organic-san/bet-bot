@@ -12,6 +12,7 @@
   "dependencies": {
     "canvas": "^2.11.2",
     "discord.js": "^14.14.1",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "jszip": "^3.10.1"
   }
 }
