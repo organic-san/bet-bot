@@ -88,6 +88,7 @@ fs.readdir('./pic/TC/PUstar1', (err, files) => gachaData.tc.PUstar1 = files.filt
 const guildDirs = fs.readdirSync('./data/guildData');
 guildDirs.forEach( file => {
     try{
+        if(file.endsWith('.zip')) return;
         const fileDirs = fs.readdirSync(`./data/guildData/${file}`);
         if(!fileDirs.includes("awardBox")) 
             fs.mkdirSync(`./data/guildData/${file}/awardBox`, err => {if(err) console.error(err)});
