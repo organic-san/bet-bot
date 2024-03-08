@@ -130,7 +130,7 @@ client.on('ready', () =>{
 
     setInterval(() => {
         guildInformation.forEach(async (val, key) => {
-            if (val.betInfo.autoClose && val.betInfo.autoCloseDate < Date.now()) {
+            if (val.betInfo.isPlaying === 1 && val.betInfo.autoClose && val.betInfo.autoCloseDate < Date.now()) {
                 val.betInfo.isPlaying = 2;
             }
             fs.writeFile(`./data/guildData/${key}/basicInfo.json`, JSON.stringify(val, null, '\t'),async function (err) {
