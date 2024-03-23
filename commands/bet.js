@@ -645,10 +645,16 @@ module.exports = {
                         collector.stop('set');
 
                     } else {
+                        let putInList = new Map();
                         let rebackList = new Map();
                         const winOption = guildInformation.betInfo.getOption(target);
                         let coinGet = oddsCalc(winOption.betCount, guildInformation.betInfo.totalBet, guildInformation.taxRate);
                         guildInformation.betInfo.betRecord.forEach(element => {
+                            putInList.set(element.userId, 
+                                putInList.get(element.userId) 
+                                    ? putInList.get(element.userId) + Math.floor(element.coins) 
+                                    : Math.floor(element.coins)
+                            );
                             if (element.optionId === winOption.id) {
                                 if (userList.has(element.userId)) {
                                     userList.get(element.userId).coins += Math.floor(element.coins * coinGet);
@@ -673,13 +679,13 @@ module.exports = {
                                 interaction.client.users.fetch(key).then(user => {
                                     user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
                                         `本次投注已開盤，開出的選項是: ${winOption.name}。\n` +
-                                        `您並未贏得投注。`).catch((err) => console.log(err))
+                                        `您投注了 **${putInList.get(key)} coin(s)**，您並未贏得投注。`).catch((err) => console.log(err))
                                 })
                             } else {
                                 interaction.client.users.fetch(key).then(user => {
                                     user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」中贏得投注!\n` +
                                         `本次投注已開盤，開出的選項是: ${winOption.name}。\n` +
-                                        `已將您獲得的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
+                                        `您投注了 **${putInList.get(key)} coin(s)**，已將您獲得的 **${val} coin(s)** 發還。`).catch((err) => console.log(err))
                                 })
                             }
                         })
@@ -891,7 +897,7 @@ module.exports = {
                     } else {
 
                         // 多選項開局設定更改
-
+                        let putInList = new Map();
                         let rebackList = new Map();
                         const winOption1 = guildInformation.betInfo.getOption(opt[0]);
                         const winOption2 = guildInformation.betInfo.getOption(opt[1]);
@@ -902,6 +908,11 @@ module.exports = {
                         let coinGet3 = oddsCalc(winOption3.betCount, guildInformation.betInfo.totalBet, 20);
 
                         guildInformation.betInfo.betRecord.forEach(element => {
+                            putInList.set(element.userId, 
+                                putInList.get(element.userId) 
+                                    ? putInList.get(element.userId) + Math.floor(element.coins) 
+                                    : Math.floor(element.coins)
+                            );
                             if (element.optionId === winOption1.id || element.optionId === winOption2.id || element.optionId === winOption3.id) {
                                 let coinGet = 0;
                                 switch (element.optionId) {
@@ -934,7 +945,7 @@ module.exports = {
                                         `本次投注已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
                                         `開出的第二名選項是: ${winOption2.name}。\n` +
                                         `開出的第三名選項是: ${winOption3.name}。\n` +
-                                        `您並未贏得投注。`).catch((err) => console.log(err))
+                                        `您投注了 **${putInList.get(key)} coin(s)**，您並未贏得投注。`).catch((err) => console.log(err))
                                 })
                             } else {
                                 interaction.client.users.fetch(key).then(user => {
@@ -942,7 +953,7 @@ module.exports = {
                                         `本次投注已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
                                         `開出的第二名選項是: ${winOption2.name}。\n` +
                                         `開出的第三名選項是: ${winOption3.name}。\n` +
-                                        `已將您獲得的 ${val} coin(s) 發還。`).catch((err) => console.log(err))
+                                        `您投注了 **${putInList.get(key)} coin(s)**，已將您獲得的 **${val} coin(s)** 發還。`).catch((err) => console.log(err))
                                 })
                             }
                         })
