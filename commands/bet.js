@@ -675,19 +675,23 @@ module.exports = {
                             }
                         })
                         rebackList.forEach((val, key) => {
-                            if (val === 0) {
-                                interaction.client.users.fetch(key).then(user => {
-                                    user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
-                                        `本次投注已開盤，開出的選項是: ${winOption.name}。\n` +
-                                        `您投注了 **${putInList.get(key)} coin(s)**，您並未贏得投注。`).catch((err) => console.log(err))
-                                })
-                            } else {
-                                interaction.client.users.fetch(key).then(user => {
-                                    user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」中贏得投注!\n` +
-                                        `本次投注已開盤，開出的選項是: ${winOption.name}。\n` +
-                                        `您投注了 **${putInList.get(key)} coin(s)**，已將您獲得的 **${val} coin(s)** 發還。`).catch((err) => console.log(err))
-                                })
-                            }
+                            const rrsultText = 
+                                `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
+                                `本次投注已開盤，開出的選項如下： \n` +
+                                `\`\`\`\n` +
+                                `👑 ${winOption.name}\n` +
+                                `\`\`\`\n` +
+                                `您的投注結果如下：\n` +
+                                `\`\`\`diff\n` +
+                                `- 投注${putInList.get(key).toString().padStart(12)} coin(s)\n` +
+                                `+ 獲得${val.toString().padStart(12)} coin(s)\n` +
+                                `${'-'.repeat(26)}\n` +
+                                `  持有${(guildInformation.users.get(key).coins + val).toString().padStart(12)} coin(s)\n` +
+                                `\`\`\`\n` + 
+                                `${val === 0 ? "您並未贏得投注。" : "已將您獲得的 coin(s) 發還。"}`;
+                            interaction.client.users.fetch(key).then(user => {
+                                user.send(rrsultText).catch((err) => console.log(err))
+                            })
                         })
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
@@ -939,23 +943,23 @@ module.exports = {
                             }
                         })
                         rebackList.forEach((val, key) => {
-                            if (val === 0) {
-                                interaction.client.users.fetch(key).then(user => {
-                                    user.send(`感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
-                                        `本次投注已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
-                                        `開出的第二名選項是: ${winOption2.name}。\n` +
-                                        `開出的第三名選項是: ${winOption3.name}。\n` +
-                                        `您投注了 **${putInList.get(key)} coin(s)**，您並未贏得投注。`).catch((err) => console.log(err))
-                                })
-                            } else {
-                                interaction.client.users.fetch(key).then(user => {
-                                    user.send(`恭喜您在 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」中贏得投注!\n` +
-                                        `本次投注已開盤，開出的第一名選項是: ${winOption1.name}。\n` +
-                                        `開出的第二名選項是: ${winOption2.name}。\n` +
-                                        `開出的第三名選項是: ${winOption3.name}。\n` +
-                                        `您投注了 **${putInList.get(key)} coin(s)**，已將您獲得的 **${val} coin(s)** 發還。`).catch((err) => console.log(err))
-                                })
-                            }
+                            const rrsultText = 
+                                `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
+                                `本次投注已開盤，開出的選項如下： \n` +
+                                `\`\`\`\n` +
+                                `👑 ${winOption1.name}\n🥈 ${winOption2.name}\n🥉 ${winOption3.name}\n` +
+                                `\`\`\`\n` +
+                                `您的投注結果如下：\n` +
+                                `\`\`\`diff\n` +
+                                `- 投注${putInList.get(key).toString().padStart(12)} coin(s)\n` +
+                                `+ 獲得${val.toString().padStart(12)} coin(s)\n` +
+                                `${'-'.repeat(26)}\n` +
+                                `  持有${(guildInformation.users.get(key).coins + val).toString().padStart(12)} coin(s)\n` +
+                                `\`\`\`\n` + 
+                                `${val === 0 ? "您並未贏得投注。" : "已將您獲得的 coin(s) 發還。"}`;
+                            interaction.client.users.fetch(key).then(user => {
+                                user.send(rrsultText).catch((err) => console.log(err))
+                            })
                         })
                         guildInformation.betInfo.isPlaying = 0;
                         interaction.editReply({
