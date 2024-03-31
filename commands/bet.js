@@ -3,6 +3,8 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const user = require('./user');
 
+const threeOptBetRate = [90, 25, 25];
+
 module.exports = {
     data: new Discord.SlashCommandBuilder()
         .setName('bet')
@@ -215,8 +217,8 @@ module.exports = {
             // 臨時更動的方式
 
             guildInformation.betInfo.option.forEach(option => {
-                let odds1 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, 80);
-                let odds2 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, 20);
+                let odds1 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[0]);
+                let odds2 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[1]);
                 embed.addFields({
                     name: "📔 " + option.id + ". " + option.name,
                     value: option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
@@ -770,7 +772,7 @@ module.exports = {
                         .addOptions(optionData),
                 );
 
-            const msg = await interaction.reply({ content: "請選擇要開盤的對象1(返還80%)。", components: [row], fetchReply: true });
+            const msg = await interaction.reply({ content: "請選擇要開盤的對象1(返還"+ threeOptBetRate[0] +"%)。", components: [row], fetchReply: true });
 
             const collector = msg.createMessageComponentCollector({ time: 120 * 1000 });
             let target = "";
@@ -783,11 +785,11 @@ module.exports = {
                 if (!target) {
                     if (!opt[0]) {
                         opt.push(i.values[0]);
-                        i.update({ content: "請選擇要開盤的對象2(返還20%)。", components: [row] });
+                        i.update({ content: "請選擇要開盤的對象2(返還"+ threeOptBetRate[1] +"%)。", components: [row] });
 
                     } else if (!opt[1]) {
                         opt.push(i.values[0]);
-                        i.update({ content: "請選擇要開盤的對象3(返還20%)。", components: [row] });
+                        i.update({ content: "請選擇要開盤的對象3(返還"+ threeOptBetRate[2] +"%)。", components: [row] });
 
                     } else {
                         opt.push(i.values[0]);
@@ -907,9 +909,9 @@ module.exports = {
                         const winOption2 = guildInformation.betInfo.getOption(opt[1]);
                         const winOption3 = guildInformation.betInfo.getOption(opt[2]);
 
-                        let coinGet1 = oddsCalc(winOption1.betCount, guildInformation.betInfo.totalBet, 80);
-                        let coinGet2 = oddsCalc(winOption2.betCount, guildInformation.betInfo.totalBet, 20);
-                        let coinGet3 = oddsCalc(winOption3.betCount, guildInformation.betInfo.totalBet, 20);
+                        let coinGet1 = oddsCalc(winOption1.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[0]);
+                        let coinGet2 = oddsCalc(winOption2.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[1]);
+                        let coinGet3 = oddsCalc(winOption3.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[2]);
 
                         guildInformation.betInfo.betRecord.forEach(element => {
                             putInList.set(element.userId, 
@@ -972,7 +974,7 @@ module.exports = {
                         });
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betRecord/${guildInformation.betInfo.id}.json`,
-                            JSON.stringify(guildInformation.outputBetRecord(winOption1, 80), null, '\t'), err => { if (err) console.error(err) }
+                            JSON.stringify(guildInformation.outputBetRecord(winOption1, threeOptBetRate[0]), null, '\t'), err => { if (err) console.error(err) }
                         );
                         fs.writeFile(
                             `./data/guildData/${guildInformation.id}/betInfo.json`,
