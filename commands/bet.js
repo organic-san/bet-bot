@@ -677,6 +677,8 @@ module.exports = {
                             }
                         })
                         rebackList.forEach((val, key) => {
+                            const userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
+                                .filter(file => file.endsWith('.json') && file.startsWith(key));
                             const rrsultText = 
                                 `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
                                 `本次投注已開盤，開出的選項如下： \n` +
@@ -688,7 +690,7 @@ module.exports = {
                                 `- 投注${putInList.get(key).toString().padStart(12)} coin(s)\n` +
                                 `+ 獲得${val.toString().padStart(12)} coin(s)\n` +
                                 `${'-'.repeat(26)}\n` +
-                                `  持有${(guildInformation.users.get(key).coins + val).toString().padStart(12)} coin(s)\n` +
+                                `  持有${(userData.coins + val).toString().padStart(12)} coin(s)\n` +
                                 `\`\`\`\n` + 
                                 `${val === 0 ? "您並未贏得投注。" : "已將您獲得的 coin(s) 發還。"}`;
                             interaction.client.users.fetch(key).then(user => {
@@ -945,6 +947,8 @@ module.exports = {
                             }
                         })
                         rebackList.forEach((val, key) => {
+                            const userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
+                                .filter(file => file.endsWith('.json') && file.startsWith(key));
                             const rrsultText = 
                                 `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
                                 `本次投注已開盤，開出的選項如下： \n` +
@@ -956,7 +960,7 @@ module.exports = {
                                 `- 投注${putInList.get(key).toString().padStart(12)} coin(s)\n` +
                                 `+ 獲得${val.toString().padStart(12)} coin(s)\n` +
                                 `${'-'.repeat(26)}\n` +
-                                `  持有${(guildInformation.users.get(key).coins + val).toString().padStart(12)} coin(s)\n` +
+                                `  持有${(userData.coins + val).toString().padStart(12)} coin(s)\n` +
                                 `\`\`\`\n` + 
                                 `${val === 0 ? "您並未贏得投注。" : "已將您獲得的 coin(s) 發還。"}`;
                             interaction.client.users.fetch(key).then(user => {
