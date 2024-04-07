@@ -82,7 +82,7 @@ module.exports = {
                     { name: '累計獲得', value: userData.totalGet + " coin(s)", inline: true },
                     { name: '回收率', value: userData.totalBet > 0 ? Math.floor((userData.totalGet / userData.totalBet) * 100) + "%" : "無法計測", inline: true },
                     { name: '參與次數', value: `${userData.joinTimes}`, inline: true },
-                    { name: '平均獲得', value: userData.joinTimes > 0 ? ((userData.totalGet / userData.joinTimes)) + 'cion(s)' : "無法計測", inline: true },
+                    { name: '平均獲得', value: userData.joinTimes > 0 ? ((userData.totalGet / userData.joinTimes)) + 'coin(s)' : "無法計測", inline: true },
                 )
                 .setFooter({
                     text: `${interaction.client.user.tag} | ${interaction.client.user.id}`,

@@ -677,8 +677,12 @@ module.exports = {
                             }
                         })
                         rebackList.forEach((val, key) => {
-                            const userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
+                            const dirlist = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
                                 .filter(file => file.endsWith('.json') && file.startsWith(key));
+                            if(dirlist.length === 0) return;
+
+                            const userDataBuffer = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${key}.json`);
+                            const userData = JSON.parse(userDataBuffer);
                             const rrsultText = 
                                 `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
                                 `本次投注已開盤，開出的選項如下： \n` +
@@ -947,8 +951,12 @@ module.exports = {
                             }
                         })
                         rebackList.forEach((val, key) => {
-                            const userData = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
+                            const dirlist = fs.readdirSync(`./data/guildData/${interaction.guild.id}/users`)
                                 .filter(file => file.endsWith('.json') && file.startsWith(key));
+                            if(dirlist.length === 0) return;
+
+                            const userDataBuffer = fs.readFileSync(`./data/guildData/${interaction.guild.id}/users/${key}.json`);
+                            const userData = JSON.parse(userDataBuffer);
                             const rrsultText = 
                                 `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
                                 `本次投注已開盤，開出的選項如下： \n` +
