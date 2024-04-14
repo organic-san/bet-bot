@@ -3,7 +3,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const user = require('./user');
 
-const threeOptBetRate = [90, 25, 25];
+const threeOptBetRate = [65, 25, 25];
 
 module.exports = {
     data: new Discord.SlashCommandBuilder()
@@ -15,6 +15,15 @@ module.exports = {
         ).addSubcommand(opt =>
             opt.setName('info')
                 .setDescription('目前投注情形，查看選項、賠率等')
+                .addStringOption(opt =>
+                    opt.setName('sort-by')
+                        .setDescription('選擇排序依據')
+                        .addChoices(
+                            { name: '預設排序', value: 'opt' },
+                            { name: '賠率', value: 'odds' },
+                        )
+                        .setRequired(true)
+                )
         ).addSubcommand(opt =>
             opt.setName('create')
                 .setDescription('設定投注(由管理員操控)')
@@ -189,16 +198,19 @@ module.exports = {
             if (guildInformation.betInfo.isPlaying === 0)
                 return interaction.reply({ content: "目前並未舉行投注活動，活動舉行請洽伺服器管理員。", ephemeral: true });
 
+            let mode = interaction.options.getString('sort-by');
+
             const embed = new Discord.EmbedBuilder()
                 .setColor(process.env.EMBEDCOLOR)
                 .setTitle(`目前投注: ${guildInformation.betInfo.name} | ${guildInformation.betInfo.isPlaying === 1 ? "🟢投注中" : "🔴封盤中"}`)
                 .setDescription(guildInformation.betInfo.description)
                 .addFields({
                     name: `目前投注資訊`,
-                    value: `選項數量: ${guildInformation.betInfo.option.length}\n` +
-                        `總累計賭金:  ${guildInformation.betInfo.totalBet}` +
+                    value: `- 選項數量: ${guildInformation.betInfo.option.length}\n` +
+                        `- 總累計賭金:  ${guildInformation.betInfo.totalBet}` +
                         `${guildInformation.betInfo.autoClose ? `\n` +
-                            `自動封盤時間: <t:${guildInformation.betInfo.autoCloseDate / 1000}:R>` : ""}`
+                            `- 自動封盤時間: <t:${guildInformation.betInfo.autoCloseDate / 1000}:R>` : ""}` + 
+                        `\n- 目前賠率設定: \n - 獨贏賠率: ${threeOptBetRate[0]}% \n - 位置賠率: ${threeOptBetRate[1]}%`
                 })
                 .setTimestamp()
                 .setFooter({
@@ -216,14 +228,28 @@ module.exports = {
 
             // 臨時更動的方式
 
-            guildInformation.betInfo.option.forEach(option => {
-                let odds1 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[0]);
-                let odds2 = oddsCalc(option.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[1]);
+            const opt = JSON.parse(JSON.stringify(guildInformation.betInfo.option));
+            opt.forEach((e, i) => {
+                let odds1 = oddsCalc(e.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[0]);
+                let odds2 = oddsCalc(e.betCount, guildInformation.betInfo.totalBet, threeOptBetRate[1]);
+                e.odds1 = odds1;
+                e.odds2 = odds2;
+            })
+            
+            if(mode === 'odds') {
+                opt.sort((a, b) => {
+                    if(a.odds1 === 0) return 1;
+                    if(b.odds1 === 0) return -1;
+                    return a.odds1 - b.odds1;
+                });
+            }
+
+            opt.forEach(option => {
                 embed.addFields({
                     name: "📔 " + option.id + ". " + option.name,
                     value: option.description + `\n累計賭金: ${option.betCount} coin(s) \n` +
-                        `獨贏賠率: ${odds1 === 0 ? "尚無法計算賠率" : odds1} ` +
-                        `位置賠率: ${odds2 === 0 ? "尚無法計算賠率" : odds2} `
+                        `獨贏賠率: ${option.odds1 === 0 ? "尚無法計算賠率" : option.odds1} ` +
+                        `位置賠率: ${option.odds2 === 0 ? "尚無法計算賠率" : option.odds2} `
                 });
             })
 
