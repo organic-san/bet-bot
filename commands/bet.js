@@ -713,7 +713,7 @@ module.exports = {
                                 `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
                                 `本次投注已開盤，開出的選項如下： \n` +
                                 `\`\`\`\n` +
-                                `👑 ${winOption.name}\n` +
+                                `👑 ${winOption.name} 賠率：${coinGet} 倍\n` +
                                 `\`\`\`\n` +
                                 `您的投注結果如下：\n` +
                                 `\`\`\`diff\n` +
@@ -987,7 +987,9 @@ module.exports = {
                                 `感謝您參與 **${interaction.guild.name}** 伺服器中的投注「${guildInformation.betInfo.name}」。\n` +
                                 `本次投注已開盤，開出的選項如下： \n` +
                                 `\`\`\`\n` +
-                                `👑 ${winOption1.name}\n🥈 ${winOption2.name}\n🥉 ${winOption3.name}\n` +
+                                `👑 ${winOption1.name} 賠率：${coinGet1} 倍\n` + 
+                                `🥈 ${winOption2.name} 賠率：${coinGet2} 倍\n` + 
+                                `🥉 ${winOption3.name} 賠率：${coinGet3} 倍\n` +
                                 `\`\`\`\n` +
                                 `您的投注結果如下：\n` +
                                 `\`\`\`diff\n` +
